@@ -1,0 +1,7 @@
+Flask==3.0.0
+Werkzeug==3.0.1
+discord.py>=2.0.0
+python-dotenv==1.0.0
+hypercorn>=0.15.0
+quart>=0.19.3
+mcrcon>=0.7.0
