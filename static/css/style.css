@@ -44,7 +44,7 @@ html, body {
 
 body {
     background-color: var(--bg-dark);
-    background-image: url('../images/lovable-uploads/1f15f14a-2648-400a-a478-b636113b3b26.png');
+    background-image: url('../images/background/steve_mountain.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -902,7 +902,7 @@ footer .small {
 /* Стили для страницы О сервере */
 .about-hero {
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                url('../images/lovable-uploads/Desert Art.png');
+                url('../images/background/desert.png');
     background-size: cover;
     background-position: center;
     padding: 120px 0 60px;
@@ -1716,7 +1716,7 @@ footer .small {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/lovable-uploads/Пещера 1.png');
+    background-image: url('../images/background/cave_1.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -2152,5 +2152,37 @@ footer .small {
     
     .progress-step.active {
         background: currentColor;
+    }
+}
+
+/* Добавляем медиа-запрос для мобильных устройств */
+@media (max-width: 991px) {
+    .hero-content {
+        transform: none;
+        text-align: center;
+        padding: 40px 20px;
+        margin: 0 auto;
+    }
+
+    .hero-content::before {
+        display: none;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
     }
 }
