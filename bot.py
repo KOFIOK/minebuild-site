@@ -140,6 +140,13 @@ class ApproveButton(discord.ui.Button):
                 await interaction.response.send_message("Пользователь не найден.", ephemeral=True)
                 return
 
+            # Отправляем сообщение в лог-канал
+            log_channel = interaction.guild.get_channel(1277415977549566024)
+            if log_channel:
+                await log_channel.send(
+                    f"## Куратор <@{interaction.user.id}> одобрил [заявку]({interaction.message.jump_url})."
+                )
+
             # Получаем никнейм из заявки
             minecraft_nickname = None
             for embed in interaction.message.embeds:
