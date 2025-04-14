@@ -44,7 +44,7 @@ html, body {
 
 body {
     background-color: var(--bg-dark);
-    background-image: url('../images/background/steve_mountain.png');
+    background-image: url('../images/background/steve_mountain.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -902,7 +902,7 @@ footer .small {
 /* Стили для страницы О сервере */
 .about-hero {
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                url('../images/background/desert.png');
+                url('../images/background/desert.webp');
     background-size: cover;
     background-position: center;
     padding: 120px 0 60px;
@@ -1716,7 +1716,7 @@ footer .small {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/background/cave_1.png');
+    background-image: url('../images/background/cave_1.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
