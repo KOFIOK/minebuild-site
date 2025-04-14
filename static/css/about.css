@@ -1,0 +1,432 @@
+/* Параллакс секция */
+.parallax-hero {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0;
+}
+
+.parallax-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/lovable-uploads/ac190616-3fbb-4ad4-ad7b-bcd1ba42b9a7.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: brightness(0.4);
+    z-index: 1;
+}
+
+.parallax-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.parallax-content h1 {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    letter-spacing: 4px;
+    line-height: 1.2;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleAppear 1s ease-out forwards;
+}
+
+.parallax-content .lead {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+    line-height: 1.6;
+    animation: textAppear 1s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+/* Основная секция */
+.about-section {
+    background: var(--bg-dark);
+    position: relative;
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/lovable-uploads/Stone Art.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.about-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.about-section .feature-list {
+    margin-top: 2rem;
+}
+
+.about-section .feature-list li {
+    background: transparent;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.about-section .feature-list li:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(10px);
+}
+
+.about-section .about-image {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+.about-section .about-image:hover {
+    transform: scale(1.02);
+}
+
+/* Статистика */
+.stats-section {
+    background: var(--bg-darker);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, 
+        rgba(0, 229, 161, 0.05) 0%,
+        transparent 70%);
+}
+
+.stats-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.stats-section .stat-card {
+    background: transparent;
+    border-radius: 15px;
+    padding: 2.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.stats-section .stat-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-green);
+}
+
+.stats-section .stat-card i {
+    color: var(--accent-green);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stats-section .stat-card:hover i {
+    transform: scale(1.2);
+}
+
+.stats-section .stat-number {
+    transition: all 0.3s ease;
+}
+
+.stats-section .stat-card:hover .stat-number {
+    color: var(--accent-green);
+}
+
+/* Призыв к действию */
+.cta-section {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../images/lovable-uploads/Stone Art.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.05;
+    filter: blur(5px);
+}
+
+.cta-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.cta-section .cta-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section .cta-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+        var(--accent-green),
+        var(--accent-purple),
+        var(--accent-green));
+    background-size: 200% 100%;
+    animation: gradient 5s linear infinite;
+}
+
+/* Улучшаем медиа-запросы для страницы about */
+@media (max-width: 1200px) {
+    .parallax-content h1 {
+        font-size: 4.5rem;
+    }
+    
+    .parallax-content .lead {
+        font-size: 1.4rem;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .parallax-content h1 {
+        font-size: 3.5rem;
+    }
+    
+    .parallax-content .lead {
+        font-size: 1.2rem;
+    }
+    
+    .about-section {
+        padding: 60px 0;
+    }
+    
+    .about-section .row {
+        flex-direction: column-reverse;
+    }
+    
+    .about-section .col-lg-6 {
+        margin-bottom: 2rem;
+    }
+    
+    .about-image {
+        max-width: 80%;
+        margin: 0 auto;
+    }
+    
+    .stats-section {
+        padding: 60px 0;
+    }
+    
+    .stat-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .parallax-content h1 {
+        font-size: 3rem;
+    }
+    
+    .parallax-content .lead {
+        font-size: 1.1rem;
+    }
+    
+    .about-section {
+        padding: 40px 0;
+    }
+    
+    .about-image {
+        max-width: 100%;
+    }
+    
+    .feature-list li {
+        font-size: 1rem;
+    }
+    
+    .stats-section {
+        padding: 40px 0;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+    }
+    
+    .cta-section {
+        padding: 40px 0;
+    }
+    
+    .cta-card {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .parallax-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .parallax-content .lead {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .about-section {
+        padding: 30px 0;
+    }
+    
+    .feature-list li {
+        font-size: 0.9rem;
+        padding: 0.8rem 1rem;
+    }
+    
+    .stats-section {
+        padding: 30px 0;
+    }
+    
+    .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+    }
+    
+    .cta-section {
+        padding: 30px 0;
+    }
+    
+    .cta-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .cta-card .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Добавляем поддержку touch-устройств */
+@media (hover: none) and (pointer: coarse) {
+    .feature-list li:hover {
+        transform: none;
+    }
+    
+    .stat-card:hover {
+        transform: none;
+    }
+    
+    .about-image:hover {
+        transform: none;
+    }
+}
+
+/* Добавляем поддержку уменьшенного движения */
+@media (prefers-reduced-motion: reduce) {
+    .parallax-bg {
+        transform: none !important;
+    }
+    
+    .feature-list li,
+    .stat-card,
+    .about-image {
+        transition: none !important;
+    }
+}
+
+/* Анимации */
+@keyframes titleAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes textAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+} 
