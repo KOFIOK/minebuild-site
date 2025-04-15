@@ -289,8 +289,11 @@ class ApproveButton(discord.ui.Button):
             await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
 
 class ApplicationView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)  # Делаем кнопки персистентными
+    def __init__(self, discord_id: str):
+        super().__init__(timeout=None)  # Персистентные кнопки
+        self.discord_id = discord_id
+        self.add_item(ApproveButton(discord_id))
+        self.add_item(RejectButton(discord_id)) 
 
 async def create_application_message(channel, discord_id: str, embed: discord.Embed) -> bool:
     """Создает сообщение с заявкой в указанном канале"""
@@ -339,7 +342,7 @@ async def create_application_message(channel, discord_id: str, embed: discord.Em
         if len(details_embed.fields) > 0:
             embeds.append(details_embed)
         
-        view = discord.ui.View()
+        view = ApplicationView()
         view.add_item(ApproveButton(discord_id))
         view.add_item(RejectButton(discord_id))
         
