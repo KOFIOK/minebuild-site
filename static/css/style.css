@@ -79,10 +79,11 @@ main {
     position: relative;
     min-height: 100vh;
     width: 100%;
-    display: flex;
-    align-items: center;
+    display: grid;
+    place-items: center;
     z-index: 1;
     overflow: hidden;
+    padding: 0;
 }
 
 .hero-section::before {
@@ -104,8 +105,12 @@ main {
 .hero-content {
     position: relative;
     z-index: 2;
-    max-width: 800px;
-    margin-left: 15%;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .hero-content::before {
@@ -126,7 +131,7 @@ main {
 
 .hero-title {
     font-family: 'Intro Demo', sans-serif;
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 5vw, 5rem);
     font-weight: bold;
     color: var(--text-primary);
     margin-bottom: 1.5rem;
@@ -144,7 +149,7 @@ main {
 
 .hero-description {
     font-family: 'Evolventa', sans-serif;
-    font-size: 1.5rem;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
     color: var(--text-secondary);
     margin-bottom: 2.5rem;
     line-height: 1.6;
@@ -162,12 +167,22 @@ main {
     animation: buttonsAppear 1s ease-out 0.6s forwards;
     opacity: 0;
     transform: translateY(20px);
+    width: 100%;
+    max-width: 700px;
+    flex-wrap: nowrap;
+}
+
+.hero-buttons .btn {
+    flex: 1;
+    min-width: 200px;
+    white-space: nowrap;
+    padding: 12px 24px;
 }
 
 .server-info {
     font-family: 'Montserrat', sans-serif;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.2vw, 0.9rem);
     opacity: 0;
     animation: infoAppear 1s ease-out 0.9s forwards;
     position: relative;
@@ -532,39 +547,19 @@ main {
 /* Улучшаем медиа-запросы для главной страницы */
 @media (max-width: 1200px) {
     .hero-content {
-        margin-left: 10%;
-        max-width: 80%;
-    }
-
-    .hero-title {
-        font-size: 4rem;
-    }
-
-    .hero-description {
-        font-size: 1.3rem;
-        max-width: 100%;
+        max-width: 1000px;
     }
 }
 
 @media (max-width: 991px) {
-    .hero-section {
-        padding: 0 20px;
-    }
-
     .hero-content {
-        margin: 0 auto;
+        align-items: center;
         text-align: center;
-        padding: 20px;
-    }
-
-    .hero-title {
-        font-size: 3.5rem;
+        padding: 0 40px;
     }
 
     .hero-description {
-        font-size: 1.2rem;
-        margin-left: auto;
-        margin-right: auto;
+        max-width: 100%;
     }
 
     .hero-buttons {
@@ -580,24 +575,20 @@ main {
 }
 
 @media (max-width: 576px) {
-    .hero-section {
-        padding: 0 15px;
-    }
-
     .hero-content {
-        padding: 15px;
+        padding: 0 20px;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: clamp(2rem, 4vw, 2.5rem);
     }
 
     .hero-description {
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 1.8vw, 1.1rem);
     }
 
     .server-info {
-        font-size: 0.9rem;
+        font-size: clamp(0.75rem, 1vw, 0.8rem);
     }
 }
 
