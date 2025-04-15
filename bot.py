@@ -54,7 +54,7 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
                 )
 
             # Обновляем оригинальное сообщение
-            view = discord.ui.View()
+            view = discord.ui.View(timeout=None)
             button = discord.ui.Button(
                 style=discord.ButtonStyle.red,
                 label="Отказано",
@@ -248,7 +248,7 @@ class ApproveButton(discord.ui.Button):
             await member.add_roles(role)
             
             # Создаем новую view с неактивной кнопкой
-            view = discord.ui.View()
+            view = discord.ui.View(timeout=None)
             button = discord.ui.Button(
                 style=discord.ButtonStyle.green,
                 label="Одобрено",
@@ -289,11 +289,8 @@ class ApproveButton(discord.ui.Button):
             await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
 
 class ApplicationView(discord.ui.View):
-    def __init__(self, discord_id: str):
-        super().__init__(timeout=None)  # Персистентные кнопки
-        self.discord_id = discord_id
-        self.add_item(ApproveButton(discord_id))
-        self.add_item(RejectButton(discord_id)) 
+    def __init__(self):
+        super().__init__(timeout=None)  # Делаем кнопки персистентными
 
 async def create_application_message(channel, discord_id: str, embed: discord.Embed) -> bool:
     """Создает сообщение с заявкой в указанном канале"""
@@ -342,7 +339,7 @@ async def create_application_message(channel, discord_id: str, embed: discord.Em
         if len(details_embed.fields) > 0:
             embeds.append(details_embed)
         
-        view = ApplicationView()
+        view = discord.ui.View(timeout=None)
         view.add_item(ApproveButton(discord_id))
         view.add_item(RejectButton(discord_id))
         
