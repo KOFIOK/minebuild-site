@@ -83,7 +83,6 @@ main {
     align-items: center;
     z-index: 1;
     overflow: hidden;
-    padding-left: 15%;
 }
 
 .hero-section::before {
@@ -105,9 +104,8 @@ main {
 .hero-content {
     position: relative;
     z-index: 2;
-    padding-top: 80px;
-    transform: translateX(-55%);
     max-width: 800px;
+    margin-left: 15%;
 }
 
 .hero-content::before {
@@ -533,96 +531,73 @@ main {
 
 /* Улучшаем медиа-запросы для главной страницы */
 @media (max-width: 1200px) {
+    .hero-content {
+        margin-left: 10%;
+        max-width: 80%;
+    }
+
     .hero-title {
-        font-size: 4.5rem;
+        font-size: 4rem;
     }
-    
+
     .hero-description {
-        font-size: 1.4rem;
-        max-width: 90%;
-    }
-    
-    .hero-buttons {
-        gap: 1.25rem;
-    }
-    
-    .server-info {
-        font-size: 0.95rem;
+        font-size: 1.3rem;
+        max-width: 100%;
     }
 }
 
 @media (max-width: 991px) {
     .hero-section {
-        padding: 80px 0;
+        padding: 0 20px;
     }
-    
+
+    .hero-content {
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+    }
+
     .hero-title {
         font-size: 3.5rem;
     }
-    
+
     .hero-description {
         font-size: 1.2rem;
-        max-width: 95%;
+        margin-left: auto;
+        margin-right: auto;
     }
-    
+
     .hero-buttons {
         flex-direction: column;
+        align-items: center;
         gap: 1rem;
     }
-    
+
     .hero-buttons .btn {
         width: 100%;
         max-width: 300px;
-    }
-    
-    .server-info {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .hero-section {
-        padding: 60px 0;
-    }
-    
-    .hero-title {
-        font-size: 3rem;
-    }
-    
-    .hero-description {
-        font-size: 1.1rem;
-    }
-    
-    .hero-buttons .btn {
-        padding: 12px 24px;
-        font-size: 1rem;
-    }
-    
-    .server-info {
-        font-size: 0.85rem;
     }
 }
 
 @media (max-width: 576px) {
     .hero-section {
-        padding: 40px 0;
+        padding: 0 15px;
     }
-    
+
+    .hero-content {
+        padding: 15px;
+    }
+
     .hero-title {
         font-size: 2.5rem;
     }
-    
+
     .hero-description {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
-    
-    .hero-buttons .btn {
-        padding: 10px 20px;
-        font-size: 0.95rem;
-    }
-    
+
     .server-info {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 }
 
