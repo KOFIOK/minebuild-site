@@ -122,6 +122,16 @@ async def submit_application():
                 "message": f"Не заполнены обязательные поля: {', '.join(missing_fields)}"
             }), 400
 
+        # Проверяем, существует ли пользователь с указанным Discord ID
+        discord_id = str(data['discord'])
+        try:
+            user = await app.bot.fetch_user(discord_id)
+        except discord.NotFound:
+            return jsonify({
+                "status": "error",
+                "message": "Пользователь с указанным Discord ID не найден."
+            }), 400
+
         # Создаем embed сообщение
         embed = discord.Embed(
             title="📝 Новая заявка на сервер",
@@ -160,7 +170,7 @@ async def submit_application():
 
         # Отправляем сообщение используя функцию из bot.py
         from bot import create_application_message
-        success = await create_application_message(channel, str(data['discord']), embed)
+        success = await create_application_message(channel, discord_id, embed)
         
         if not success:
             return jsonify({
