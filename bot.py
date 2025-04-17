@@ -397,11 +397,11 @@ async def create_application_message(
         if len(details_embed.fields) > 0:
             embeds.append(details_embed)
         
-        # Создаем view с тремя кнопками
+        # Создаем view с кнопками в правильном порядке: сначала Одобрить, затем Отказать, в конце В кандидаты
         view = discord.ui.View(timeout=None)
-        view.add_item(CandidateButton(discord_id))   # Первая кнопка - В кандидаты
-        view.add_item(ApproveButton(discord_id))    # Вторая кнопка - Одобрить
-        view.add_item(RejectButton(discord_id))     # Третья кнопка - Отказать
+        view.add_item(ApproveButton(discord_id))     # Первая кнопка - Одобрить
+        view.add_item(RejectButton(discord_id))      # Вторая кнопка - Отказать
+        view.add_item(CandidateButton(discord_id))   # Третья кнопка - В кандидаты
         
         await channel.send(
             content=f"-# ||<@&{MODERATOR_ROLE_ID}>||\n## <@{discord_id}> отправил заявку на сервер!",
@@ -595,7 +595,7 @@ async def update_candidate_message(message: discord.Message, discord_id: str) ->
     # Создаем новую view с неактивной кнопкой "На рассмотрении" и активными кнопками одобрения/отказа
     view = discord.ui.View(timeout=None)
     
-    # Кнопка "На рассмотрении" (неактивная)
+    # Кнопка "На рассмотрении" (неактивная) - теперь первая
     candidate_button = discord.ui.Button(
         style=discord.ButtonStyle.primary,
         label="На рассмотрении",
@@ -608,10 +608,10 @@ async def update_candidate_message(message: discord.Message, discord_id: str) ->
     approve_button = ApproveButton(discord_id, is_candidate=True)
     reject_button = RejectButton(discord_id, is_candidate=True)
     
-    # Добавляем кнопки в view
-    view.add_item(candidate_button)
-    view.add_item(approve_button)
-    view.add_item(reject_button)
+    # Добавляем кнопки в view в нужном порядке
+    view.add_item(candidate_button)  # Первая кнопка - На рассмотрении (неактивная)
+    view.add_item(approve_button)    # Вторая кнопка - Одобрить
+    view.add_item(reject_button)     # Третья кнопка - Отказать
     
     await message.edit(
         content=f"-# Заявка игрока <@{discord_id}> отправлена на рассмотрение!",
