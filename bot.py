@@ -28,7 +28,9 @@ load_dotenv()
 # Константы
 MODERATOR_ROLE_ID = 1277399739561672845
 WHITELIST_ROLE_ID = 1150073275184074803
+CANDIDATE_ROLE_ID = 1187064873847365752
 LOG_CHANNEL_ID = 1277415977549566024
+CANDIDATE_CHAT_ID = 1362437237513519279
 
 class MineBuildBot(commands.Bot):
     """Основной класс бота для сервера MineBuild."""
@@ -59,10 +61,11 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
         max_length=1024
     )
 
-    def __init__(self, discord_id: str, message_url: str) -> None:
+    def __init__(self, discord_id: str, message_url: str, is_candidate: bool = False) -> None:
         super().__init__()
         self.discord_id = discord_id
         self.message_url = message_url
+        self.is_candidate = is_candidate
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
         """Обработка отправки формы отказа."""
@@ -70,6 +73,13 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
             # Получаем пользователя
             member = await interaction.guild.fetch_member(int(self.discord_id))
             if member:
+                # Если это кандидат, снимаем с него роль
+                if self.is_candidate:
+                    candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+                    if candidate_role and candidate_role in member.roles:
+                        await member.remove_roles(candidate_role)
+                        logger.info(f"Снята роль кандидата с пользователя {self.discord_id}")
+                
                 # Отправляем сообщение пользователю
                 try:
                     await member.send(
@@ -116,13 +126,14 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
 class RejectButton(discord.ui.Button):
     """Кнопка для отклонения заявки."""
     
-    def __init__(self, discord_id: str) -> None:
+    def __init__(self, discord_id: str, is_candidate: bool = False) -> None:
         super().__init__(
             style=discord.ButtonStyle.red,
             label="Отказать",
-            custom_id=f"reject_{discord_id}",
+            custom_id=f"reject_{discord_id}_{is_candidate}",
             emoji="❎"
         )
+        self.is_candidate = is_candidate
         
     async def callback(self, interaction: discord.Interaction) -> None:
         """Обработчик нажатия кнопки отказа."""
@@ -136,22 +147,25 @@ class RejectButton(discord.ui.Button):
 
         # Получаем URL сообщения
         message_url = interaction.message.jump_url
-        discord_id = self.custom_id.split('_')[1]
+        parts = self.custom_id.split('_')
+        discord_id = parts[1]
+        is_candidate = len(parts) > 2 and parts[2] == 'True'
 
         # Показываем модальное окно для ввода причины
-        await interaction.response.send_modal(RejectModal(discord_id, message_url))
+        await interaction.response.send_modal(RejectModal(discord_id, message_url, is_candidate))
 
 
 class ApproveButton(discord.ui.Button):
     """Кнопка для одобрения заявки."""
     
-    def __init__(self, discord_id: str) -> None:
+    def __init__(self, discord_id: str, is_candidate: bool = False) -> None:
         super().__init__(
             style=discord.ButtonStyle.green,
             label="Одобрить",
-            custom_id=f"approve_{discord_id}",
+            custom_id=f"approve_{discord_id}_{is_candidate}",
             emoji="✅"
         )
+        self.is_candidate = is_candidate
         
     async def callback(self, interaction: discord.Interaction) -> None:
         """Обработчик нажатия кнопки одобрения."""
@@ -164,11 +178,15 @@ class ApproveButton(discord.ui.Button):
             return
 
         # Получаем информацию
-        discord_id = self.custom_id.split('_')[1]
-        role = interaction.guild.get_role(WHITELIST_ROLE_ID)
+        parts = self.custom_id.split('_')
+        discord_id = parts[1]
+        is_candidate = len(parts) > 2 and parts[2] == 'True'
         
-        if not role:
-            await interaction.response.send_message("Роль не найдена.", ephemeral=True)
+        whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
+        candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+        
+        if not whitelist_role:
+            await interaction.response.send_message("Роль для вайтлиста не найдена.", ephemeral=True)
             return
 
         try:
@@ -192,6 +210,11 @@ class ApproveButton(discord.ui.Button):
             minecraft_nickname = extract_minecraft_nickname(interaction.message.embeds)
             
             if minecraft_nickname:
+                # Если это кандидат, снимаем с него роль кандидата
+                if is_candidate and candidate_role and candidate_role in member.roles:
+                    await member.remove_roles(candidate_role)
+                    logger.info(f"Снята роль кандидата с пользователя {discord_id} при одобрении")
+                
                 await process_approval(interaction, member, minecraft_nickname)
             else:
                 await interaction.followup.send(
@@ -199,8 +222,8 @@ class ApproveButton(discord.ui.Button):
                     ephemeral=True
                 )
                 
-            # Добавляем роль
-            await member.add_roles(role)
+            # Добавляем роль вайтлиста
+            await member.add_roles(whitelist_role)
             
             # Обновляем сообщение
             await update_approval_message(interaction.message, discord_id)
@@ -210,6 +233,99 @@ class ApproveButton(discord.ui.Button):
             
         except Exception as e:
             logger.error(f"Ошибка при одобрении заявки: {e}", exc_info=True)
+            await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
+
+
+class CandidateButton(discord.ui.Button):
+    """Кнопка для перевода в кандидаты."""
+    
+    def __init__(self, discord_id: str) -> None:
+        super().__init__(
+            style=discord.ButtonStyle.primary,
+            label="В кандидаты",
+            custom_id=f"candidate_{discord_id}",
+            emoji="🔍"
+        )
+        
+    async def callback(self, interaction: discord.Interaction) -> None:
+        """Обработчик нажатия кнопки перевода в кандидаты."""
+        # Проверяем права пользователя
+        if not has_moderation_permissions(interaction.user):
+            await interaction.response.send_message(
+                "У вас нет прав для управления кандидатами. Необходимо быть администратором или модератором.", 
+                ephemeral=True
+            )
+            return
+
+        # Получаем информацию
+        discord_id = self.custom_id.split('_')[1]
+        candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+        
+        if not candidate_role:
+            await interaction.response.send_message("Роль кандидата не найдена.", ephemeral=True)
+            return
+
+        try:
+            # Получаем объект участника
+            member = await interaction.guild.fetch_member(int(discord_id))
+            if not member:
+                await interaction.response.send_message("Пользователь не найден.", ephemeral=True)
+                return
+
+            # Отвечаем на взаимодействие сразу, чтобы не было таймаута
+            await interaction.response.defer(ephemeral=True)
+
+            # Получаем никнейм из заявки
+            minecraft_nickname = extract_minecraft_nickname(interaction.message.embeds)
+            
+            if minecraft_nickname:
+                # Пробуем изменить никнейм
+                try:
+                    await member.edit(nick=minecraft_nickname)
+                except discord.Forbidden:
+                    logger.warning(f"Не удалось изменить никнейм пользователю {member.id}")
+                    await interaction.followup.send(
+                        "Не удалось изменить никнейм пользователя. Пожалуйста, сделайте это вручную.",
+                        ephemeral=True
+                    )
+            else:
+                await interaction.followup.send(
+                    "Не удалось найти никнейм в заявке. Проверьте правильность заполнения заявки.",
+                    ephemeral=True
+                )
+                
+            # Добавляем роль кандидата
+            await member.add_roles(candidate_role)
+            
+            # Обновляем сообщение с заявкой
+            await update_candidate_message(interaction.message, discord_id)
+            
+            # Отправляем сообщение в канал кандидатов
+            candidate_channel = interaction.guild.get_channel(CANDIDATE_CHAT_ID)
+            if candidate_channel:
+                await candidate_channel.send(
+                    f"# Привет, <@{discord_id}>!\n"
+                    f"Твоя заявка была отправлена на рассмотрение куратором <@{interaction.user.id}>.\n"
+                    f"Ты получил временную роль кандидата, которая предоставляет доступ к этому каналу.\n"
+                    f"В ближайшее время с тобой свяжутся для обсуждения деталей."
+                )
+            
+            # Отправляем сообщение в лог
+            log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+            if log_channel:
+                await log_channel.send(
+                    f"## Куратор <@{interaction.user.id}> перевел игрока <@{discord_id}> в кандидаты. "
+                    f"[Ссылка на заявку]({interaction.message.jump_url})"
+                )
+            
+            # Отправляем сообщение куратору
+            await interaction.followup.send(
+                f"Игрок <@{discord_id}> успешно переведен в кандидаты и получил соответствующую роль.",
+                ephemeral=True
+            )
+            
+        except Exception as e:
+            logger.error(f"Ошибка при переводе в кандидаты: {e}", exc_info=True)
             await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
 
 
@@ -281,9 +397,11 @@ async def create_application_message(
         if len(details_embed.fields) > 0:
             embeds.append(details_embed)
         
+        # Создаем view с тремя кнопками
         view = discord.ui.View(timeout=None)
-        view.add_item(ApproveButton(discord_id))
-        view.add_item(RejectButton(discord_id))
+        view.add_item(CandidateButton(discord_id))   # Первая кнопка - В кандидаты
+        view.add_item(ApproveButton(discord_id))    # Вторая кнопка - Одобрить
+        view.add_item(RejectButton(discord_id))     # Третья кнопка - Отказать
         
         await channel.send(
             content=f"-# ||<@&{MODERATOR_ROLE_ID}>||\n## <@{discord_id}> отправил заявку на сервер!",
@@ -462,6 +580,41 @@ async def update_approval_message(message: discord.Message, discord_id: str) -> 
     
     await message.edit(
         content=f"-# Заявка игрока <@{discord_id}> одобрена!",
+        view=view
+    )
+
+
+async def update_candidate_message(message: discord.Message, discord_id: str) -> None:
+    """
+    Обновляет сообщение заявки при переводе в кандидаты.
+    
+    Args:
+        message: Сообщение Discord с заявкой
+        discord_id: ID пользователя Discord
+    """
+    # Создаем новую view с неактивной кнопкой "На рассмотрении" и активными кнопками одобрения/отказа
+    view = discord.ui.View(timeout=None)
+    
+    # Кнопка "На рассмотрении" (неактивная)
+    candidate_button = discord.ui.Button(
+        style=discord.ButtonStyle.primary,
+        label="На рассмотрении",
+        emoji="🔍",
+        disabled=True,
+        custom_id=f"candidate_disabled_{discord_id}"
+    )
+    
+    # Кнопки одобрения и отказа для кандидата
+    approve_button = ApproveButton(discord_id, is_candidate=True)
+    reject_button = RejectButton(discord_id, is_candidate=True)
+    
+    # Добавляем кнопки в view
+    view.add_item(candidate_button)
+    view.add_item(approve_button)
+    view.add_item(reject_button)
+    
+    await message.edit(
+        content=f"-# Заявка игрока <@{discord_id}> отправлена на рассмотрение!",
         view=view
     )
 
