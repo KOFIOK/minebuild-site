@@ -551,44 +551,68 @@ main {
     }
 }
 
+/* Медиа-запрос для мобильных устройств */
 @media (max-width: 991px) {
-    .hero-content {
+    .hero-section {
+        display: flex; /* Переключаем на flex для лучшего контроля */
+        justify-content: center;
         align-items: center;
-        text-align: center;
-        padding: 0 40px;
+        padding: 0; /* Убираем лишний padding */
     }
 
-    .hero-description {
-        max-width: 100%;
+    .hero-content {
+        align-items: center; /* Центрируем содержимое по горизонтали */
+        text-align: center; /* Центрируем текст */
+        padding: 20px; /* Упрощённый padding */
+        width: 100%; /* Полная ширина */
+        max-width: 100%; /* Убираем ограничение max-width */
+        box-sizing: border-box; /* Учитываем padding в ширине */
+    }
+
+    .hero-content::before {
+        display: none; /* Убираем псевдоэлемент, который может мешать */
     }
 
     .hero-buttons {
         flex-direction: column;
         align-items: center;
         gap: 1rem;
+        width: 100%;
+        max-width: 300px; /* Ограничиваем ширину кнопок */
     }
 
     .hero-buttons .btn {
         width: 100%;
         max-width: 300px;
     }
+
+    .hero-title,
+    .hero-description,
+    .server-info {
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
-@media (max-width: 576px) {
-    .hero-content {
-        padding: 0 20px;
-    }
+/* Глобально предотвращаем горизонтальное переполнение */
+body {
+    overflow-x: hidden;
+}
 
-    .hero-title {
-        font-size: clamp(2rem, 4vw, 2.5rem);
-    }
-
-    .hero-description {
-        font-size: clamp(1rem, 1.8vw, 1.1rem);
-    }
-
-    .server-info {
-        font-size: clamp(0.75rem, 1vw, 0.8rem);
+@media (min-width: 992px) {
+    .hero-content::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 70%;
+        background: linear-gradient(to bottom, 
+            transparent 0%, 
+            var(--accent-green) 20%, 
+            var(--accent-green) 80%, 
+            transparent 100%);
     }
 }
 
@@ -2118,37 +2142,5 @@ footer .small {
     
     .progress-step.active {
         background: currentColor;
-    }
-}
-
-/* Добавляем медиа-запрос для мобильных устройств */
-@media (max-width: 991px) {
-    .hero-content {
-        transform: none;
-        text-align: center;
-        padding: 40px 20px;
-        margin: 0 auto;
-    }
-
-    .hero-content::before {
-        display: none;
-    }
-
-    .hero-buttons {
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .hero-buttons .btn {
-        width: 100%;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-
-    .hero-description {
-        margin-left: auto;
-        margin-right: auto;
     }
 }
