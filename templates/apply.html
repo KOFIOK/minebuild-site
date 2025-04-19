@@ -173,11 +173,11 @@ class ApplicationForm {
                 break;
             case 'number':
                 if (question.id === 'discord') {
-                    inputHtml += `<input type="text" pattern="^\\d{18}$" class="form-control" id="${question.id}" 
+                    inputHtml += `<input type="text" pattern="^\\d{18,}$" class="form-control" id="${question.id}" 
                         ${question.required ? 'required' : ''} 
                         ${question.placeholder ? `placeholder="${question.placeholder}"` : ''}
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 18)"
-                        title="Discord ID должен содержать ровно 18 цифр">`;
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        title="Discord ID должен содержать минимум 18 цифр">`;
                 } else {
                     inputHtml += `<input type="number" class="form-control" id="${question.id}" 
                         ${question.required ? 'required' : ''} 
@@ -273,11 +273,11 @@ class ApplicationForm {
                 return false;
             }
 
-            // Проверка Discord ID
+            // Обновлённая проверка Discord ID
             if (currentQuestion.id === 'discord') {
                 const discordId = input.value.trim();
-                if (discordId.length !== 18 || !/^\d{18}$/.test(discordId)) {
-                    this.showError(currentQuestion.question, 'Discord ID должен содержать ровно 18 цифр');
+                if (discordId.length < 18 || !/^\d{18,}$/.test(discordId)) {
+                    this.showError(currentQuestion.question, 'Discord ID должен содержать минимум 18 цифр');
                     return false;
                 }
             }
