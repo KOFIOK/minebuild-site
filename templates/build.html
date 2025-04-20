@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Сборка сервера MineBuild{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/build.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="build-page">
+    <div class="build-background"></div>
+    <div class="build-content">
+        <div class="container">
+            <div class="build-header animate-fade-in">
+                <h1 class="display-4">Сборка MineBuild</h1>
+                <div class="build-description">
+                    <p>Ванильная сборка Minecraft с тщательно подобранными модификациями, улучшающими как визуальную составляющую, так и игровой процесс. Наша сборка создана для максимально комфортной игры на сервере MineBuild.</p>
+                </div>
+            </div>
+
+            <div class="mods-section animate-slide-up">
+                <div class="section-title-container">
+                    <h2>Список модификаций</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div class="mods-list">
+                    <!-- Здесь будет список модов -->
+                    <div class="mod-card">
+                        <h3 class="mod-name">Пример мода</h3>
+                        <p class="mod-description">Описание мода будет добавлено позже.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-section animate-slide-up">
+                <a href="https://github.com/KOFIOK/EventsPack" target="_blank" class="download-button">
+                    <i class="fas fa-download me-2"></i>Скачать сборку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
