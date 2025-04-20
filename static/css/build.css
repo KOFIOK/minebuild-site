@@ -4,6 +4,8 @@ body {
     font-family: 'Montserrat', Arial, sans-serif;
     min-height: 100vh;
     position: relative;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
 body::before {
@@ -21,11 +23,15 @@ body::before {
 /* Основные стили для страницы сборки */
 .build-body {
     background: none !important;
-    overflow-y: scroll !important;
+    overflow-y: auto !important;
     overflow-x: hidden !important;
     position: relative;
     scrollbar-width: thin;
     scrollbar-color: var(--accent-green) var(--bg-darker);
+}
+
+.build-body::before {
+    display: none;
 }
 
 .build-body::-webkit-scrollbar {
@@ -72,10 +78,6 @@ html::-webkit-scrollbar-thumb {
 .build-body::-webkit-scrollbar-thumb:hover,
 html::-webkit-scrollbar-thumb:hover {
     background: var(--accent-dark-green);
-}
-
-.build-body::before {
-    display: none;
 }
 
 .build-body .navbar {

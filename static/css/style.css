@@ -35,6 +35,20 @@
     --navbar-height: 80px;
 }
 
+:root {
+    --accent-green: #00E5A1;
+    --accent-dark-green: #00B37F;
+    --accent-purple: #9370DB;
+    --accent-dark-purple: #4B0082;
+    --bg-dark: #0a0a0a;
+    --bg-darker: #050505;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --card-bg: rgba(15, 15, 15, 0.8);
+    --card-border: rgba(147, 112, 219, 0.2);
+    --navbar-height: 80px;
+}
+
 /* Добавляем плавную прокрутку глобально */
 html {
     scroll-behavior: smooth;
@@ -347,10 +361,6 @@ main {
     background: var(--accent-green);
     color: var(--bg-dark) !important;
     transform: translateY(-2px);
-}
-
-.nav-link.btn:hover::after {
-    left: 100%;
 }
 
 /* Улучшаем медиа-запросы для навигационной панели */
