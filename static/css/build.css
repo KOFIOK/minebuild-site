@@ -21,8 +21,57 @@ body::before {
 /* Основные стили для страницы сборки */
 .build-body {
     background: none !important;
-    overflow-y: auto !important;
+    overflow-y: scroll !important;
     overflow-x: hidden !important;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-darker);
+}
+
+.build-body::-webkit-scrollbar {
+    width: 8px;
+    display: block !important;
+}
+
+.build-body::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+    display: block !important;
+}
+
+.build-body::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 4px;
+    display: block !important;
+}
+
+.build-body::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green);
+}
+
+/* Кастомный скроллбар для всех элементов на странице */
+.build-body *::-webkit-scrollbar,
+.build-body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    width: 8px;
+}
+
+.build-body *::-webkit-scrollbar-track,
+.build-body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+.build-body *::-webkit-scrollbar-thumb,
+.build-body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 4px;
+}
+
+.build-body *::-webkit-scrollbar-thumb:hover,
+.build-body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green);
 }
 
 .build-body::before {
@@ -51,6 +100,7 @@ body::before {
     width: 100%;
     overflow-x: hidden;
     padding-top: var(--navbar-height, 80px);
+    z-index: 1;
 }
 
 .build-background {
@@ -65,7 +115,7 @@ body::before {
     background-attachment: fixed;
     filter: blur(5px);
     transform: scale(1.1);
-    z-index: -1;
+    z-index: -2;
 }
 
 .build-background::before {
@@ -81,6 +131,7 @@ body::before {
         rgba(0, 0, 0, 0.75) 50%,
         rgba(0, 0, 0, 0.65) 100%
     );
+    z-index: -1;
 }
 
 .build-content {
@@ -348,6 +399,43 @@ body::before {
     background: var(--accent-dark-green);
     color: var(--bg-dark);
     transform: translateY(-2px);
+}
+
+/* Добавляем стили для кнопки прокрутки */
+.scroll-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 2px solid var(--accent-green);
+    border-radius: 8px;
+    color: var(--accent-green);
+    font-family: 'Rimma Sans', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: 2rem;
+}
+
+.scroll-button:hover {
+    background: var(--accent-green);
+    color: var(--bg-dark);
+    transform: translateY(-2px);
+}
+
+.scroll-button i {
+    transition: transform 0.3s ease;
+}
+
+.scroll-button:hover i {
+    transform: translateY(3px);
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 /* Анимации */

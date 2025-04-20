@@ -23,17 +23,21 @@
 }
 
 :root {
+    --bg-dark: #0A0A0A;
+    --bg-darker: #050505;
     --accent-green: #00E5A1;
     --accent-dark-green: #00B37F;
     --accent-purple: #9370DB;
-    --accent-dark-purple: #4B0082;
-    --bg-dark: #0a0a0a;
-    --bg-darker: #050505;
-    --text-primary: #ffffff;
+    --text-primary: #FFFFFF;
     --text-secondary: rgba(255, 255, 255, 0.7);
     --card-bg: rgba(15, 15, 15, 0.8);
     --card-border: rgba(147, 112, 219, 0.2);
     --navbar-height: 80px;
+}
+
+/* Добавляем плавную прокрутку глобально */
+html {
+    scroll-behavior: smooth;
 }
 
 html, body {
@@ -1085,7 +1089,7 @@ footer .small {
 }
 
 .testimonial-author p {
-    color: var(--text-secondary);
+    color: var (--text-secondary);
     margin: 0;
     font-size: 0.9rem;
 }
