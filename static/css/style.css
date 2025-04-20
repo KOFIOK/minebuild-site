@@ -33,6 +33,7 @@
     --text-secondary: rgba(255, 255, 255, 0.7);
     --card-bg: rgba(15, 15, 15, 0.8);
     --card-border: rgba(147, 112, 219, 0.2);
+    --navbar-height: 80px;
 }
 
 html, body {
