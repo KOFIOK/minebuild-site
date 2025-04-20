@@ -96,6 +96,10 @@ async def about():
 async def rules():
     return await render_template('rules.html')
 
+@app.route('/build')
+async def build():
+    return await render_template('build.html')
+
 @app.route('/apply')
 async def apply():
     return await render_template('apply.html')
@@ -207,4 +211,4 @@ async def submit_application():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)

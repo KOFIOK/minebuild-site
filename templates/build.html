@@ -1,42 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Сборка сервера MineBuild{% endblock %}
+{% block title %}MineBuild - Сборка сервера{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/build.css') }}">
 {% endblock %}
+
+{% block body_class %}build-body{% endblock %}
 
 {% block content %}
 <div class="build-page">
     <div class="build-background"></div>
     <div class="build-content">
         <div class="container">
-            <div class="build-header animate-fade-in">
-                <h1 class="display-4">Сборка MineBuild</h1>
-                <div class="build-description">
-                    <p>Ванильная сборка Minecraft с тщательно подобранными модификациями, улучшающими как визуальную составляющую, так и игровой процесс. Наша сборка создана для максимально комфортной игры на сервере MineBuild.</p>
-                </div>
-            </div>
-
-            <div class="mods-section animate-slide-up">
+            <section class="build-header animate-fade-in">
+                <h1>Сборка MineBuild</h1>
+                <p class="build-description">
+                    Ванильная сборка Minecraft с тщательно подобранными модификациями, улучшающими как визуальную составляющую, так и игровой процесс. Наша сборка создана для максимально комфортной игры на сервере MineBuild.
+                </p>
+            </section>
+            
+            <section class="mods-section animate-slide-up">
                 <div class="section-title-container">
                     <h2>Список модификаций</h2>
                     <div class="accent-line"></div>
                 </div>
                 <div class="mods-list">
-                    <!-- Здесь будет список модов -->
                     <div class="mod-card">
-                        <h3 class="mod-name">Пример мода</h3>
-                        <p class="mod-description">Описание мода будет добавлено позже.</p>
+                        <h3 class="mod-name">Optifine</h3>
+                        <p class="mod-description">Улучшает производительность и добавляет поддержку шейдеров</p>
+                    </div>
+                    <div class="mod-card">
+                        <h3 class="mod-name">Replay Mod</h3>
+                        <p class="mod-description">Позволяет записывать повторы игрового процесса и создавать кинематографические видео</p>
+                    </div>
+                    <div class="mod-card">
+                        <h3 class="mod-name">Just Enough Items (JEI)</h3>
+                        <p class="mod-description">Показывает рецепты крафта и информацию о предметах</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="download-section animate-slide-up">
-                <a href="https://github.com/KOFIOK/EventsPack" target="_blank" class="download-button">
-                    <i class="fas fa-download me-2"></i>Скачать сборку
-                </a>
-            </div>
+            <section class="requirements-section animate-slide-up">
+                <div class="section-title-container">
+                    <h2>Системные требования</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div class="requirements-list">
+                    <div class="requirement-card">
+                        <i class="fas fa-microchip"></i>
+                        <h3>Процессор</h3>
+                        <p>Intel Core i5 / AMD Ryzen 5 или лучше</p>
+                    </div>
+                    <div class="requirement-card">
+                        <i class="fas fa-memory"></i>
+                        <h3>Оперативная память</h3>
+                        <p>Минимум 8 ГБ, рекомендуется 16 ГБ</p>
+                    </div>
+                    <div class="requirement-card">
+                        <i class="fas fa-desktop"></i>
+                        <h3>Видеокарта</h3>
+                        <p>NVIDIA GeForce GTX 1060 / AMD Radeon RX 580 или лучше</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="download-section animate-slide-up">
+                <div class="download-card">
+                    <h2>Готовы начать игру?</h2>
+                    <p>Скачайте нашу сборку и присоединяйтесь к серверу прямо сейчас!</p>
+                    <a href="https://github.com/KOFIOK/EventsPack" target="_blank" class="download-button">
+                        <i class="fas fa-download me-2"></i>Скачать сборку
+                    </a>
+                </div>
+            </section>
         </div>
     </div>
 </div>
