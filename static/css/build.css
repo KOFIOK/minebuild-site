@@ -206,14 +206,14 @@ html::-webkit-scrollbar-thumb:hover {
 .gallery-container {
     position: relative;
     width: 100%;
-    height: 500px;
+    height: 600px; /* Увеличили высоту контейнера */
     margin-top: 2rem;
-    margin-bottom: 1rem; /* Добавлен отступ снизу */
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
-    overflow: visible; /* Изменено с hidden на visible */
+    overflow: visible;
     perspective: 1000px;
 }
 
@@ -223,11 +223,14 @@ html::-webkit-scrollbar-thumb:hover {
     transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     pointer-events: none;
     top: 50%;
+    overflow: hidden;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .gallery-item.current {
-    width: 50%;
-    height: 500px;
+    width: 70%; /* Увеличили ширину текущего изображения */
+    height: 600px; /* Увеличили высоту текущего изображения */
     transform: translate(-50%, -50%) scale(1);
     left: 50%;
     opacity: 1;
@@ -236,36 +239,36 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 .gallery-item.prev {
-    width: 25%;
-    height: 350px;
-    transform: translate(-200%, -50%) scale(0.7);
+    width: 30%; /* Пропорционально увеличили ширину боковых изображений */
+    height: 400px; /* Увеличили высоту боковых изображений */
+    transform: translate(-180%, -50%) scale(0.7); /* Немного сдвинули влево */
     left: 50%;
     opacity: 0.6;
     z-index: 2;
 }
 
 .gallery-item.next {
-    width: 25%;
-    height: 350px;
-    transform: translate(100%, -50%) scale(0.7);
+    width: 30%;
+    height: 400px;
+    transform: translate(80%, -50%) scale(0.7); /* Немного сдвинули вправо */
     left: 50%;
     opacity: 0.6;
     z-index: 2;
 }
 
 .gallery-item.prev-out {
-    width: 25%;
-    height: 350px;
-    transform: translate(-300%, -50%) scale(0.5);
+    width: 30%;
+    height: 400px;
+    transform: translate(-260%, -50%) scale(0.5);
     left: 50%;
     opacity: 0;
     z-index: 1;
 }
 
 .gallery-item.next-out {
-    width: 25%;
-    height: 350px;
-    transform: translate(200%, -50%) scale(0.5);
+    width: 30%;
+    height: 400px;
+    transform: translate(160%, -50%) scale(0.5);
     left: 50%;
     opacity: 0;
     z-index: 1;
@@ -282,9 +285,9 @@ html::-webkit-scrollbar-thumb:hover {
 .gallery-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
+    object-fit: cover; /* Изменено с contain на cover */
     transition: inherit;
+    transform: scale(1.05); /* Небольшое увеличение для предотвращения пустых краев при анимации */
 }
 
 .gallery-item.prev img,
@@ -774,5 +777,101 @@ html {
     
     .download-card::before {
         animation: none !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .gallery-item.current {
+        width: 75%;
+        height: 500px;
+    }
+
+    .gallery-item.prev,
+    .gallery-item.next {
+        width: 35%;
+        height: 350px;
+    }
+
+    .gallery-item.prev {
+        transform: translate(-160%, -50%) scale(0.7);
+    }
+
+    .gallery-item.next {
+        transform: translate(60%, -50%) scale(0.7);
+    }
+}
+
+@media (max-width: 991px) {
+    .gallery-container {
+        height: 500px;
+    }
+
+    .gallery-item.current {
+        width: 80%;
+        height: 450px;
+    }
+
+    .gallery-item.prev,
+    .gallery-item.next {
+        width: 40%;
+        height: 300px;
+    }
+
+    .gallery-item.prev {
+        transform: translate(-140%, -50%) scale(0.7);
+    }
+
+    .gallery-item.next {
+        transform: translate(40%, -50%) scale(0.7);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-container {
+        height: 400px;
+    }
+
+    .gallery-item.current {
+        width: 85%;
+        height: 350px;
+    }
+
+    .gallery-item.prev,
+    .gallery-item.next {
+        width: 45%;
+        height: 250px;
+    }
+
+    .gallery-item.prev {
+        transform: translate(-120%, -50%) scale(0.7);
+    }
+
+    .gallery-item.next {
+        transform: translate(20%, -50%) scale(0.7);
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery-container {
+        height: 300px;
+    }
+
+    .gallery-item.current {
+        width: 90%;
+        height: 250px;
+    }
+
+    .gallery-item.prev,
+    .gallery-item.next {
+        width: 50%;
+        height: 180px;
+    }
+
+    .gallery-item.prev {
+        transform: translate(-110%, -50%) scale(0.7);
+    }
+
+    .gallery-item.next {
+        transform: translate(10%, -50%) scale(0.7);
     }
 }
