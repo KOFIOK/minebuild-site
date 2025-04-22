@@ -191,30 +191,58 @@ html::-webkit-scrollbar-thumb:hover {
 
 /* Галерея скриншотов */
 .gallery-section {
-    background-color: rgba(10, 10, 10, 0.85);
-    padding: 30px;
-    border-radius: 15px;
-    margin-bottom: 80px; /* Увеличено с 40px до 80px */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(15px);
-    overflow: hidden;
-    padding-bottom: 100px; /* Увеличиваем отступ снизу для точек */
     position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding: 8rem 0;
+    margin-bottom: 6rem;
+    background-color: rgba(10, 10, 10, 0.15);
+    backdrop-filter: blur(8px);
+    overflow: visible;
+}
+
+.gallery-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(0deg, 
+            rgba(0, 0, 0, 0.7) 0%,
+            transparent 20%,
+            transparent 80%,
+            rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.gallery-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg,
+            rgba(0, 0, 0, 0.7) 0%,
+            transparent 20%,
+            transparent 80%,
+            rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .gallery-container {
     position: relative;
-    width: 100%;
-    height: 600px; /* Увеличили высоту контейнера */
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    height: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    overflow: visible;
-    perspective: 1000px;
+    z-index: 2;
 }
 
 .gallery-item {
@@ -223,14 +251,14 @@ html::-webkit-scrollbar-thumb:hover {
     transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     pointer-events: none;
     top: 50%;
+    border-radius: 15px;
     overflow: hidden;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
 .gallery-item.current {
-    width: 70%; /* Увеличили ширину текущего изображения */
-    height: 600px; /* Увеличили высоту текущего изображения */
+    width: 65%;
+    height: 700px;
     transform: translate(-50%, -50%) scale(1);
     left: 50%;
     opacity: 1;
@@ -239,20 +267,20 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 .gallery-item.prev {
-    width: 30%; /* Пропорционально увеличили ширину боковых изображений */
-    height: 400px; /* Увеличили высоту боковых изображений */
-    transform: translate(-180%, -50%) scale(0.7); /* Немного сдвинули влево */
+    width: 40%;
+    height: 500px;
+    transform: translate(-150%, -50%) scale(0.8);
     left: 50%;
-    opacity: 0.6;
+    opacity: 0.7;
     z-index: 2;
 }
 
 .gallery-item.next {
-    width: 30%;
-    height: 400px;
-    transform: translate(80%, -50%) scale(0.7); /* Немного сдвинули вправо */
+    width: 40%;
+    height: 500px;
+    transform: translate(50%, -50%) scale(0.8);
     left: 50%;
-    opacity: 0.6;
+    opacity: 0.7;
     z-index: 2;
 }
 
@@ -285,9 +313,14 @@ html::-webkit-scrollbar-thumb:hover {
 .gallery-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Изменено с contain на cover */
-    transition: inherit;
-    transform: scale(1.05); /* Небольшое увеличение для предотвращения пустых краев при анимации */
+    object-fit: cover;
+    transform: scale(1.05);
+    transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.gallery-item.prev img,
+.gallery-item.next img {
+    filter: brightness(0.4) blur(1px);
 }
 
 .gallery-item.prev img,
@@ -300,22 +333,19 @@ html::-webkit-scrollbar-thumb:hover {
 /* Точки навигации */
 .gallery-nav {
     position: absolute;
-    bottom: 20px;
+    bottom: -20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
     z-index: 10;
-    padding: 12px 20px;
-    background: rgba(0, 0, 0, 0.6); /* Сделали фон темнее */
-    border-radius: 25px;
-    width: auto;
-    max-width: 90%;
-    justify-content: center;
-    flex-wrap: wrap;
-    row-gap: 10px;
-    backdrop-filter: blur(5px);
+    padding: 15px 25px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .gallery-dot {
@@ -874,4 +904,12 @@ html {
     .gallery-item.next {
         transform: translate(10%, -50%) scale(0.7);
     }
+}
+
+.gallery-section:hover .gallery-nav {
+    opacity: 1;
+}
+
+.gallery-nav:hover {
+    opacity: 1;
 }
