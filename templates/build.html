@@ -61,11 +61,11 @@
                         <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
                     </div>
                     {% endfor %}
-                    <div class="gallery-nav">
-                        {% for image in build_images %}
-                        <div class="gallery-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></div>
-                        {% endfor %}
-                    </div>
+                </div>
+                <div class="gallery-nav">
+                    {% for image in build_images %}
+                    <div class="gallery-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></div>
+                    {% endfor %}
                 </div>
             </section>
 
