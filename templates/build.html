@@ -57,13 +57,13 @@
                         'Снежный городок.webp'
                     ] %}
                     {% for image in build_images %}
-                        <div class="gallery-item {% if loop.first %}current{% elif loop.index == 2 %}next{% elif loop.index == build_images|length %}prev{% else %}hidden{% endif %}">
-                            <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
-                        </div>
+                    <div class="gallery-item{% if loop.first %} current{% elif loop.index == 2 %} next{% elif loop.index == build_images|length %} prev{% else %} hidden{% endif %}">
+                        <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
+                    </div>
                     {% endfor %}
                     <div class="gallery-nav">
                         {% for image in build_images %}
-                            <div class="gallery-dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></div>
+                        <div class="gallery-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></div>
                         {% endfor %}
                     </div>
                 </div>
@@ -252,117 +252,83 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
     let isAnimating = false;
     const totalItems = galleryItems.length;
-    let slideInterval = null; // Добавляем переменную для хранения интервала
+    let slideInterval = null;
     
+    function updateGallery(newIndex, direction = 'right') {
+        if (isAnimating || newIndex === currentIndex) return;
+        isAnimating = true;
+
+        // Обновляем точки навигации
+        dots.forEach(dot => dot.classList.remove('active'));
+        dots[newIndex].classList.add('active');
+
+        const oldIndex = currentIndex;
+        currentIndex = newIndex;
+
+        // Очищаем все классы у элементов
+        galleryItems.forEach(item => {
+            item.classList.remove('prev-out', 'prev', 'current', 'next', 'next-out', 'hidden');
+            item.classList.add('hidden');
+        });
+
+        // Определяем индексы для всех позиций
+        const indexes = {
+            prevOut: (newIndex - 2 + totalItems) % totalItems,
+            prev: (newIndex - 1 + totalItems) % totalItems,
+            current: newIndex,
+            next: (newIndex + 1) % totalItems,
+            nextOut: (newIndex + 2) % totalItems
+        };
+
+        // Задержка для появления следующего изображения
+        setTimeout(() => {
+            // Устанавливаем новые позиции
+            galleryItems[indexes.prevOut].classList.remove('hidden');
+            galleryItems[indexes.prevOut].classList.add('prev-out');
+
+            galleryItems[indexes.prev].classList.remove('hidden');
+            galleryItems[indexes.prev].classList.add('prev');
+
+            galleryItems[indexes.current].classList.remove('hidden');
+            galleryItems[indexes.current].classList.add('current');
+
+            // Добавляем следующие элементы с небольшой задержкой
+            setTimeout(() => {
+                galleryItems[indexes.next].classList.remove('hidden');
+                galleryItems[indexes.next].classList.add('next');
+
+                galleryItems[indexes.nextOut].classList.remove('hidden');
+                galleryItems[indexes.nextOut].classList.add('next-out');
+            }, 300);
+        }, 0);
+
+        // Сбрасываем флаг анимации после завершения всех переходов
+        setTimeout(() => {
+            isAnimating = false;
+        }, 900);
+    }
+
     function startSlideInterval() {
-        // Очищаем предыдущий интервал перед созданием нового
         if (slideInterval) {
             clearInterval(slideInterval);
         }
         slideInterval = setInterval(() => {
-            updateGallery((currentIndex + 1) % totalItems, 'right');
+            if (!isAnimating) {
+                updateGallery((currentIndex + 1) % totalItems);
+            }
         }, 5000);
     }
-    
-    function updateGallery(newIndex, direction) {
-        if (isAnimating) return;
-        isAnimating = true;
-        
-        // Обновляем точки навигации
-        dots.forEach(dot => dot.classList.remove('active'));
-        dots[newIndex].classList.add('active');
-        
-        const oldIndex = currentIndex;
-        currentIndex = newIndex;
-        
-        // Получаем индексы для prev и next элементов
-        const prevIndex = (currentIndex - 1 + totalItems) % totalItems;
-        const nextIndex = (currentIndex + 1) % totalItems;
-        
-        // Сначала убираем все классы
-        galleryItems.forEach(item => {
-            item.classList.remove('prev', 'current', 'next', 'hidden', 'moving-left', 'moving-right', 'visible');
-            item.classList.add('hidden');
-        });
-        
-        // Устанавливаем начальные позиции
-        if (direction === 'right') {
-            galleryItems[oldIndex].classList.remove('hidden');
-            galleryItems[oldIndex].classList.add('moving-left');
-            
-            galleryItems[prevIndex].classList.remove('hidden');
-            galleryItems[prevIndex].classList.add('prev');
-            
-            galleryItems[currentIndex].classList.remove('hidden');
-            galleryItems[currentIndex].classList.add('current');
-            
-            // Следующее изображение появится с задержкой
-            setTimeout(() => {
-                galleryItems[nextIndex].classList.remove('hidden');
-                galleryItems[nextIndex].classList.add('next');
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        galleryItems[nextIndex].classList.add('visible');
-                    }, 50);
-                });
-            }, 300);
-            
-        } else if (direction === 'left') {
-            galleryItems[oldIndex].classList.remove('hidden');
-            galleryItems[oldIndex].classList.add('moving-right');
-            
-            galleryItems[prevIndex].classList.remove('hidden');
-            galleryItems[prevIndex].classList.add('prev');
-            
-            galleryItems[currentIndex].classList.remove('hidden');
-            galleryItems[currentIndex].classList.add('current');
-            
-            // Следующее изображение появится с задержкой
-            setTimeout(() => {
-                galleryItems[nextIndex].classList.remove('hidden');
-                galleryItems[nextIndex].classList.add('next');
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        galleryItems[nextIndex].classList.add('visible');
-                    }, 50);
-                });
-            }, 300);
-        } else {
-            // Первоначальная установка или прямой переход по точкам
-            galleryItems[prevIndex].classList.remove('hidden');
-            galleryItems[prevIndex].classList.add('prev');
-            
-            galleryItems[currentIndex].classList.remove('hidden');
-            galleryItems[currentIndex].classList.add('current');
-            
-            galleryItems[nextIndex].classList.remove('hidden');
-            galleryItems[nextIndex].classList.add('next', 'visible');
-        }
-        
-        // Сбрасываем флаг анимации после завершения всех переходов
-        setTimeout(() => {
-            isAnimating = false;
-            // Очищаем ненужные классы
-            galleryItems.forEach(item => {
-                if (item.classList.contains('moving-left') || item.classList.contains('moving-right')) {
-                    item.classList.add('hidden');
-                    item.classList.remove('moving-left', 'moving-right');
-                }
-            });
-        }, 800);
-    }
-    
+
     // Обработка клика по точкам
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
             if (isAnimating) return;
             const direction = index > currentIndex ? 'right' : 'left';
             updateGallery(index, direction);
-            // Перезапускаем интервал
             startSlideInterval();
         });
     });
-    
+
     // Обработка наведения мыши
     const galleryContainer = document.querySelector('.gallery-container');
     galleryContainer.addEventListener('mouseenter', () => {
@@ -371,12 +337,12 @@ document.addEventListener('DOMContentLoaded', function() {
             slideInterval = null;
         }
     });
-    
+
     galleryContainer.addEventListener('mouseleave', () => {
         startSlideInterval();
     });
-    
-    // Инициализация галереи и запуск автоматического переключения
+
+    // Инициализация галереи
     updateGallery(0);
     startSlideInterval();
 });

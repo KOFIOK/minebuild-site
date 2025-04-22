@@ -213,62 +213,69 @@ html::-webkit-scrollbar-thumb:hover {
     justify-content: center;
     gap: 20px;
     overflow: visible; /* Изменено с hidden на visible */
+    perspective: 1000px;
 }
 
 .gallery-item {
     position: absolute;
-    height: 100%;
-    opacity: 0;
+    transform-origin: center;
+    transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-
-.gallery-item.prev {
-    width: 25%;
-    height: 70%;
-    transform: translateX(-150%);
-    opacity: 1;
-    z-index: 1;
-}
-
-.gallery-item.next {
-    width: 25%;
-    height: 70%;
-    transform: translateX(150%);
-    opacity: 0;
-    z-index: 1;
-    transition: opacity 0.3s ease 0.5s, transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-
-.gallery-item.next.visible {
-    opacity: 1;
+    top: 50%;
 }
 
 .gallery-item.current {
     width: 50%;
-    height: 100%;
-    transform: translateX(0);
+    height: 500px;
+    transform: translate(-50%, -50%) scale(1);
+    left: 50%;
     opacity: 1;
-    z-index: 2;
+    z-index: 3;
     pointer-events: auto;
 }
 
-.gallery-item.moving-left {
-    transform: translateX(-150%) scale(0.7);
+.gallery-item.prev {
+    width: 25%;
+    height: 350px;
+    transform: translate(-200%, -50%) scale(0.7);
+    left: 50%;
+    opacity: 0.6;
+    z-index: 2;
+}
+
+.gallery-item.next {
+    width: 25%;
+    height: 350px;
+    transform: translate(100%, -50%) scale(0.7);
+    left: 50%;
+    opacity: 0.6;
+    z-index: 2;
+}
+
+.gallery-item.prev-out {
+    width: 25%;
+    height: 350px;
+    transform: translate(-300%, -50%) scale(0.5);
+    left: 50%;
     opacity: 0;
     z-index: 1;
 }
 
-.gallery-item.moving-right {
-    transform: translateX(150%) scale(0.7);
+.gallery-item.next-out {
+    width: 25%;
+    height: 350px;
+    transform: translate(200%, -50%) scale(0.5);
+    left: 50%;
     opacity: 0;
     z-index: 1;
 }
 
 .gallery-item.hidden {
-    display: none;
     opacity: 0;
+    pointer-events: none;
     z-index: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    left: 50%;
 }
 
 .gallery-item img {
@@ -276,14 +283,17 @@ html::-webkit-scrollbar-thumb:hover {
     height: 100%;
     object-fit: cover;
     border-radius: 10px;
-    transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: inherit;
 }
 
 .gallery-item.prev img,
-.gallery-item.next img {
+.gallery-item.next img,
+.gallery-item.prev-out img,
+.gallery-item.next-out img {
     filter: brightness(0.5);
 }
 
+/* Точки навигации */
 .gallery-nav {
     position: absolute;
     bottom: -55px; /* Изменено с -40px на -30px */
@@ -291,22 +301,44 @@ html::-webkit-scrollbar-thumb:hover {
     transform: translateX(-50%);
     display: flex;
     gap: 12px; /* Увеличен отступ между точками */
-    z-index: 3;
+    z-index: 4;
     padding: 15px; /* Увеличен padding для большей области клика */
 }
 
-.gallery-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    transition: all 0.3s ease;
+.gallery-item.moving-right {
+    animation: slideRight 0.6s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 
-.gallery-dot.active {
-    background: var(--accent-green);
-    transform: scale(1.2);
+.gallery-item.moving-left {
+    animation: slideLeft 0.6s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+@keyframes slideRight {
+    from {
+        transform: translateX(100%) scale(0.7);
+        opacity: 0.6;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideLeft {
+    from {
+        transform: translateX(-100%) scale(0.7);
+        opacity: 0.6;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.gallery-item.hidden {
+    display: none;
+    opacity: 0;
+    z-index: 0;
 }
 
 .section-title-container {
