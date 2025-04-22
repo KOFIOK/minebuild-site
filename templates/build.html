@@ -24,6 +24,51 @@
                 </a>
             </section>
             
+            <section class="gallery-section animate-slide-up">
+                <div class="section-title-container">
+                    <h2>Галерея</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div class="gallery-container">
+                    {% set build_images = [
+                        '2024-08-19_14.14.19.webp',
+                        '2024-08-29_13.35.54.webp',
+                        '2024-09-14_22.57.40.webp',
+                        '2024-09-14_23.03.49.webp',
+                        '2024-10-26_23.09.56.webp',
+                        '2024-10-27_16.21.52.webp',
+                        '2024-11-03_17.54.01.webp',
+                        '2024-11-04_16.36.15.webp',
+                        '2024-11-09_13.57.33.webp',
+                        '2024-11-09_13.57.39.webp',
+                        '2024-11-19_17.54.29.webp',
+                        '2024-11-20_22.02.24.webp',
+                        '2024-12-15_15.13.58.webp',
+                        '2024-12-28_22.27.40.webp',
+                        '2025-01-07_00.29.14.webp',
+                        '2025-03-01_13.38.55.webp',
+                        '2025-04-20_13.33.16.webp',
+                        '2025-04-20_13.33.22.webp',
+                        '2025-04-20_13.33.27.webp',
+                        '2025-04-20_17.32.54.webp',
+                        '2025-04-20_17.32.58.webp',
+                        '2025-04-20_17.33.03.webp',
+                        '2025-04-20_17.33.08.webp',
+                        'Снежный городок.webp'
+                    ] %}
+                    {% for image in build_images %}
+                        <div class="gallery-item {% if loop.first %}current{% elif loop.index == 2 %}next{% elif loop.index == build_images|length %}prev{% else %}hidden{% endif %}">
+                            <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
+                        </div>
+                    {% endfor %}
+                    <div class="gallery-nav">
+                        {% for image in build_images %}
+                            <div class="gallery-dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
             <section class="mods-section animate-slide-up">
                 <div class="section-title-container">
                     <h2>Список модификаций</h2>
@@ -142,7 +187,7 @@
                             <p class="mod-description">Позволяет создавать и просматривать схемы построек даже на серверах</p>
                         </div>
                         <div class="mod-card">
-                            <h3 class="mod-name">WorldEdit</h>
+                            <h3 class="mod-name">WorldEdit</h3>
                             <p class="mod-description">Мощный инструмент для строительства и редактирования мира</p>
                         </div>
                         <div class="mod-card">
@@ -197,4 +242,143 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const dots = document.querySelectorAll('.gallery-dot');
+    let currentIndex = 0;
+    let isAnimating = false;
+    const totalItems = galleryItems.length;
+    let slideInterval = null; // Добавляем переменную для хранения интервала
+    
+    function startSlideInterval() {
+        // Очищаем предыдущий интервал перед созданием нового
+        if (slideInterval) {
+            clearInterval(slideInterval);
+        }
+        slideInterval = setInterval(() => {
+            updateGallery((currentIndex + 1) % totalItems, 'right');
+        }, 5000);
+    }
+    
+    function updateGallery(newIndex, direction) {
+        if (isAnimating) return;
+        isAnimating = true;
+        
+        // Обновляем точки навигации
+        dots.forEach(dot => dot.classList.remove('active'));
+        dots[newIndex].classList.add('active');
+        
+        const oldIndex = currentIndex;
+        currentIndex = newIndex;
+        
+        // Получаем индексы для prev и next элементов
+        const prevIndex = (currentIndex - 1 + totalItems) % totalItems;
+        const nextIndex = (currentIndex + 1) % totalItems;
+        
+        // Сначала убираем все классы
+        galleryItems.forEach(item => {
+            item.classList.remove('prev', 'current', 'next', 'hidden', 'moving-left', 'moving-right', 'visible');
+            item.classList.add('hidden');
+        });
+        
+        // Устанавливаем начальные позиции
+        if (direction === 'right') {
+            galleryItems[oldIndex].classList.remove('hidden');
+            galleryItems[oldIndex].classList.add('moving-left');
+            
+            galleryItems[prevIndex].classList.remove('hidden');
+            galleryItems[prevIndex].classList.add('prev');
+            
+            galleryItems[currentIndex].classList.remove('hidden');
+            galleryItems[currentIndex].classList.add('current');
+            
+            // Следующее изображение появится с задержкой
+            setTimeout(() => {
+                galleryItems[nextIndex].classList.remove('hidden');
+                galleryItems[nextIndex].classList.add('next');
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        galleryItems[nextIndex].classList.add('visible');
+                    }, 50);
+                });
+            }, 300);
+            
+        } else if (direction === 'left') {
+            galleryItems[oldIndex].classList.remove('hidden');
+            galleryItems[oldIndex].classList.add('moving-right');
+            
+            galleryItems[prevIndex].classList.remove('hidden');
+            galleryItems[prevIndex].classList.add('prev');
+            
+            galleryItems[currentIndex].classList.remove('hidden');
+            galleryItems[currentIndex].classList.add('current');
+            
+            // Следующее изображение появится с задержкой
+            setTimeout(() => {
+                galleryItems[nextIndex].classList.remove('hidden');
+                galleryItems[nextIndex].classList.add('next');
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        galleryItems[nextIndex].classList.add('visible');
+                    }, 50);
+                });
+            }, 300);
+        } else {
+            // Первоначальная установка или прямой переход по точкам
+            galleryItems[prevIndex].classList.remove('hidden');
+            galleryItems[prevIndex].classList.add('prev');
+            
+            galleryItems[currentIndex].classList.remove('hidden');
+            galleryItems[currentIndex].classList.add('current');
+            
+            galleryItems[nextIndex].classList.remove('hidden');
+            galleryItems[nextIndex].classList.add('next', 'visible');
+        }
+        
+        // Сбрасываем флаг анимации после завершения всех переходов
+        setTimeout(() => {
+            isAnimating = false;
+            // Очищаем ненужные классы
+            galleryItems.forEach(item => {
+                if (item.classList.contains('moving-left') || item.classList.contains('moving-right')) {
+                    item.classList.add('hidden');
+                    item.classList.remove('moving-left', 'moving-right');
+                }
+            });
+        }, 800);
+    }
+    
+    // Обработка клика по точкам
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            if (isAnimating) return;
+            const direction = index > currentIndex ? 'right' : 'left';
+            updateGallery(index, direction);
+            // Перезапускаем интервал
+            startSlideInterval();
+        });
+    });
+    
+    // Обработка наведения мыши
+    const galleryContainer = document.querySelector('.gallery-container');
+    galleryContainer.addEventListener('mouseenter', () => {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+            slideInterval = null;
+        }
+    });
+    
+    galleryContainer.addEventListener('mouseleave', () => {
+        startSlideInterval();
+    });
+    
+    // Инициализация галереи и запуск автоматического переключения
+    updateGallery(0);
+    startSlideInterval();
+});
+</script>
 {% endblock %}
