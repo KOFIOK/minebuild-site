@@ -207,14 +207,28 @@
 }
 
 .success-message .home-button {
-    margin-top: 20px;
+    margin-top: 30px;
     opacity: 0;
     animation: buttonAppear 0.6s ease-out 1s forwards;
-    font-size: 0.95rem;
-    padding: 8px 20px;
+    font-size: 1rem;
+    padding: 12px 30px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    border: none;
+    border-radius: 6px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.success-message .home-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.success-message .home-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .character-count {
