@@ -243,6 +243,10 @@ html::-webkit-scrollbar-thumb:hover {
     align-items: center;
     justify-content: center;
     z-index: 2;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform-style: preserve-3d;
 }
 
 .gallery-item {
@@ -254,80 +258,80 @@ html::-webkit-scrollbar-thumb:hover {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    will-change: transform, opacity;
 }
 
 .gallery-item.current {
     width: 65%;
     height: 700px;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%);
     left: 50%;
     opacity: 1;
     z-index: 3;
-    pointer-events: auto;
 }
 
 .gallery-item.prev {
     width: 40%;
     height: 500px;
-    transform: translate(-150%, -50%) scale(0.8);
+    transform: translate(-150%, -50%);
     left: 50%;
     opacity: 0.7;
     z-index: 2;
+    cursor: pointer;
+    pointer-events: auto;
 }
 
 .gallery-item.next {
     width: 40%;
     height: 500px;
-    transform: translate(50%, -50%) scale(0.8);
+    transform: translate(100%, -50%);
     left: 50%;
-    opacity: 0.7;
+    opacity: 0;
     z-index: 2;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-.gallery-item.prev-out {
-    width: 30%;
-    height: 400px;
-    transform: translate(-260%, -50%) scale(0.5);
-    left: 50%;
-    opacity: 0;
-    z-index: 1;
-}
-
-.gallery-item.next-out {
-    width: 30%;
-    height: 400px;
-    transform: translate(160%, -50%) scale(0.5);
-    left: 50%;
-    opacity: 0;
-    z-index: 1;
+.gallery-item.next.visible {
+    transform: translate(50%, -50%);
+    opacity: 0.7;
 }
 
 .gallery-item.hidden {
     opacity: 0;
     pointer-events: none;
-    z-index: 0;
-    transform: translate(-50%, -50%) scale(0.5);
-    left: 50%;
+    z-index: 1;
+    visibility: hidden;
+}
+
+.gallery-item.prev:hover {
+    transform: translate(-150%, -50%) scale(1.05);
+    opacity: 0.9;
+}
+
+.gallery-item.next:hover {
+    transform: translate(50%, -50%) scale(1.05);
+    opacity: 0.9;
 }
 
 .gallery-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scale(1.05);
-    transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: all 0.3s ease;
 }
 
 .gallery-item.prev img,
 .gallery-item.next img {
-    filter: brightness(0.4) blur(1px);
+    filter: brightness(0.5);
 }
 
-.gallery-item.prev img,
-.gallery-item.next img,
-.gallery-item.prev-out img,
-.gallery-item.next-out img {
-    filter: brightness(0.5);
+.gallery-item.prev:hover img,
+.gallery-item.next:hover img {
+    filter: brightness(0.7);
 }
 
 /* Точки навигации */
@@ -346,6 +350,7 @@ html::-webkit-scrollbar-thumb:hover {
     border: 1px solid rgba(255, 255, 255, 0.1);
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: auto;
 }
 
 .gallery-dot {
@@ -823,11 +828,15 @@ html {
     }
 
     .gallery-item.prev {
-        transform: translate(-160%, -50%) scale(0.7);
+        transform: translate(-120%, -50%);
     }
 
     .gallery-item.next {
-        transform: translate(60%, -50%) scale(0.7);
+        transform: translate(20%, -50%);
+    }
+
+    .gallery-item.next.visible {
+        transform: translate(20%, -50%);
     }
 }
 
@@ -852,7 +861,10 @@ html {
     }
 
     .gallery-item.next {
-        transform: translate(40%, -50%) scale(0.7);
+        transform: translate(20%, -50%);
+    }
+    .gallery-item.next.visible {
+        transform: translate(20%, -50%);
     }
 }
 
@@ -877,7 +889,10 @@ html {
     }
 
     .gallery-item.next {
-        transform: translate(20%, -50%) scale(0.7);
+        transform: translate(15%, -50%);
+    }
+    .gallery-item.next.visible {
+        transform: translate(15%, -50%);
     }
 }
 
@@ -902,7 +917,10 @@ html {
     }
 
     .gallery-item.next {
-        transform: translate(10%, -50%) scale(0.7);
+        transform: translate(10%, -50%);
+    }
+    .gallery-item.next.visible {
+        transform: translate(10%, -50%);
     }
 }
 
@@ -912,4 +930,21 @@ html {
 
 .gallery-nav:hover {
     opacity: 1;
+}
+
+.gallery-item.prev,
+.gallery-item.next {
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+}
+
+.gallery-item.prev:hover,
+.gallery-item.next:hover {
+    opacity: 0.9;
+    transform: translate(-150%, -50%) scale(0.85);
+}
+
+.gallery-item.next:hover {
+    transform: translate(50%, -50%) scale(0.85);
 }
