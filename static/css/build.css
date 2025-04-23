@@ -4,8 +4,7 @@ body {
     font-family: 'Montserrat', Arial, sans-serif;
     min-height: 100vh;
     position: relative;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+     overflow-x: hidden;
 }
 
 body::before {
@@ -22,10 +21,12 @@ body::before {
 
 /* Основные стили для страницы сборки */
 .build-body {
+    margin: 0;
+    padding: 0;
     background: none !important;
+    position: relative;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    position: relative;
     scrollbar-width: thin;
     scrollbar-color: var(--accent-green) var(--bg-darker);
 }
@@ -34,24 +35,37 @@ body::before {
     display: none;
 }
 
-.build-body::-webkit-scrollbar {
-    width: 8px;
+/* Глобальные стили для скроллбара на странице сборки */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-darker);
+}
+
+.build-body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    width: 8px !important;
     display: block !important;
 }
 
-.build-body::-webkit-scrollbar-track {
-    background: var(--bg-darker);
-    display: block !important;
+.build-body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+    background: var(--bg-darker) !important;
 }
 
-.build-body::-webkit-scrollbar-thumb {
-    background: var(--accent-green);
-    border-radius: 4px;
-    display: block !important;
+.build-body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+    background: var(--accent-green) !important;
+    border-radius: 4px !important;
 }
 
-.build-body::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-dark-green);
+.build-body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green) !important;
+}
+
+/* Стили для Edge */
+.build-body {
+    -ms-overflow-style: auto;
 }
 
 /* Кастомный скроллбар для всех элементов на странице */

@@ -49,19 +49,18 @@
     --navbar-height: 80px;
 }
 
-/* Добавляем плавную прокрутку глобально */
+/* Добавляем плавную прокрутку и базовые стили для контейнеров */
 html {
     scroll-behavior: smooth;
-}
-
-html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
 }
 
 body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     background-color: var(--bg-dark);
     background-image: url('../images/background/steve_mountain.webp');
     background-size: cover;
@@ -72,6 +71,38 @@ body {
     font-family: 'Montserrat', Arial, sans-serif;
     min-height: 100vh;
     position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll !important;
+}
+
+/* Глобальные стили для скроллбара Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-darker);
+}
+
+/* Глобальные стили для скроллбара Webkit */
+::-webkit-scrollbar {
+    width: 8px;
+    display: block;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green);
+}
+
+/* Стили для Edge и IE */
+* {
+    -ms-overflow-style: auto;
 }
 
 body::before {
@@ -765,6 +796,7 @@ body {
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
+    display: block;
 }
 
 ::-webkit-scrollbar-track {
@@ -2158,4 +2190,35 @@ footer .small {
     .progress-step.active {
         background: currentColor;
     }
+}
+
+.main-body {
+    background: none !important;
+    position: relative;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin;  /* Firefox */
+    scrollbar-color: var(--accent-green) var(--bg-darker);  /* Firefox */
+}
+
+.main-body::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+.main-body::-webkit-scrollbar-track {
+    background: var(--bg-darker) !important;
+}
+
+.main-body::-webkit-scrollbar-thumb {
+    background: var(--accent-green) !important;
+    border-radius: 4px !important;
+}
+
+.main-body::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green) !important;
+}
+
+/* Стили для Edge */
+.main-body {
+    -ms-overflow-style: auto;
 }
