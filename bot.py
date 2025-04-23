@@ -266,9 +266,9 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
             )
             view.add_item(button)
             
-            # Обновляем текст сообщения и view
+            # Обновляем текст сообщения и view, добавляя причину отказа
             await interaction.message.edit(
-                content=f"-# Заявка игрока <@{self.discord_id}> отклонена!",
+                content=f"-# Заявка игрока <@{self.discord_id}> отклонена!\n-# Причина: {self.reason.value}",
                 view=view
             )
             await interaction.response.send_message("Отказ в заявке успешно обработан.", ephemeral=True)
