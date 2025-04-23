@@ -342,7 +342,7 @@ async def create_application_message(
     embed: discord.Embed
 ) -> bool:
     """
-    Создает сообщение с заявкой в указанном канале.
+    Создает сообщение с заявкой в указанном канале и отправляет копию пользователю.
     
     Args:
         channel: Канал Discord для отправки заявки
@@ -397,17 +397,64 @@ async def create_application_message(
         if len(details_embed.fields) > 0:
             embeds.append(details_embed)
         
-        # Создаем view с кнопками в правильном порядке: сначала Одобрить, затем Отказать, в конце В кандидаты
+        # Создаем view с кнопками в правильном порядке
         view = discord.ui.View(timeout=None)
         view.add_item(ApproveButton(discord_id))     # Первая кнопка - Одобрить
         view.add_item(RejectButton(discord_id))      # Вторая кнопка - Отказать
         view.add_item(CandidateButton(discord_id))   # Третья кнопка - В кандидаты
         
+        # Отправляем заявку в канал
         await channel.send(
             content=f"-# ||<@&{MODERATOR_ROLE_ID}>||\n## <@{discord_id}> отправил заявку на сервер!",
             embeds=embeds,
             view=view
         )
+
+        # Отправляем копию заявки пользователю
+        try:
+            # Получаем пользователя
+            user = await channel.guild.fetch_member(int(discord_id))
+            if user:
+                user_embeds = []
+                # Создаем копию эмбедов для пользователя
+                if len(main_embed.fields) > 0:
+                    user_main_embed = discord.Embed(
+                        title="📝 Ваша заявка (основная информация)",
+                        description="Ваша заявка успешно отправлена на рассмотрение!",
+                        color=0x00E5A1,
+                        timestamp=embed.timestamp
+                    )
+                    for field in main_embed.fields:
+                        user_main_embed.add_field(
+                            name=field.name,
+                            value=field.value,
+                            inline=True
+                        )
+                    user_embeds.append(user_main_embed)
+                
+                if len(details_embed.fields) > 0:
+                    user_details_embed = discord.Embed(
+                        title="📋 Ваша заявка (подробная информация)",
+                        color=0x00E5A1,
+                        timestamp=embed.timestamp
+                    )
+                    for field in details_embed.fields:
+                        user_details_embed.add_field(
+                            name=field.name,
+                            value=field.value,
+                            inline=False
+                        )
+                    user_embeds.append(user_details_embed)
+
+                await user.send(
+                    content="# ✅ Ваша заявка успешно отправлена!\nОжидайте решения кураторов набора. Вы получите уведомление, когда заявка будет рассмотрена.",
+                    embeds=user_embeds
+                )
+        except discord.Forbidden:
+            logger.warning(f"Не удалось отправить личное сообщение пользователю {discord_id}")
+        except Exception as e:
+            logger.error(f"Ошибка при отправке копии заявки пользователю: {e}", exc_info=True)
+
         return True
     except Exception as e:
         logger.error(f"Ошибка при отправке заявки: {e}", exc_info=True)
@@ -513,11 +560,6 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
                     f"Игрок {minecraft_nickname} уже находится в белом списке.",
                     ephemeral=True
                 )
-            elif "добавлен" in clean_response.lower() or "успешно" in clean_response.lower():
-                await interaction.followup.send(
-                    f"Игрок {minecraft_nickname} успешно добавлен в белый список!",
-                    ephemeral=True
-                )
             else:
                 await interaction.followup.send(
                     f"Команда выполнена, но получен неожиданный ответ: {clean_response}",
@@ -604,7 +646,7 @@ async def update_candidate_message(message: discord.Message, discord_id: str) ->
         custom_id=f"candidate_disabled_{discord_id}"
     )
     
-    # Кнопки одобрения и отказа для кандидата
+    # Кнопки одобрения и отказа для кандидата (важно передать is_candidate=True)
     approve_button = ApproveButton(discord_id, is_candidate=True)
     reject_button = RejectButton(discord_id, is_candidate=True)
     
