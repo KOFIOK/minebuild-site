@@ -5,8 +5,12 @@
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     overflow: hidden;
-    padding: 0;
+        background-image: url('../images/background/fox.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .parallax-bg {
@@ -15,22 +19,29 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/background/fox.webp');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    filter: brightness(0.4);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 1;
+}
+
+/* Добавляем новый элемент для маскировки фона после первой секции */
+.parallax-hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, var(--bg-dark));
+    z-index: 2;
 }
 
 .parallax-content {
     position: relative;
     z-index: 2;
     text-align: center;
-    width: 100%;
     padding: 0 20px;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 80px auto 0; /* Добавляем отступ сверху для компенсации хедера */
 }
 
 .parallax-content h1 {
