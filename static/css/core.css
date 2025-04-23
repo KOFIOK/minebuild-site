@@ -1,0 +1,142 @@
+/* Шрифты */
+@font-face {
+    font-family: 'Rimma Sans';
+    src: url('../fonts/RIMMA_SANS-BOLD.TTF') format('truetype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Evolventa';
+    src: url('../fonts/Evolventa-Regular.ttf') format('truetype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Intro Demo';
+    src: url('../fonts/IntroDemoCond-BlackCAPS.otf') format('opentype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: normal;
+}
+
+/* Глобальные переменные */
+:root {
+    --bg-dark: #0A0A0A;
+    --bg-darker: #050505;
+    --accent-green: #00E5A1;
+    --accent-dark-green: #00B37F;
+    --accent-purple: #9370DB;
+    --accent-dark-purple: #4B0082;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --card-bg: rgba(15, 15, 15, 0.8);
+    --card-border: rgba(147, 112, 219, 0.2);
+    --navbar-height: 80px;
+}
+
+/* Базовые стили */
+html {
+    scroll-behavior: smooth;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    background-image: url('../images/background/steve_mountain.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: 'Montserrat', Arial, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll !important;
+}
+
+/* Глобальные стили для скроллбара */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-darker);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    display: block;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark-green);
+}
+
+/* Базовые анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Утилитарные классы */
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out forwards;
+}
+
+/* Поддержка уменьшенного движения */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Поддержка высококонтрастного режима */
+@media (forced-colors: active) {
+    * {
+        border-color: currentColor;
+    }
+}

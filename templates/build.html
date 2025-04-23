@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}MineBuild - Сборка сервера{% endblock %}
+{% block title %}MineBuild - Сборка{% endblock %}
+
+{% block body_class %}build-body{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/build.css') }}">
 {% endblock %}
-
-{% block body_class %}build-body{% endblock %}
 
 {% block content %}
 <div class="build-page">

@@ -89,21 +89,46 @@
 }
 
 .about-section .feature-list {
-    margin-top: 2rem;
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
 }
 
 .about-section .feature-list li {
-    background: transparent;
-    padding: 1rem 1.5rem;
+    background: rgba(15, 15, 15, 0.3);
+    padding: 1.25rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.about-section .feature-list li i {
+    color: var(--accent-green);
+    font-size: 1.5rem;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 229, 161, 0.2));
 }
 
 .about-section .feature-list li:hover {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-green);
     transform: translateX(10px);
+    background: rgba(15, 15, 15, 0.5);
+}
+
+.about-section .feature-list li:hover i {
+    transform: scale(1.2);
+    filter: drop-shadow(0 2px 8px rgba(0, 229, 161, 0.4));
 }
 
 .about-section .about-image {
@@ -115,6 +140,28 @@
 
 .about-section .about-image:hover {
     transform: scale(1.02);
+}
+
+.about-section .section-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about-section .section-text {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    max-width: 800px;
 }
 
 /* Статистика */
@@ -143,35 +190,58 @@
 }
 
 .stats-section .stat-card {
-    background: transparent;
+    background: rgba(15, 15, 15, 0.3);
     border-radius: 15px;
     padding: 2.5rem;
     height: 100%;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .stats-section .stat-card:hover {
     transform: translateY(-10px);
     border-color: var(--accent-green);
+    background: rgba(15, 15, 15, 0.5);
 }
 
 .stats-section .stat-card i {
     color: var(--accent-green);
-    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
     transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 229, 161, 0.3));
 }
 
 .stats-section .stat-card:hover i {
     transform: scale(1.2);
+    filter: drop-shadow(0 2px 8px rgba(0, 229, 161, 0.5));
 }
 
 .stats-section .stat-number {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin: 1rem 0;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     transition: all 0.3s ease;
 }
 
 .stats-section .stat-card:hover .stat-number {
-    color: var(--accent-green);
+    transform: scale(1.1);
+}
+
+.stats-section .stat-label {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0;
+    transition: all 0.3s ease;
 }
 
 /* Призыв к действию */
@@ -203,27 +273,69 @@
 }
 
 .cta-section .cta-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 15, 15, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 4rem 2rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.cta-section .cta-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg,
-        var(--accent-green),
-        var(--accent-purple),
-        var(--accent-green));
-    background-size: 200% 100%;
-    animation: gradient 5s linear infinite;
+.cta-section .section-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cta-section .section-text {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.cta-section .btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Rimma Sans', sans-serif;
+}
+
+.cta-section .btn-primary {
+    background: var(--accent-green);
+    border: none;
+    color: var(--bg-dark);
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.cta-section .btn-outline-light {
+    border: 1px solid var(--text-primary);
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.cta-section .btn-primary:hover {
+    background: var(--accent-dark-green);
+    transform: translateY(-2px);
+}
+
+.cta-section .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    border-color: var(--accent-green);
 }
 
 /* Улучшаем медиа-запросы для страницы about */
@@ -429,4 +541,4 @@
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
-} 
+}

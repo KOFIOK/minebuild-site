@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% block title %}MineBuild - Правила{% endblock %}
+
+{% block body_class %}rules-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/rules.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="rules-page">
     <div class="rules-background"></div>
@@ -68,5 +76,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block body_class %}rules-body{% endblock %} 

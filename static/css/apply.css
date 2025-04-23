@@ -1,0 +1,399 @@
+.apply-form-container {
+    max-width: 800px;
+    margin: 80px auto;
+    padding: 20px;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-progress-bar {
+    position: relative;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 40px;
+    border-radius: 2px;
+}
+
+.progress-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg,
+        var(--accent-green),
+        var(--accent-purple));
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.progress-steps {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+}
+
+.progress-step {
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active {
+    background: var(--accent-green);
+    transform: scale(1.2);
+}
+
+.application-form {
+    background: rgba(15, 15, 15, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.form-slides {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-slide {
+    display: none;
+    flex: 1;
+}
+
+.form-slide.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.question-container {
+    margin-bottom: 60px;
+    flex-grow: 1;
+}
+
+.question-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.required-mark {
+    color: #ff4444;
+    font-weight: bold;
+}
+
+.form-check {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    margin-bottom: 8px;
+}
+
+.form-check:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.form-check label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+}
+
+.form-check input[type="radio"] {
+    cursor: pointer;
+}
+
+.help-texts-container {
+    margin-bottom: 2rem;
+}
+
+.help-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border-left: 3px solid var(--accent-green);
+    cursor: help;
+    position: relative;
+}
+
+.help-text:last-child {
+    margin-bottom: 0;
+}
+
+.help-text:hover .help-image {
+    display: block;
+}
+
+.help-image {
+    display: none;
+    position: absolute;
+    right: -440px;
+    top: -40px;
+    z-index: 1000;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    gap: 20px;
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 68, 68, 0.1);
+    border-radius: 4px;
+}
+
+.error-message.global {
+    margin-bottom: 20px;
+}
+
+.success-message {
+    text-align: center;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-out;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-message i {
+    font-size: 4rem;
+    color: var(--accent-green);
+    margin-bottom: 1.5rem;
+    animation: checkmark 0.5s ease-out;
+}
+
+.success-message h2 {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.success-message p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.success-message .home-button {
+    margin-top: 20px;
+    opacity: 0;
+    animation: buttonAppear 0.6s ease-out 1s forwards;
+    font-size: 0.95rem;
+    padding: 8px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.character-count {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+.character-count span {
+    font-weight: bold;
+}
+
+/* Анимации */
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes buttonAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .apply-form-container {
+        max-width: 90%;
+    }
+    
+    .form-progress-bar {
+        margin-bottom: 35px;
+    }
+}
+
+@media (max-width: 991px) {
+    .apply-form-container {
+        max-width: 95%;
+    }
+    
+    .question-title {
+        font-size: 1.3rem;
+    }
+    
+    .form-control {
+        font-size: 1rem;
+    }
+    
+    .help-text {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .apply-form-container {
+        margin: 30px auto;
+        padding: 15px;
+    }
+    
+    .application-form {
+        padding: 25px;
+    }
+    
+    .question-title {
+        font-size: 1.2rem;
+    }
+    
+    .form-control {
+        padding: 10px;
+        font-size: 16px; /* Предотвращает масштабирование на iOS */
+    }
+    
+    .form-check {
+        padding: 8px 10px;
+    }
+    
+    .help-text {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .help-image {
+        max-width: 100%;
+        right: 0;
+        top: 100%;
+        margin-top: 10px;
+    }
+    
+    .form-navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-navigation .btn {
+        width: 100%;
+    }
+    
+    .success-message {
+        padding: 1.5rem;
+    }
+    
+    .success-message i {
+        font-size: 3rem;
+    }
+    
+    .success-message h2 {
+        font-size: 1.5rem;
+    }
+    
+    .success-message p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .apply-form-container {
+        margin: 20px auto;
+        padding: 10px;
+    }
+    
+    .application-form {
+        padding: 20px;
+    }
+    
+    .form-progress-bar {
+        margin-bottom: 25px;
+    }
+    
+    .progress-step {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .question-title {
+        font-size: 1.1rem;
+    }
+    
+    .form-control {
+        padding: 8px;
+        font-size: 16px;
+    }
+    
+    .form-check {
+        padding: 6px 8px;
+    }
+    
+    .help-text {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .success-message {
+        padding: 1rem;
+    }
+}
+
+/* Поддержка touch-устройств */
+@media (hover: none) and (pointer: coarse) {
+    .form-check:hover {
+        background-color: transparent;
+    }
+    
+    .help-text:hover .help-image {
+        display: none;
+    }
+}

@@ -2,6 +2,10 @@
 
 {% block title %}MineBuild - Подать заявку{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/apply.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="apply-form-container">
     <div class="form-progress-bar">
@@ -450,4 +454,4 @@ function updateCharacterCount(textarea, minLength, maxLength) {
     }
 }
 </script>
-{% endblock %} 
+{% endblock %}
