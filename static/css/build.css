@@ -25,7 +25,6 @@ body::before {
     padding: 0;
     background: none !important;
     position: relative;
-    min-height: 100vh;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     scrollbar-width: thin;

@@ -193,6 +193,7 @@
     background: radial-gradient(circle at center, 
         rgba(0, 229, 161, 0.05) 0%,
         transparent 70%);
+    pointer-events: none;
 }
 
 .stats-section .container {
@@ -203,12 +204,16 @@
 .stats-section .stat-card {
     background: rgba(15, 15, 15, 0.3);
     border-radius: 15px;
-    padding: 2.5rem;
+    padding: 2rem;
     height: 100%;
     transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .stats-section .stat-card:hover {
@@ -220,7 +225,7 @@
 .stats-section .stat-card i {
     color: var(--accent-green);
     font-size: 2.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     transition: all 0.3s ease;
     filter: drop-shadow(0 2px 4px rgba(0, 229, 161, 0.3));
 }
@@ -232,14 +237,13 @@
 
 .stats-section .stat-number {
     font-family: 'Intro Demo', sans-serif;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: var(--text-primary);
-    margin: 1rem 0;
     background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin: 0.5rem 0;
     transition: all 0.3s ease;
 }
 
@@ -249,9 +253,10 @@
 
 .stats-section .stat-label {
     font-family: 'Evolventa', sans-serif;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     margin: 0;
+    text-align: center;
     transition: all 0.3s ease;
 }
 
@@ -373,6 +378,13 @@
     line-height: 1.6;
 }
 
+.cta-section .btn-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .cta-section .btn {
     position: relative;
     z-index: 5;
@@ -381,6 +393,8 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Rimma Sans', sans-serif;
+    min-width: 200px;
+    text-align: center;
     overflow: hidden;
     transition: all 0.3s ease;
 }
@@ -444,6 +458,10 @@
     .section-title {
         font-size: 2.2rem;
     }
+    
+    .stats-section .stat-number {
+        font-size: 2.2rem;
+    }
 }
 
 @media (max-width: 991px) {
@@ -480,9 +498,16 @@
         margin-bottom: 1.5rem;
     }
 
+    .stats-section .row > div {
+        margin-bottom: 2rem;
+    }
+    
+    .stats-section .row > div:last-child {
+        margin-bottom: 0;
+    }
+    
     .cta-section .btn {
-        padding: 0.9rem 1.8rem;
-        font-size: 1rem;
+        min-width: 180px;
     }
 }
 
@@ -516,7 +541,7 @@
     }
     
     .stat-number {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
     
     .stat-label {
@@ -571,7 +596,7 @@
     }
     
     .stat-number {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .stat-label {
@@ -588,6 +613,7 @@
     
     .cta-section .btn {
         width: 100%;
+        min-width: unset;
         margin: 0.5rem 0;
     }
     

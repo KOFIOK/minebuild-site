@@ -68,7 +68,6 @@
     transition: all 0.3s ease;
 }
 
-/* Добавляем градиент при наведении */
 .navbar:hover {
     background-color: rgba(10, 10, 10, 0.95);
 }

@@ -5,7 +5,7 @@
     min-height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
-    }
+}
 
 .form-progress-bar {
     position: relative;
