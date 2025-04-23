@@ -44,6 +44,8 @@ html {
     height: 100%;
     margin: 0;
     padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-darker);
 }
 
 body {
@@ -64,28 +66,41 @@ body {
     overflow-y: scroll !important;
 }
 
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+}
+
 /* Глобальные стили для скроллбара */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-green) var(--bg-darker);
+    -ms-overflow-style: auto;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
-    display: block;
+    width: 8px !important;
+    display: block !important;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-darker);
+    background: var(--bg-darker) !important;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--accent-green);
-    border-radius: 4px;
+    background: var(--accent-green) !important;
+    border-radius: 4px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-dark-green);
+    background: var(--accent-dark-green) !important;
 }
 
 /* Базовые анимации */

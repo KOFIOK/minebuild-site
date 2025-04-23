@@ -276,6 +276,7 @@
     background-attachment: fixed;
     opacity: 0.05;
     filter: blur(5px);
+    pointer-events: none;
 }
 
 .cta-section .container {
@@ -289,26 +290,82 @@
     -webkit-backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 4rem 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.cta-card .content-wrapper {
+    position: relative;
+    z-index: 5;
+}
+
+/* Градиентная рамка */
+.cta-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 2px;
+    background: linear-gradient(45deg, 
+        var(--accent-green), 
+        var(--accent-purple), 
+        var(--accent-green));
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    background-size: 200% 200%;
+    animation: gradientBorder 4s linear infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Эффект свечения */
+.cta-card::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 229, 161, 0.1) 0%,
+        transparent 50%
+    );
+    animation: rotateLighting 10s linear infinite;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .cta-section .section-title {
+    position: relative;
+    z-index: 5;
     font-family: 'Intro Demo', sans-serif;
     font-size: 2.5rem;
-    color: var(--text-primary);
     margin-bottom: 1.5rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    background: linear-gradient(45deg, 
+        var(--text-primary) 0%, 
+        var(--accent-green) 50%, 
+        var(--text-primary) 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    animation: gradientText 4s linear infinite;
+    user-select: text;
 }
 
 .cta-section .section-text {
+    position: relative;
+    z-index: 5;
     font-family: 'Evolventa', sans-serif;
     font-size: 1.2rem;
     color: var(--text-secondary);
@@ -317,36 +374,61 @@
 }
 
 .cta-section .btn {
+    position: relative;
+    z-index: 5;
     padding: 1rem 2rem;
     font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Rimma Sans', sans-serif;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .cta-section .btn-primary {
-    background: var(--accent-green);
+    background: linear-gradient(45deg, var(--accent-green), var(--accent-purple));
     border: none;
-    color: var(--bg-dark);
+    color: var(--text-primary);
     font-weight: bold;
     margin-right: 1rem;
 }
 
 .cta-section .btn-outline-light {
-    border: 1px solid var(--text-primary);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     color: var(--text-primary);
     background: transparent;
 }
 
+.cta-section .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.cta-section .btn:hover::before {
+    left: 100%;
+}
+
 .cta-section .btn-primary:hover {
-    background: var(--accent-dark-green);
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
 }
 
 .cta-section .btn-outline-light:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
     border-color: var(--accent-green);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
 }
 
 /* Улучшаем медиа-запросы для страницы about */
@@ -397,6 +479,11 @@
     .stat-card {
         margin-bottom: 1.5rem;
     }
+
+    .cta-section .btn {
+        padding: 0.9rem 1.8rem;
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -437,11 +524,19 @@
     }
     
     .cta-section {
-        padding: 40px 0;
+        padding: 60px 0;
     }
     
     .cta-card {
-        padding: 2rem 1.5rem;
+        padding: 3rem 1.5rem;
+    }
+    
+    .cta-section .section-title {
+        font-size: 2rem;
+    }
+    
+    .cta-section .section-text {
+        font-size: 1.1rem;
     }
 }
 
@@ -484,16 +579,24 @@
     }
     
     .cta-section {
-        padding: 30px 0;
+        padding: 40px 0;
     }
     
     .cta-card {
-        padding: 1.5rem 1rem;
+        padding: 2rem 1rem;
     }
     
-    .cta-card .btn {
+    .cta-section .btn {
         width: 100%;
-        margin-bottom: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .cta-section .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .cta-section .section-text {
+        font-size: 1rem;
     }
 }
 
@@ -523,6 +626,12 @@
     .about-image {
         transition: none !important;
     }
+
+    .cta-card::before,
+    .cta-card::after,
+    .cta-section .section-title {
+        animation: none;
+    }
 }
 
 /* Анимации */
@@ -549,6 +658,23 @@
 }
 
 @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientBorder {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+@keyframes rotateLighting {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes gradientText {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }

@@ -67,73 +67,46 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="py-5">
+    <footer>
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <div class="footer-brand">
-                        <h5 class="text-white">MineBuild</h5>
-                    </div>
-                    <p class="text-muted mb-0">Уникальный сервер Minecraft с индивидуальными способностями игроков.</p>
-                    <div class="social-links mt-3">
-                        <a href="https://discord.com/invite/yNz87pJZPh" target="_blank">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h5>
+                        <img src="{{ url_for('static', filename='images/logo.webp') }}" 
+                             alt="MineBuild Logo" 
+                             class="d-inline-block">
+                        MineBuild
+                    </h5>
+                    <p>Уникальный сервер Minecraft с индивидуальными способностями игроков</p>
+                </div>
+                <div class="footer-nav">
+                    <h6>Навигация</h6>
+                    <ul>
+                        <li><a href="/" class="footer-link">Главная</a></li>
+                        <li><a href="/about" class="footer-link">О сервере</a></li>
+                        <li><a href="/rules" class="footer-link">Правила</a></li>
+                        <li><a href="/build" class="footer-link">Сборка</a></li>
+                        <li><a href="/apply" class="footer-link">Подать заявку</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h6>Присоединяйтесь</h6>
+                    <div class="social-links">
+                        <a href="https://discord.com/invite/yNz87pJZPh" target="_blank" title="Discord">
                             <i class="fab fa-discord"></i>
                         </a>
-                        <a href="https://t.me/eventsmania" target="_blank">
+                        <a href="https://t.me/eventsmania" target="_blank" title="Telegram">
                             <i class="fab fa-telegram"></i>
                         </a>
-                        <a href="https://www.youtube.com/@Кофеок" target="_blank">
+                        <a href="https://www.youtube.com/@Кофеок" target="_blank" title="YouTube">
                             <i class="fab fa-youtube"></i>
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="text-uppercase mb-3">Навигация</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <a href="/" class="footer-link">Главная</a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="/about" class="footer-link">О сервере</a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="/rules" class="footer-link">Правила</a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="/build" class="footer-link">Сборка</a>
-                        </li>
-                        <li>
-                            <a href="/apply" class="footer-link">Подать заявку</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="text-uppercase mb-3">Полезные ссылки</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <a href="https://discord.com/invite/yNz87pJZPh" target="_blank" class="footer-link">Discord сервер</a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://t.me/eventsmania" target="_blank" class="footer-link">Телеграм канал</a>
-                        </li>
-                        <li>
-                            <a href="https://www.youtube.com/@Кофеок" target="_blank" class="footer-link">YouTube канал</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
-            <hr class="my-4 border-secondary">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start small">
-                    <p class="mb-0 text-muted">&copy; 2025 MineBuild. Все права защищены.</p>
-                    <p class="mb-0 text-muted small">Not an official Minecraft product. Not approved by or associated with Mojang.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                    <img src="{{ url_for('static', filename='images/logo.webp') }}" 
-                         alt="MineBuild Logo" 
-                         height="30" 
-                         class="d-inline-block">
-                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 MineBuild. Все права защищены.</p>
+                <p class="small">Not an official Minecraft product. Not approved by or associated with Mojang.</p>
             </div>
         </div>
     </footer>
