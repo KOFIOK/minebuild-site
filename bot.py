@@ -39,15 +39,170 @@ class MineBuildBot(commands.Bot):
         """Инициализация бота с нужными настройками."""
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(command_prefix='!', intents=intents)
+        intents.members = True
+        super().__init__(
+            command_prefix="!",
+            intents=intents,
+            help_command=None  # Отключаем стандартную команду help
+        )
         
     async def setup_hook(self) -> None:
         """Хук настройки для инициализации необходимых компонентов."""
-        self.add_view(ApplicationView())  # Добавляем персистентные кнопки
+        # Регистрируем команды
+        await self.add_cog(MineBuildCommands(self))
+        # Добавляем представление с кнопками
+        self.add_view(ApplicationView())
+        # Синхронизируем команды для конкретного сервера
+        try:
+            guild_id = int(os.getenv('DISCORD_GUILD_ID', '0'))
+            if guild_id:
+                guild = discord.Object(id=guild_id)
+                self.tree.copy_global_to(guild=guild)
+                await self.tree.sync(guild=guild)
+                logger.info(f"Команды синхронизированы для сервера {guild_id}")
+            else:
+                logger.warning("DISCORD_GUILD_ID не настроен, команды будут синхронизированы глобально")
+                await self.tree.sync()
+        except Exception as e:
+            logger.error(f"Ошибка при синхронизации команд: {e}")
+            await self.tree.sync()  # Fallback к глобальной синхронизации
         
     async def on_ready(self) -> None:
         """Вызывается когда бот успешно подключился к Discord."""
-        logger.info(f'Бот {self.user} запущен!')
+        logger.info(f"Бот {self.user} запущен и готов к работе!")
+
+
+class MineBuildCommands(commands.Cog):
+    """Класс с командами бота."""
+    
+    def __init__(self, bot: MineBuildBot):
+        self.bot = bot
+
+    @commands.hybrid_command(
+        name="add",
+        description="Добавить игрока на сервер (выдать роль, добавить в вайтлист)"
+    )
+    @commands.guild_only()
+    @commands.has_any_role(MODERATOR_ROLE_ID)
+    @discord.app_commands.describe(
+        user="Пользователь Discord, которого нужно добавить",
+        minecraft_nickname="Никнейм игрока в Minecraft"
+    )
+    async def add_player(
+        self,
+        ctx: Union[commands.Context, discord.Interaction],
+        user: discord.Member,
+        minecraft_nickname: str
+    ):
+        """
+        Добавляет игрока на сервер: выдаёт роль, добавляет в вайтлист и отправляет приветственное сообщение.
+        Работает как с /add, так и с !add
+        """
+        try:
+            # Проверяем права пользователя
+            if not has_moderation_permissions(ctx.author):
+                await ctx.response.send_message(
+                    "У вас нет прав для добавления игроков. Необходимо быть администратором или модератором.",
+                    ephemeral=True
+                ) if isinstance(ctx, discord.Interaction) else await ctx.reply(
+                    "У вас нет прав для добавления игроков. Необходимо быть администратором или модератором."
+                )
+                return
+
+            # Проверяем наличие роли вайтлиста
+            whitelist_role = ctx.guild.get_role(WHITELIST_ROLE_ID)
+            if not whitelist_role:
+                await ctx.response.send_message(
+                    "Роль для вайтлиста не найдена.", 
+                    ephemeral=True
+                ) if isinstance(ctx, discord.Interaction) else await ctx.reply(
+                    "Роль для вайтлиста не найдена."
+                )
+                return
+
+            # Отвечаем на взаимодействие в зависимости от типа контекста
+            if isinstance(ctx, discord.Interaction):
+                await ctx.response.defer(ephemeral=True)
+                response_channel = ctx.followup
+            else:
+                response_channel = ctx
+
+            # Если у пользователя есть роль кандидата, снимаем её
+            candidate_role = ctx.guild.get_role(CANDIDATE_ROLE_ID)
+            if candidate_role and candidate_role in user.roles:
+                await user.remove_roles(candidate_role)
+                logger.info(f"Снята роль кандидата с пользователя {user.id}")
+
+            # Добавляем роль вайтлиста
+            await user.add_roles(whitelist_role)
+            
+            try:
+                # Пробуем изменить никнейм
+                await user.edit(nick=minecraft_nickname)
+            except discord.Forbidden:
+                logger.warning(f"Не удалось изменить никнейм пользователю {user.id}")
+                await response_channel.send(
+                    "Не удалось изменить никнейм пользователя. Пожалуйста, сделайте это вручную.",
+                    ephemeral=True
+                )
+            
+            # Добавляем в вайтлист
+            await add_to_whitelist_wrapper(response_channel, minecraft_nickname)
+            
+            # Отправляем личное сообщение пользователю
+            await send_welcome_message(user)
+
+            # Отправляем сообщение в лог-канал
+            log_channel = ctx.guild.get_channel(LOG_CHANNEL_ID)
+            if log_channel:
+                await log_channel.send(
+                    f"## Куратор <@{ctx.author.id}> добавил игрока <@{user.id}> через команду."
+                )
+
+            # Успешное добавление
+            await response_channel.send(
+                f"✅ Игрок <@{user.id}> успешно добавлен!",
+                ephemeral=True
+            )
+
+        except Exception as e:
+            error_message = f"Произошла ошибка при добавлении игрока: {str(e)}"
+            logger.error(error_message, exc_info=True)
+            
+            if isinstance(ctx, discord.Interaction):
+                if not ctx.response.is_done():
+                    await ctx.response.send_message(error_message, ephemeral=True)
+                else:
+                    await ctx.followup.send(error_message, ephemeral=True)
+            else:
+                await ctx.reply(error_message)
+
+    @add_player.error
+    async def add_player_error(self, ctx: Union[commands.Context, discord.Interaction], error: Exception):
+        """Обработчик ошибок для команды add_player."""
+        if isinstance(error, commands.MissingRequiredArgument):
+            syntax = "`!add @пользователь никнейм`" if isinstance(ctx, commands.Context) else "`/add @пользователь никнейм`"
+            response = f"Недостаточно аргументов. Используйте: {syntax}"
+            
+            if isinstance(ctx, discord.Interaction):
+                if not ctx.response.is_done():
+                    await ctx.response.send_message(response, ephemeral=True)
+                else:
+                    await ctx.followup.send(response, ephemeral=True)
+            else:
+                await ctx.reply(response)
+                
+        elif isinstance(error, commands.MissingAnyRole):
+            response = "У вас нет необходимых прав для использования этой команды."
+            if isinstance(ctx, discord.Interaction):
+                if not ctx.response.is_done():
+                    await ctx.response.send_message(response, ephemeral=True)
+                else:
+                    await ctx.followup.send(response, ephemeral=True)
+            else:
+                await ctx.reply(response)
+        else:
+            logger.error(f"Необработанная ошибка в команде add_player: {error}", exc_info=True)
 
 
 class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
@@ -336,6 +491,30 @@ class ApplicationView(discord.ui.View):
         super().__init__(timeout=None)  # Делаем кнопки персистентными
 
 
+def create_embed_with_fields(title: str, fields_data: List[Dict[str, Any]], timestamp=None) -> discord.Embed:
+    """
+    Создает embed сообщение с заданными полями.
+    
+    Args:
+        title: Заголовок embed сообщения
+        fields_data: Список словарей с данными полей (name, value, inline)
+        timestamp: Временная метка для embed
+        
+    Returns:
+        discord.Embed: Созданное embed сообщение
+    """
+    embed = discord.Embed(
+        title=title,
+        color=0x00E5A1
+    )
+    if timestamp:
+        embed.timestamp = timestamp
+
+    for field in fields_data:
+        embed.add_field(**field)
+        
+    return embed
+
 async def create_application_message(
     channel: discord.TextChannel, 
     discord_id: str, 
@@ -353,57 +532,47 @@ async def create_application_message(
         bool: True если сообщение успешно отправлено, иначе False
     """
     try:
-        # Создаем новые embeds
-        embeds = []
+        # Разделяем поля на основные и подробные
+        main_fields = []
+        details_fields = []
         
-        # Первый embed - основная информация
-        main_embed = discord.Embed(
-            title="📝 Основная информация",
-            color=0x00E5A1,
-            timestamp=embed.timestamp
-        )
-        
-        # Второй embed - подробная информация
-        details_embed = discord.Embed(
-            title="📋 Подробная информация",
-            color=0x00E5A1,
-            timestamp=embed.timestamp
-        )
-
-        # Распределяем поля по embeds
         for field in embed.fields:
-            # Пропускаем Discord ID
             if field.name == 'Ваш Discord ID пользователя':
                 continue
                 
-            # Основная информация
-            if field.name in ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']:
-                main_embed.add_field(
-                    name=field.name,
-                    value=field.value,
-                    inline=True
-                )
-            # Подробная информация
+            field_data = {
+                'name': field.name,
+                'value': field.value,
+                'inline': field.name in ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
+            }
+            
+            if field_data['inline']:
+                main_fields.append(field_data)
             else:
-                details_embed.add_field(
-                    name=field.name,
-                    value=field.value,
-                    inline=False
-                )
+                details_fields.append(field_data)
 
-        # Добавляем embeds только если в них есть поля
-        if len(main_embed.fields) > 0:
-            embeds.append(main_embed)
-        if len(details_embed.fields) > 0:
-            embeds.append(details_embed)
+        # Создаем embeds для канала
+        embeds = []
+        if main_fields:
+            embeds.append(create_embed_with_fields(
+                "📝 Основная информация",
+                main_fields,
+                embed.timestamp
+            ))
         
-        # Создаем view с кнопками в правильном порядке
-        view = discord.ui.View(timeout=None)
-        view.add_item(ApproveButton(discord_id))     # Первая кнопка - Одобрить
-        view.add_item(RejectButton(discord_id))      # Вторая кнопка - Отказать
-        view.add_item(CandidateButton(discord_id))   # Третья кнопка - В кандидаты
-        
+        if details_fields:
+            embeds.append(create_embed_with_fields(
+                "📋 Подробная информация",
+                details_fields,
+                embed.timestamp
+            ))
+
         # Отправляем заявку в канал
+        view = discord.ui.View(timeout=None)
+        view.add_item(ApproveButton(discord_id))
+        view.add_item(RejectButton(discord_id))
+        view.add_item(CandidateButton(discord_id))
+        
         await channel.send(
             content=f"-# ||<@&{MODERATOR_ROLE_ID}>||\n## <@{discord_id}> отправил заявку на сервер!",
             embeds=embeds,
@@ -412,38 +581,24 @@ async def create_application_message(
 
         # Отправляем копию заявки пользователю
         try:
-            # Получаем пользователя
             user = await channel.guild.fetch_member(int(discord_id))
             if user:
                 user_embeds = []
-                # Создаем копию эмбедов для пользователя
-                if len(main_embed.fields) > 0:
-                    user_main_embed = discord.Embed(
-                        title="📝 Ваша заявка (основная информация)",
-                        description="Ваша заявка успешно отправлена на рассмотрение!",
-                        color=0x00E5A1,
-                        timestamp=embed.timestamp
+                if main_fields:
+                    user_main_embed = create_embed_with_fields(
+                        "📝 Ваша заявка (основная информация)",
+                        main_fields,
+                        embed.timestamp
                     )
-                    for field in main_embed.fields:
-                        user_main_embed.add_field(
-                            name=field.name,
-                            value=field.value,
-                            inline=True
-                        )
+                    user_main_embed.description = "Ваша заявка успешно отправлена на рассмотрение!"
                     user_embeds.append(user_main_embed)
                 
-                if len(details_embed.fields) > 0:
-                    user_details_embed = discord.Embed(
-                        title="📋 Ваша заявка (подробная информация)",
-                        color=0x00E5A1,
-                        timestamp=embed.timestamp
+                if details_fields:
+                    user_details_embed = create_embed_with_fields(
+                        "📋 Ваша заявка (подробная информация)",
+                        details_fields,
+                        embed.timestamp
                     )
-                    for field in details_embed.fields:
-                        user_details_embed.add_field(
-                            name=field.name,
-                            value=field.value,
-                            inline=False
-                        )
                     user_embeds.append(user_details_embed)
 
                 await user.send(
@@ -489,7 +644,7 @@ def extract_minecraft_nickname(embeds: List[discord.Embed]) -> Optional[str]:
     """
     for embed in embeds:
         for field in embed.fields:
-            if field.name == 'Ваш никнейм в Minecraft':
+            if field.name == 'Ваш никнейм в Minecraft' or field.name == 'Ваш никнейм в Minecraft:':
                 return field.value
     return None
 
@@ -552,17 +707,12 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
             
             # Очищаем ответ от форматирования Minecraft
             clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-            
             logger.info(f"RCON response: {clean_response}")
             
+            # Отправляем сообщение только если есть ошибка
             if "уже в вайтлисте" in clean_response.lower():
                 await interaction.followup.send(
                     f"Игрок {minecraft_nickname} уже находится в белом списке.",
-                    ephemeral=True
-                )
-            else:
-                await interaction.followup.send(
-                    f"Команда выполнена, но получен неожиданный ответ: {clean_response}",
                     ephemeral=True
                 )
     except (socket.timeout, ConnectionRefusedError) as e:
@@ -577,6 +727,60 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
         await interaction.followup.send(
             f"Произошла ошибка при добавлении в белый список: {str(e)}. Пожалуйста, добавьте игрока вручную.",
             ephemeral=True
+        )
+
+
+async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) -> None:
+    """
+    Обертка для функции add_to_whitelist, которая работает с разными типами контекста.
+    
+    Args:
+        response_channel: Объект для отправки ответов (может быть Context или Follow-up)
+        minecraft_nickname: Никнейм игрока в Minecraft
+    """
+    # Проверяем доступность сервера
+    is_server_available = await check_minecraft_server_availability()
+    
+    if not is_server_available:
+        await response_channel.send(
+            "Сервер Minecraft недоступен. Пожалуйста, проверьте его состояние и добавьте игрока в белый список вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )
+        return
+        
+    # Пробуем подключиться к RCON
+    try:
+        with MCRcon(
+            os.getenv('RCON_HOST'),
+            os.getenv('RCON_PASSWORD'),
+            int(os.getenv('RCON_PORT'))
+        ) as mcr:
+            # Даем серверу время на обработку команды
+            await asyncio.sleep(1)
+            response = mcr.command(f"uw add {minecraft_nickname}")
+            
+            # Очищаем ответ от форматирования Minecraft
+            clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
+            logger.info(f"RCON response: {clean_response}")
+            
+            # Отправляем сообщение только если есть ошибка
+            if "уже в вайтлисте" in clean_response.lower():
+                await response_channel.send(
+                    f"Игрок {minecraft_nickname} уже находится в белом списке.",
+                    ephemeral=hasattr(response_channel, 'followup')
+                )
+    except (socket.timeout, ConnectionRefusedError) as e:
+        error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
+        logger.error(f"{error_message}: {e}")
+        await response_channel.send(
+            f"{error_message}. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )
+    except Exception as e:
+        logger.error(f"Ошибка RCON: {e}", exc_info=True)
+        await response_channel.send(
+            f"Произошла ошибка при добавлении в белый список: {str(e)}. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
         )
 
 
@@ -610,6 +814,7 @@ async def update_approval_message(message: discord.Message, discord_id: str) -> 
         message: Сообщение Discord с заявкой
         discord_id: ID пользователя Discord
     """
+    # Создаем новую view с кнопкой "Одобрено"
     view = discord.ui.View(timeout=None)
     button = discord.ui.Button(
         style=discord.ButtonStyle.green,
@@ -620,8 +825,9 @@ async def update_approval_message(message: discord.Message, discord_id: str) -> 
     )
     view.add_item(button)
     
+    # Обновляем оригинальное сообщение, убирая упоминание роли модератора
     await message.edit(
-        content=f"-# Заявка игрока <@{discord_id}> одобрена!",
+        content=f"## Заявка игрока <@{discord_id}>",
         view=view
     )
 
@@ -634,10 +840,10 @@ async def update_candidate_message(message: discord.Message, discord_id: str) ->
         message: Сообщение Discord с заявкой
         discord_id: ID пользователя Discord
     """
-    # Создаем новую view с неактивной кнопкой "На рассмотрении" и активными кнопками одобрения/отказа
+    # Создаем новую view с кнопками
     view = discord.ui.View(timeout=None)
     
-    # Кнопка "На рассмотрении" (неактивная) - теперь первая
+    # Кнопка "На рассмотрении" (неактивная)
     candidate_button = discord.ui.Button(
         style=discord.ButtonStyle.primary,
         label="На рассмотрении",
@@ -646,17 +852,18 @@ async def update_candidate_message(message: discord.Message, discord_id: str) ->
         custom_id=f"candidate_disabled_{discord_id}"
     )
     
-    # Кнопки одобрения и отказа для кандидата (важно передать is_candidate=True)
+    # Кнопки одобрения и отказа для кандидата
     approve_button = ApproveButton(discord_id, is_candidate=True)
     reject_button = RejectButton(discord_id, is_candidate=True)
     
     # Добавляем кнопки в view в нужном порядке
-    view.add_item(candidate_button)  # Первая кнопка - На рассмотрении (неактивная)
-    view.add_item(approve_button)    # Вторая кнопка - Одобрить
-    view.add_item(reject_button)     # Третья кнопка - Отказать
+    view.add_item(candidate_button)
+    view.add_item(approve_button)
+    view.add_item(reject_button)
     
+    # Обновляем оригинальное сообщение, убирая упоминание роли модератора
     await message.edit(
-        content=f"-# Заявка игрока <@{discord_id}> отправлена на рассмотрение!",
+        content=f"## Заявка игрока <@{discord_id}>",
         view=view
     )
 
@@ -689,8 +896,12 @@ async def send_welcome_message(member: discord.Member) -> None:
         logger.warning(f"Не удалось отправить личное сообщение пользователю {member.id}")
 
 
-# Глобальный объект бота
-bot = MineBuildBot()
+# Создаем и запускаем бота
+def run_bot():
+    """Создает и запускает бота."""
+    bot = MineBuildBot()
+    bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+
 
 if __name__ == '__main__':
-    bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+    run_bot()

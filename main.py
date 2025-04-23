@@ -8,22 +8,37 @@ from bot import MineBuildBot
 
 load_dotenv()
 
+# Создаем один экземпляр бота для всего приложения
 bot = MineBuildBot()
 
 async def run_bot():
-    await bot.start(os.getenv('DISCORD_BOT_TOKEN'))
+    """Запускает бота Discord."""
+    try:
+        await bot.start(os.getenv('DISCORD_BOT_TOKEN'))
+    except Exception as e:
+        print(f"Ошибка при запуске бота: {e}")
 
 async def run_quart():
+    """Запускает веб-сервер Quart."""
     config = Config()
     config.bind = ["0.0.0.0:5000"]
-    app.bot = bot  # Делаем бота доступным в Quart-приложении
-    await serve(app, config)
+    try:
+        # Используем тот же экземпляр бота
+        app.bot = bot
+        await serve(app, config)
+    except Exception as e:
+        print(f"Ошибка при запуске веб-сервера: {e}")
 
 async def main():
-    await asyncio.gather(
-        run_bot(),
-        run_quart()
-    )
+    """Основная функция для запуска всех компонентов."""
+    try:
+        # Запускаем оба компонента асинхронно
+        await asyncio.gather(
+            run_bot(),
+            run_quart()
+        )
+    except Exception as e:
+        print(f"Критическая ошибка: {e}")
 
 if __name__ == '__main__':
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -106,6 +106,7 @@ async def apply():
 
 @app.route('/api/submit-application', methods=['POST'])
 async def submit_application():
+    """Обработчик отправки заявки."""
     try:
         print("Получен запрос на отправку заявки")
         data = await request.get_json()
@@ -131,6 +132,7 @@ async def submit_application():
         try:
             user = await app.bot.fetch_user(discord_id)
         except discord.NotFound:
+            print(f"Ошибка: пользователь с ID {discord_id} не найден")
             return jsonify({
                 "status": "error",
                 "message": "Пользователь с указанным Discord ID не найден."
@@ -149,21 +151,25 @@ async def submit_application():
                 continue  # Если участник не найден, продолжаем проверку
 
         if member is None:
+            print(f"Ошибка: пользователь {discord_id} не является участником сервера")
             return jsonify({
                 "status": "error",
                 "message": "Вы должны быть участником дискорд-сервера для подачи заявки."
             }), 403
 
-        # Создаем embed сообщение
-        embed = discord.Embed(
-            title="📝 Новая заявка на сервер",
-            color=0x00E5A1,
-            timestamp=datetime.now()
-        )
+        # Создаем базовый embed
+        embed = discord.Embed()
+        embed.title = "📝 Новая заявка на сервер"
+        embed.color = 0x00E5A1
+        embed.timestamp = datetime.now()
         
+        print("Создан базовый embed")
+
         # Добавляем поля с проверкой длины
         for field in formQuestions:
             value = str(data.get(field['id'], 'Не указано'))
+            
+            # Проверяем длину значения
             if len(value) > MAX_FIELD_LENGTH:
                 parts = split_long_text(value, MAX_FIELD_LENGTH)
                 for i, part in enumerate(parts, 1):
@@ -178,6 +184,8 @@ async def submit_application():
                     value=value,
                     inline=False
                 )
+        
+        print(f"Добавлены поля в embed: {len(embed.fields)} полей")
 
         # Получаем канал
         channel_id = 1360709668770418789
@@ -190,11 +198,14 @@ async def submit_application():
                 "message": "Канал для отправки заявок недоступен"
             }), 500
 
+        print("Канал для отправки найден")
+
         # Отправляем сообщение используя функцию из bot.py
         from bot import create_application_message
         success = await create_application_message(channel, discord_id, embed)
         
         if not success:
+            print("Ошибка: не удалось отправить заявку через create_application_message")
             return jsonify({
                 "status": "error",
                 "message": "Не удалось отправить заявку в Discord"
@@ -205,6 +216,7 @@ async def submit_application():
 
     except Exception as e:
         print(f"Критическая ошибка при отправке заявки: {str(e)}")
+        print("Полный traceback:", exc_info=True)
         return jsonify({
             "status": "error",
             "message": f"Внутренняя ошибка сервера: {str(e)}"
