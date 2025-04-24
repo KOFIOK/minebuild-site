@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
 {% endblock %}
 
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/about.js') }}"></script>
+{% endblock %}
+
 {% block content %}
     <!-- Параллакс секция -->
     <section class="parallax-hero">
@@ -71,6 +75,89 @@
                         <i class="fas fa-trophy fa-3x"></i>
                         <div class="stat-number">10+</div>
                         <div class="stat-label">Проведенных ивентов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- История и сюжет сервера -->
+    <section class="lore-section">
+        <div class="lore-bg"></div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="lore-card">
+                        <div class="lore-slider" id="lore-slider">
+                            <!-- Слайды лора -->
+                            <div class="lore-slides-container">
+                                <!-- Слайд 1 -->
+                                <div class="lore-slide active" id="slide-0">
+                                    <h2 class="section-title">История и сюжет сервера</h2>
+                                    <div class="lore-content">
+                                        <p>Весь сторителлинг можно разделить на 3 части:</p>
+                                        <ul class="lore-list">
+                                            <li>Биографии.</li>
+                                            <li>Сюжет местных жителей (NPC).</li>
+                                            <li>Лор всего сервера в целом.</li>
+                                        </ul>
+                                        
+                                        <p>Биографии можно почитать на форуме в дискорде.</p>
+                                        <p>Сюжетка NPC описана в <code>/story</code>, а вот лор сервера будет развиваться постепенно.</p>
+                                        
+                                        <div class="lore-divider"></div>
+                                        
+                                        <h3>Краткие сведения по ЛОРУ</h3>
+                                        <p>По итогам первого сезона игроки узнали, что живут в неком Межизмерении и их мир является одним из множества других миров. Они побывали в таком другом мире, однако <span class="highlight">маджэмы</span> — магические артефакты, оказались очень нестабильны, когда в одном мире их оказалось слишком много. Мир МайнБилда "схлопнулся", а после вселенная перезапустилась.</p>
+                                        <p>Так начался 2-ой сезон МайнБилда.</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Слайд 2 -->
+                                <div class="lore-slide" id="slide-1">
+                                    <h2 class="section-title">Боссы и кастомные предметы</h2>
+                                    <div class="lore-content">
+                                        <p>В сюжете NPC персонажей присутствуют боссы, о которых можно узнать в <code>/story → персонажи</code>. Они введены в игровой мир так, чтобы не нарушать основную идею ванильного выживания, но при этом они отлично могут разнообразить надоедливую рутину.</p>
+                                        <p>Зачастую, с них падают уникальные предметы, как шляпа ниже. Они обладают уникальными способностями и характеристиками, но не сильно выбиваются из общей атмосферы, а скорее дополняют её. Удачи в прохождении сюжетки!</p>
+                                        
+                                        <div class="lore-images">
+                                            <div class="row mt-4">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="lore-image-container">
+                                                        <img src="{{ url_for('static', filename='images/build/2024-11-04_16.36.15.webp') }}" 
+                                                             alt="Босс в Minecraft" 
+                                                             class="img-fluid lore-image">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="lore-image-container">
+                                                        <img src="{{ url_for('static', filename='images/build/2024-11-19_17.54.29.webp') }}" 
+                                                             alt="Кастомный предмет" 
+                                                             class="img-fluid lore-image">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Навигация -->
+                            <div class="lore-navigation">
+                                <button class="lore-arrow lore-prev" aria-label="Предыдущий слайд">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                
+                                <div class="lore-dots">
+                                    <span class="lore-dot active" data-slide="0"></span>
+                                    <span class="lore-dot" data-slide="1"></span>
+                                </div>
+                                
+                                <button class="lore-arrow lore-next" aria-label="Следующий слайд">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
