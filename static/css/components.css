@@ -68,7 +68,16 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
+    transition: all 0.3s ease, transform 0.4s ease-in-out;
+}
+
+/* Классы для анимации скрытия/появления навбара */
+.nav-visible {
+    transform: translateY(0);
+}
+
+.nav-hidden {
+    transform: translateY(-100%);
 }
 
 .navbar:hover {
