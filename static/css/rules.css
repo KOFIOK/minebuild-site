@@ -7,6 +7,8 @@
     overflow-y: auto;
 }
 
+/* Удаляем дублирующие стили навигации, так как они теперь определены в components.css */
+
 .rules-background {
     position: fixed;
     top: 0;

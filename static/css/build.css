@@ -95,12 +95,18 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 .build-body .navbar {
-    background-color: rgba(5, 5, 5, 0.8);
-    backdrop-filter: blur(10px);
+    background-color: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
+}
+
+.build-body .navbar:hover {
+    background-color: rgba(10, 10, 10, 0.95);
 }
 
 .build-body footer {
