@@ -556,39 +556,94 @@ textarea.form-control {
 
 .btn {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    padding: 12px 25px;
-    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 14px 28px;
+    border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    letter-spacing: 0.5px;
+    border: none;
 }
 
-.btn::after {
+.btn::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s ease, height 0.6s ease;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: 0.6s;
 }
 
-.btn:hover::after {
-    width: 300%;
-    height: 300%;
+.btn:hover::before {
+    left: 100%;
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
-    border: none;
+    background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-purple) 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(0, 229, 161, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 229, 161, 0.3);
+    background: linear-gradient(135deg, var(--accent-green) 10%, var(--accent-purple) 90%);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.2);
+}
+
+.btn i {
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover i {
+    transform: translateX(4px);
+}
+
+.btn-outline-light {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.05);
+}
+
+.btn-outline-light:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.03);
+}
+
+.btn-outline-light i {
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover i {
+    transform: translateX(-4px);
 }
