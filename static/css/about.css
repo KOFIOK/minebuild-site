@@ -464,12 +464,12 @@
     box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
 }
 
-/* Раздел истории и сюжета */
+/* Раздел истории и сюжета с обновленным дизайном */
 .lore-section {
     position: relative;
     padding: 100px 0;
     overflow: hidden;
-    background: var(--bg-darker);
+    background: linear-gradient(180deg, var(--bg-darker) 0%, rgba(6, 7, 9, 0.95) 100%);
 }
 
 .lore-bg {
@@ -478,11 +478,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/build/2025-04-20_17.32.58.webp');
+    background-image: url('../images/background/stone_art.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    opacity: 0.15;
+    opacity: 0.12;
     filter: blur(3px);
     z-index: 1;
     pointer-events: none;
@@ -493,49 +493,225 @@
     z-index: 2;
 }
 
-.lore-card {
-    background: rgba(15, 15, 15, 0.85);
-    border-radius: 15px;
-    padding: 3rem;
-    position: relative;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    font-family: 'Evolventa', sans-serif;
-}
-
-.lore-card .section-title {
+.lore-section .section-title {
     font-family: 'Intro Demo', sans-serif;
-    font-size: 2.5rem;
+    font-size: 3.2rem;
     color: var(--accent-green);
-    margin-bottom: 2rem;
+    margin-bottom: 3.5rem;
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    background: linear-gradient(45deg, var(--accent-green) 30%, var(--text-primary) 70%);
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(0, 229, 161, 0.5);
+    transform: translateZ(0);
+}
+
+/* Градиентный заголовок секции */
+.lore-section .section-title {
+    display: inline-block;
+    background: linear-gradient(90deg, 
+        var(--accent-green) 0%, 
+        #ffffff 50%,
+        var(--accent-green) 100%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientFlow 4s linear infinite;
+    width: 100%;
+    position: relative;
+}
+
+/* Дополнительные эффекты для заголовка */
+.lore-section .section-title::after {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        var(--accent-green), 
+        transparent);
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+}
+
+/* Блок истории с новым дизайном */
+.lore-block {
+    position: relative;
+    display: flex;
+    margin-bottom: 0;
+    perspective: 1000px;
+    flex-wrap: wrap;
+    background: rgba(10, 10, 12, 0.6);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 161, 0.08);
+    overflow: hidden;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 80px rgba(0, 229, 161, 0.05) inset;
+}
+
+/* Удаляем неоновую полосу слева */
+.lore-block::after {
+    display: none;
+}
+
+@keyframes pulseGlow {
+    from {
+        opacity: 0.6;
+        box-shadow: 
+            0 0 20px 2px rgba(0, 229, 161, 0.3),
+            0 0 30px 5px rgba(0, 229, 161, 0.2);
+    }
+    to {
+        opacity: 0.9;
+        box-shadow: 
+            0 0 25px 4px rgba(0, 229, 161, 0.5),
+            0 0 40px 8px rgba(0, 229, 161, 0.3);
+    }
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Нечетные блоки имеют текст слева, изображение справа */
+.lore-block:nth-child(odd) {
+    flex-direction: row;
+}
+
+/* Четные блоки имеют текст справа, изображение слева */
+.lore-block:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+.lore-text-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 2.5rem 2rem;
+    align-self: center;
+    position: relative;
+    z-index: 2;
+}
+
+.lore-image-wrapper {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+    padding: 1.5rem;
+    align-self: center;
+}
+
+.lore-subtitle {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.2rem;
+    margin-bottom: 1.8rem;
+    position: relative;
+    display: inline-block;
+    color: var(--accent-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0, 229, 161, 0.4);
+}
+
+/* Применяем неоновый эффект к заголовкам подтем */
+.lore-subtitle {
+    color: #fff;
+    background: linear-gradient(90deg, 
+        var(--accent-green) 0%, 
+        #00fbff 35%, 
+        var(--accent-purple) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
+/* Убираем старую подчёркивающую линию */
+.lore-subtitle::after {
+    display: none;
+}
+
+/* Добавляем вместо неё красивый интерактивный разделитель */
+.lore-title-divider {
+    height: 3px;
+    width: 50%;
+    margin-top: -10px;
+    margin-bottom: 25px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.lore-title-divider::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
+}
+
 .lore-content {
     color: var(--text-secondary);
-    font-size: 1.1rem;
-    line-height: 1.6;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    font-family: 'Evolventa', sans-serif;
+}
+
+.lore-content h4 {
+    color: #fff;
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.4rem;
+    margin: 1.8rem 0 1.2rem;
+    letter-spacing: 1px;
 }
 
 .lore-list {
     list-style-type: none;
-    padding-left: 1rem;
-    margin: 1.5rem 0;
+    padding-left: 1.2rem;
+    margin: 1.8rem 0;
     border-left: 2px solid var(--accent-green);
+    position: relative;
+}
+
+.lore-list::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -2px;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        var(--accent-green),
+        rgba(147, 112, 219, 0.7));
+    opacity: 0.8;
 }
 
 .lore-list li {
-    padding: 0.5rem 0;
+    padding: 0.7rem 0;
     position: relative;
-    padding-left: 1.5rem;
+    padding-left: 1.8rem;
 }
 
 .lore-list li::before {
@@ -543,345 +719,98 @@
     color: var(--accent-green);
     position: absolute;
     left: 0;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     line-height: 1;
+    text-shadow: 0 0 5px rgba(0, 229, 161, 0.7);
 }
 
+/* Удаляем старый разделитель между слайдами */
 .lore-divider {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
-    margin: 2rem auto;
-    width: 80%;
-    opacity: 0.7;
-}
-
-.lore-content h3 {
-    color: var(--accent-green);
-    font-family: 'Intro Demo', sans-serif;
-    font-size: 1.5rem;
-    margin: 1.5rem 0;
-    letter-spacing: 1px;
-}
-
-.lore-content h3.highlight-purple {
-    color: #9370DB; /* Фиолетовый цвет, как на скриншоте */
-    font-family: 'Intro Demo', sans-serif;
-    font-size: 1.5rem;
-    margin: 1.5rem 0;
-    letter-spacing: 1px;
-    text-shadow: 0 0 8px rgba(147, 112, 219, 0.5);
+    display: none;
 }
 
 .lore-content .highlight {
     color: var(--accent-green);
     font-weight: bold;
-    text-decoration: underline;
-    text-decoration-color: rgba(0, 229, 161, 0.3);
-    text-underline-offset: 3px;
+    text-decoration: none;
+    border-bottom: 2px dotted rgba(0, 229, 161, 0.5);
+    padding-bottom: 2px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 8px rgba(0, 229, 161, 0.4);
 }
 
-.lore-content p {
-    margin-bottom: 1rem;
+.lore-content .highlight:hover {
+    color: #fff;
+    border-bottom: 2px solid var(--accent-green);
+    text-shadow: 0 0 10px rgba(0, 229, 161, 0.7);
 }
 
 .lore-content code {
-    background: rgba(0, 229, 161, 0.1);
-    padding: 2px 5px;
-    border-radius: 3px;
+    background: rgba(0, 229, 161, 0.15);
+    padding: 3px 6px;
+    border-radius: 4px;
     color: var(--accent-green);
     font-family: monospace;
+    border-bottom: 1px solid rgba(0, 229, 161, 0.3);
 }
 
-/* Адаптивность для секции lore */
-@media (max-width: 991px) {
-    .lore-card {
-        padding: 2rem;
-    }
-    
-    .lore-card .section-title {
-        font-size: 2rem;
-    }
+/* Стиль для цитат в лоре */
+.lore-quote {
+    position: relative;
+    font-style: italic;
+    padding: 1.5rem 2rem 1.5rem 3rem;
+    margin: 2rem 0;
+    border-left: 4px solid var(--accent-purple);
+    background: rgba(147, 112, 219, 0.08);
+    border-radius: 0 12px 12px 0;
+    box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 30px rgba(147, 112, 219, 0.1) inset;
 }
 
-@media (max-width: 768px) {
-    .lore-section {
-        padding: 70px 0;
-    }
-    
-    .lore-card {
-        padding: 1.5rem;
-    }
-    
-    .lore-card .section-title {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .lore-content {
-        font-size: 1rem;
-    }
+.lore-quote::before {
+    content: '';  /* Удаляем символ кавычки, было '"' */
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-size: 5rem;
+    color: rgba(147, 112, 219, 0.2);
+    font-family: 'Times New Roman', serif;
+    text-shadow: 0 0 10px rgba(147, 112, 219, 0.2);
 }
 
-@media (max-width: 576px) {
-    .lore-section {
-        padding: 50px 0;
-    }
-    
-    .lore-card {
-        padding: 1.25rem;
-    }
-    
-    .lore-card .section-title {
-        font-size: 1.5rem;
-    }
-    
-    .lore-content h3 {
-        font-size: 1.3rem;
-    }
+/* Полностью переработанный стиль для изображений */
+.lore-image-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: visible;
+    transform-style: preserve-3d;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin: 15px;
+    max-width: 95%;
 }
 
-/* Улучшаем медиа-запросы для страницы about */
-@media (max-width: 1200px) {
-    .parallax-content h1 {
-        font-size: 4.5rem;
-    }
-    
-    .parallax-content .lead {
-        font-size: 1.4rem;
-    }
-    
-    .section-title {
-        font-size: 2.2rem;
-    }
-    
-    .stats-section .stat-number {
-        font-size: 2.2rem;
-    }
-}
-
-@media (max-width: 991px) {
-    .parallax-content h1 {
-        font-size: 3.5rem;
-    }
-    
-    .parallax-content .lead {
-        font-size: 1.2rem;
-    }
-    
-    .about-section {
-        padding: 60px 0;
-    }
-    
-    .about-section .row {
-        flex-direction: column-reverse;
-    }
-    
-    .about-section .col-lg-6 {
-        margin-bottom: 2rem;
-    }
-    
-    .about-image {
-        max-width: 80%;
-        margin: 0 auto;
-    }
-    
-    .stats-section {
-        padding: 60px 0;
-    }
-    
-    .stat-card {
-        margin-bottom: 1.5rem;
-    }
-
-    .stats-section .row > div {
-        margin-bottom: 2rem;
-    }
-    
-    .stats-section .row > div:last-child {
-        margin-bottom: 0;
-    }
-    
-    .cta-section .btn {
-        min-width: 180px;
-    }
-}
-
-@media (max-width: 768px) {
-    .parallax-content h1 {
-        font-size: 3rem;
-    }
-    
-    .parallax-content .lead {
-        font-size: 1.1rem;
-    }
-    
-    .about-section {
-        padding: 40px 0;
-    }
-    
-    .about-image {
-        max-width: 100%;
-    }
-    
-    .feature-list li {
-        font-size: 1rem;
-    }
-    
-    .stats-section {
-        padding: 40px 0;
-    }
-    
-    .stat-card {
-        padding: 1.5rem;
-    }
-    
-    .stat-number {
-        font-size: 2rem;
-    }
-    
-    .stat-label {
-        font-size: 1rem;
-    }
-    
-    .cta-section {
-        padding: 60px 0;
-    }
-    
-    .cta-card {
-        padding: 3rem 1.5rem;
-    }
-    
-    .cta-section .section-title {
-        font-size: 2rem;
-    }
-    
-    .cta-section .section-text {
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .parallax-content h1 {
-        font-size: 2.5rem;
-    }
-    
-    .parallax-content .lead {
-        font-size: 1rem;
-    }
-    
-    .section-title {
-        font-size: 1.8rem;
-    }
-    
-    .about-section {
-        padding: 30px 0;
-    }
-    
-    .feature-list li {
-        font-size: 0.9rem;
-        padding: 0.8rem 1rem;
-    }
-    
-    .stats-section {
-        padding: 30px 0;
-    }
-    
-    .stat-card {
-        padding: 1.25rem;
-    }
-    
-    .stat-number {
-        font-size: 1.8rem;
-    }
-    
-    .stat-label {
-        font-size: 0.9rem;
-    }
-    
-    .cta-section {
-        padding: 40px 0;
-    }
-    
-    .cta-card {
-        padding: 2rem 1rem;
-    }
-    
-    .cta-section .btn {
-        width: 100%;
-        min-width: unset;
-        margin: 0.5rem 0;
-    }
-    
-    .cta-section .section-title {
-        font-size: 1.8rem;
-    }
-    
-    .cta-section .section-text {
-        font-size: 1rem;
-    }
-}
-
-/* Добавляем поддержку touch-устройств */
-@media (hover: none) and (pointer: coarse) {
-    .feature-list li:hover {
-        transform: none;
-    }
-    
-    .stat-card:hover {
-        transform: none;
-    }
-    
-    .about-image:hover {
-        transform: none;
-    }
-}
-
-/* Добавляем поддержку уменьшенного движения */
-@media (prefers-reduced-motion: reduce) {
-    .parallax-bg {
-        transform: none !important;
-    }
-    
-    .feature-list li,
-    .stat-card,
-    .about-image {
-        transition: none !important;
-    }
-
-    .cta-card::before,
-    .cta-card::after,
-    .cta-section .section-title {
-        animation: none;
-    }
-}
-
-/* Анимации */
-@keyframes titleAppear {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes textAppear {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* Эффект неоновой рамки */
+.lore-image-container::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: -8px;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(135deg, 
+        var(--accent-green) 0%,
+        var(--accent-purple) 65%,
+        var(--accent-green) 100%);
+    background-size: 200% 200%;
+    animation: gradientBorder 6s linear infinite;
+    z-index: -1;
+    opacity: 0.8;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes gradientBorder {
@@ -890,65 +819,176 @@
     100% { background-position: 0% 0%; }
 }
 
-@keyframes rotateLighting {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.lore-block:nth-child(odd) .lore-image-container {
+    transform: perspective(1000px) rotateY(-8deg) translateZ(20px);
 }
 
-@keyframes gradientText {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+.lore-block:nth-child(even) .lore-image-container {
+    transform: perspective(1000px) rotateY(8deg) translateZ(20px);
+}
+
+/* Имитация "подсветки" вокруг изображения */
+.lore-image-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 14px;
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    box-shadow: 0 0 35px 5px rgba(0, 229, 161, 0.6);
+}
+
+/* При наведении возвращаем в нормальное состояние */
+.lore-slide.active .lore-image-container:hover {
+    transform: perspective(1000px) rotateY(0) translateY(-15px) translateZ(30px) !important;
+    z-index: 10;
+}
+
+.lore-slide.active .lore-image-container:hover::after {
+    top: 12px;
+    right: -12px;
+    opacity: 0.9;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 229, 161, 0.4);
+}
+
+.lore-slide.active .lore-image-container:hover::before {
+    opacity: 1;
+}
+
+/* Стиль для самого изображения */
+.lore-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    transition: all 0.5s ease;
+    transform: scale(1.02);
+    min-height: 280px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(0, 229, 161, 0.2);
+}
+
+/* Для нечетных блоков делаем нижнюю границу с закруглением больше */
+.lore-block:nth-child(odd) .lore-image-container {
+    border-radius: 12px 30px 50px 12px;
+}
+
+/* Для четных блоков делаем нижнюю границу с закруглением больше с другой стороны */
+.lore-block:nth-child(even) .lore-image-container {
+    border-radius: 30px 12px 12px 50px;
+}
+
+/* Корректируем радиус изображения соответствующим образом */
+.lore-block:nth-child(odd) .lore-image {
+    border-radius: 12px 30px 50px 12px;
+}
+
+.lore-block:nth-child(even) .lore-image {
+    border-radius: 30px 12px 12px 50px;
+}
+
+.lore-slide.active .lore-image-container:hover .lore-image {
+    transform: scale(1.05);
+    filter: brightness(1.1) contrast(1.05);
+}
+
+/* Декоративные элементы для лора - теперь неоновые линии */
+.lore-block::before {
+    display: none;
+}
+
+/* Анимация появления блоков при прокрутке */
+.lore-block {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lore-block.appear {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Стили для слайдера в секции лора */
 .lore-slider {
     position: relative;
     width: 100%;
+    margin: 0 auto 50px;
 }
 
 .lore-slides-container {
     position: relative;
     overflow: hidden;
+    min-height: 400px;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lore-slide {
-    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .lore-slide.active {
-    display: block;
+    position: relative;
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .lore-navigation {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
     gap: 1rem;
+    position: relative;
+    z-index: 3;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgba(10, 10, 12, 0.7);
+    padding: 12px 24px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 161, 0.15);
+    box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(0, 229, 161, 0.1) inset;
 }
 
 .lore-arrow {
-    background: rgba(0, 229, 161, 0.1);
-    border: 1px solid rgba(0, 229, 161, 0.3);
+    background: rgba(0, 229, 161, 0.15);
+    border: 1px solid rgba(0, 229, 161, 0.4);
     color: var(--accent-green);
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.1);
 }
 
 .lore-arrow:hover {
-    background: rgba(0, 229, 161, 0.2);
+    background: rgba(0, 229, 161, 0.25);
     transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(0, 229, 161, 0.4);
 }
 
 .lore-arrow:active {
@@ -957,67 +997,127 @@
 
 .lore-dots {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    padding: 0 15px;
 }
 
 .lore-dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .lore-dot:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.2);
 }
 
 .lore-dot.active {
     background: var(--accent-green);
     transform: scale(1.2);
-    box-shadow: 0 0 10px rgba(0, 229, 161, 0.5);
+    box-shadow: 0 0 15px rgba(0, 229, 161, 0.5);
 }
 
-/* Стили для изображений в секции лора */
-.lore-images {
+.lore-dot.active::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    border: 1px solid var(--accent-green);
+    opacity: 0.5;
+    animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* Специальный стиль для цитаты с книгой рецептов */
+.brewery-quote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 229, 161, 0.05);
+    border-left: 4px solid var(--accent-green);
+    box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 30px rgba(0, 229, 161, 0.1) inset;
+    padding: 1.5rem;
+}
+
+.brewery-quote p {
+    text-align: left;
+    font-style: italic;
+    margin-bottom: 1.2rem;
+}
+
+.recipe-book-image {
+    max-width: 70%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(0, 229, 161, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brewery-quote:hover .recipe-book-image {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 161, 0.2);
+}
+
+.brewery-quote::before {
+    top: 0;
+    left: 20px;
+    color: rgba(0, 229, 161, 0.2);
+}
+
+/* Стиль для примечания о неполном списке особенностей */
+.note-container {
     margin-top: 2rem;
 }
 
-.lore-image-container {
+.note-text {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.8;
     position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    background: rgba(0, 229, 161, 0.05);
+    border: 1px solid rgba(0, 229, 161, 0.1);
 }
 
-.lore-image-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 229, 161, 0.3);
+.note-text::before {
+    content: "*";
+    color: var(--accent-green);
+    margin-right: 5px;
+    font-weight: bold;
 }
 
-.lore-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-    transition: all 0.5s ease;
-}
-
-.lore-image-container:hover .lore-image {
-    transform: scale(1.03);
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 767px) {
-    .lore-images .row {
-        margin-left: -10px;
-        margin-right: -10px;
-    }
-    
-    .lore-images .col-md-6 {
-        padding-left: 10px;
-        padding-right: 10px;
+@media (max-width: 768px) {
+    .note-text {
+        font-size: 0.85rem;
+        padding: 4px 10px;
     }
 }

@@ -85,80 +85,193 @@
     <section class="lore-section">
         <div class="lore-bg"></div>
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="lore-card">
-                        <div class="lore-slider" id="lore-slider">
-                            <!-- Слайды лора -->
-                            <div class="lore-slides-container">
-                                <!-- Слайд 1 -->
-                                <div class="lore-slide active" id="slide-0">
-                                    <h2 class="section-title">История и сюжет сервера</h2>
-                                    <div class="lore-content">
-                                        <p>Весь сторителлинг можно разделить на 3 части:</p>
-                                        <ul class="lore-list">
-                                            <li>Биографии.</li>
-                                            <li>Сюжет местных жителей (NPC).</li>
-                                            <li>Лор всего сервера в целом.</li>
-                                        </ul>
-                                        
-                                        <p>Биографии можно почитать на форуме в дискорде.</p>
-                                        <p>Сюжетка NPC описана в <code>/story</code>, а вот лор сервера будет развиваться постепенно.</p>
-                                        
-                                        <div class="lore-divider"></div>
-                                        
-                                        <h3>Краткие сведения по ЛОРУ</h3>
-                                        <p>По итогам первого сезона игроки узнали, что живут в неком Межизмерении и их мир является одним из множества других миров. Они побывали в таком другом мире, однако <span class="highlight">маджэмы</span> — магические артефакты, оказались очень нестабильны, когда в одном мире их оказалось слишком много. Мир МайнБилда "схлопнулся", а после вселенная перезапустилась.</p>
-                                        <p>Так начался 2-ой сезон МайнБилда.</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Слайд 2 -->
-                                <div class="lore-slide" id="slide-1">
-                                    <h2 class="section-title">Боссы и кастомные предметы</h2>
-                                    <div class="lore-content">
-                                        <p>В сюжете NPC персонажей присутствуют боссы, о которых можно узнать в <code>/story → персонажи</code>. Они введены в игровой мир так, чтобы не нарушать основную идею ванильного выживания, но при этом они отлично могут разнообразить надоедливую рутину.</p>
-                                        <p>Зачастую, с них падают уникальные предметы, как шляпа ниже. Они обладают уникальными способностями и характеристиками, но не сильно выбиваются из общей атмосферы, а скорее дополняют её. Удачи в прохождении сюжетки!</p>
-                                        
-                                        <div class="lore-images">
-                                            <div class="row mt-4">
-                                                <div class="col-md-6 mb-3">
-                                                    <div class="lore-image-container">
-                                                        <img src="{{ url_for('static', filename='images/build/2024-11-04_16.36.15.webp') }}" 
-                                                             alt="Босс в Minecraft" 
-                                                             class="img-fluid lore-image">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <div class="lore-image-container">
-                                                        <img src="{{ url_for('static', filename='images/build/2024-11-19_17.54.29.webp') }}" 
-                                                             alt="Кастомный предмет" 
-                                                             class="img-fluid lore-image">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+            <h2 class="section-title">История и особенности сервера</h2>
+            
+            <div class="lore-slider">
+                <div class="lore-slides-container">
+                    <!-- Слайд 1: Основы лора -->
+                    <div class="lore-slide" data-index="0">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Основы сторителлинга</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p>Весь сторителлинг можно разделить на 3 части:</p>
+                                    <ul class="lore-list">
+                                        <li>Биографии</li>
+                                        <li>Сюжет местных жителей (NPC)</li>
+                                        <li>Лор всего сервера в целом</li>
+                                    </ul>
+                                    
+                                    <p>Биографии можно почитать на форуме в дискорде.</p>
+                                    <p>Сюжетка NPC описана в <code>/story</code>, а вот лор сервера будет развиваться постепенно.</p>
+                                    
+                                    <h4>Краткие сведения по ЛОРУ</h4>
+                                    <p>По итогам первого сезона игроки узнали, что живут в неком Межизмерении и их мир является одним из множества других миров. Они побывали в таком другом мире, однако <span class="highlight">маджэмы</span> — магические артефакты, оказались очень нестабильны, когда в одном мире их оказалось слишком много. Мир МайнБилда "схлопнулся", а после вселенная перезапустилась.</p>
+                                    <p>Так начался 2-ой сезон МайнБилда.</p>
                                 </div>
                             </div>
-                            
-                            <!-- Навигация -->
-                            <div class="lore-navigation">
-                                <button class="lore-arrow lore-prev" aria-label="Предыдущий слайд">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                
-                                <div class="lore-dots">
-                                    <span class="lore-dot active" data-slide="0"></span>
-                                    <span class="lore-dot" data-slide="1"></span>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/build/2025-04-20_13.33.16.webp') }}" alt="Мир Minecraft" class="lore-image">
                                 </div>
-                                
-                                <button class="lore-arrow lore-next" aria-label="Следующий слайд">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Слайд 2: Боссы и предметы -->
+                    <div class="lore-slide" data-index="1">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Боссы и кастомные предметы</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p>В сюжете NPC персонажей присутствуют боссы, о которых можно узнать в <code>/story → персонажи</code>. Они введены в игровой мир так, чтобы не нарушать основную идею ванильного выживания, но при этом они отлично могут разнообразить надоедливую рутину.</p>
+                                    
+                                    <div class="lore-quote">
+                                        Боссы добавляют не только испытание, но и расширяют сюжет сервера, соединяя игровые механики с богатой историей мира.
+                                    </div>
+                                    
+                                    <p>Зачастую, с них падают уникальные предметы, например, <span class="highlight">булава Циклопа</span>. Они обладают уникальными способностями и характеристиками, но не сильно выбиваются из общей атмосферы, а скорее дополняют её.</p>
+                                    
+                                    <p>Удачи в прохождении сюжетки и поиске редких предметов!</p>
+                                </div>
+                            </div>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/build/2024-11-19_17.54.29.webp') }}" alt="Босс в Minecraft" class="lore-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Слайд 3: Межизмерение -->
+                    <div class="lore-slide" data-index="2">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Межизмерение и миры</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p>Концепция Межизмерения — это фундаментальный аспект лора нашего сервера. Это не просто пространство между мирами, это совокупность всех миров в целом.</p>
+                                    
+                                    <p>Во втором сезоне игроки узнают больше о природе Межизмерения и обнаружили один из миров - <span class="highlight">пустынное измерение.</span></p>
+                                    
+                                    <ul class="lore-list">
+                                        <li>Каждое измерение имеет свои уникальные правила</li>
+                                        <li>Перемещение между мирами оставляет свой след</li>
+                                        <li>Артефакты одного мира могут влиять на другой</li>
+                                    </ul>
+                                    
+                                    <p>Исследование этой концепции продолжится по мере развития сервера и его истории.</p>
+                                </div>
+                            </div>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/about/2025-01-31_19.42.10.webp') }}" alt="Межизмерение" class="lore-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Слайд 4: Маджэмы -->
+                    <div class="lore-slide" data-index="3">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Маджэмы и артефакты</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p><span class="highlight">Маджэмы</span> — это редкие магические артефакты, которые играют центральную роль в сюжете сервера. Они обладают невероятной силой и способны влиять на саму структуру миров.</p>
+                                    
+                                    <div class="lore-quote">
+                                        Не все артефакты созданы равными, но каждый из них хранит часть истории мира, в котором был создан.
+                                    </div>
+                                    
+                                    <p>События первого сезона показали, что концентрация большого количества маджэмов в одном мире может привести к катастрофическим последствиям, включая коллапс измерения.</p>
+                                    
+                                    <p>Во втором сезоне игроки продолжают исследовать природу этих артефактов и искать способы использовать их силу безопасно. Но для начала нужно найти хотя бы один маджэм, чтобы сдвинуться с мёртвой точки.</p>
+                                </div>
+                            </div>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/about/2025-03-01_13.43.44.webp') }}" alt="Маджэмы" class="lore-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Слайд 5: Кастомизация персонажа -->
+                    <div class="lore-slide" data-index="4">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Кастомизация вашего персонажа (Суффиксы)</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p>На нашем сервере есть более тысячи достижений: от самых простых до невероятно сложных. За каждое вы получаете так называемые очки. Чем сложнее достижение - тем больше очков.</p>
+                                    
+                                    <p>За них вы сможете купить:</p>
+                                    <ul class="lore-list">
+                                        <li>суффиксы - косметические надписи после вашего никнейма в чате и в табе</li>
+                                        <li>изменение цвета никнейма - ваш никнейм станет красивой раскраски</li>
+                                    </ul>
+                                    
+                                    <p>Также присутствуют и <span class="highlight">уникальные суффиксы</span>, выдаваемые за различного рода активности на усмотрение модерации и игроков сервера.</p>
+                                </div>
+                            </div>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/about/suffix_menu.webp') }}" alt="Суффиксы персонажей" class="lore-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Слайд 6: Пивоварение (Brewery) -->
+                    <div class="lore-slide" data-index="5">
+                        <div class="lore-block">
+                            <div class="lore-text-container">
+                                <h3 class="lore-subtitle">Пивоварение (Brewery)</h3>
+                                <div class="lore-title-divider"></div>
+                                <div class="lore-content">
+                                    <p>Путешествуя по миру, в сундуках можно наткнуться на рецепты напитков, которые возможно приготовить в котле.</p>
+                                    
+                                    <div class="lore-quote brewery-quote">
+                                        <p>Изготовив книгу рецептов, игрок сможет изучить все необходимые ингредиенты.</p>
+                                        <img src="{{ url_for('static', filename='images/about/craft_recipe_book.webp') }}" alt="Книга рецептов" class="recipe-book-image">
+                                    </div>
+                                    
+                                    <p>Наконец, когда напиток будет готов, самая пора открывать свою <span class="highlight">лавку напитков</span> на спавне!</p>
+                                </div>
+                            </div>
+                            <div class="lore-image-wrapper">
+                                <div class="lore-image-container">
+                                    <img src="{{ url_for('static', filename='images/about/brewery.webp') }}" alt="Пивоварение" class="lore-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div class="lore-navigation">
+                    <div class="lore-arrow lore-prev">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="lore-dots">
+                        <div class="lore-dot active" data-index="0"></div>
+                        <div class="lore-dot" data-index="1"></div>
+                        <div class="lore-dot" data-index="2"></div>
+                        <div class="lore-dot" data-index="3"></div>
+                        <div class="lore-dot" data-index="4"></div>
+                        <div class="lore-dot" data-index="5"></div>
+                    </div>
+                    <div class="lore-arrow lore-next">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            
+                <!-- Примечание о дополнении списка особенностей -->
+                <div class="note-container text-center">
+                    <p class="note-text">Представлен не полный список особенностей сервера, со временем он будет дополняться</p>
                 </div>
             </div>
         </div>
