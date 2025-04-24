@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Any, Union
 import socket
 import time
 import re
+from collections import defaultdict
 
 import discord
 from discord.ext import commands
@@ -31,6 +32,10 @@ WHITELIST_ROLE_ID = 1150073275184074803
 CANDIDATE_ROLE_ID = 1187064873847365752
 LOG_CHANNEL_ID = 1277415977549566024
 CANDIDATE_CHAT_ID = 1362437237513519279
+
+# Глобальный кэш для отслеживания заявок
+recent_applications = defaultdict(list)
+DEDUP_WINDOW = 60  # Окно в секундах для дедупликации
 
 class MineBuildBot(commands.Bot):
     """Основной класс бота для сервера MineBuild."""
@@ -268,7 +273,7 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
             
             # Обновляем текст сообщения и view, добавляя причину отказа
             await interaction.message.edit(
-                content=f"-# Заявка игрока <@{self.discord_id}> отклонена!\n-# Причина: {self.reason.value}",
+                content=f"## Заявка игрока <@{self.discord_id}> отклонена!\n-# Причина: {self.reason.value}",
                 view=view
             )
             await interaction.response.send_message("Отказ в заявке успешно обработан.", ephemeral=True)
@@ -532,7 +537,23 @@ async def create_application_message(
         bool: True если сообщение успешно отправлено, иначе False
     """
     try:
-        # Разделяем поля на основные и подробные
+        # Проверяем на дубликаты
+        current_time = time.time()
+        recent_apps = recent_applications[discord_id]
+        
+        # Очищаем старые записи
+        recent_apps = [t for t in recent_apps if current_time - t < DEDUP_WINDOW]
+        
+        # Если есть недавние заявки, пропускаем
+        if recent_apps:
+            logger.warning(f"Обнаружен дубликат заявки для пользователя {discord_id}. Пропускаем.")
+            return False
+            
+        # Добавляем текущую заявку в список
+        recent_apps.append(current_time)
+        recent_applications[discord_id] = recent_apps
+
+        # Продолжаем обработку заявки...
         main_fields = []
         details_fields = []
         
