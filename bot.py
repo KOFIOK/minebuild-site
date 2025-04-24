@@ -44,7 +44,7 @@ class MineBuildBot(commands.Bot):
         """Инициализация бота с нужными настройками."""
         intents = discord.Intents.default()
         intents.message_content = True
-        intents.members = True
+        intents.members = True  # Включены интенты на отслеживание пользователей
         super().__init__(
             command_prefix="!",
             intents=intents,
@@ -75,6 +75,28 @@ class MineBuildBot(commands.Bot):
     async def on_ready(self) -> None:
         """Вызывается когда бот успешно подключился к Discord."""
         logger.info(f"Бот {self.user} запущен и готов к работе!")
+
+    async def on_member_remove(self, member: discord.Member) -> None:
+        """Вызывается когда пользователь покидает сервер."""
+        try:
+            # Проверяем, есть ли у пользователя роль вайтлиста
+            whitelist_role_id = WHITELIST_ROLE_ID
+            has_whitelist = any(role.id == whitelist_role_id for role in member.roles)
+            
+            if has_whitelist:
+                # Получаем никнейм пользователя
+                nickname = member.nick or member.name
+                
+                # Отправляем уведомление в лог-канал
+                log_channel = self.get_channel(LOG_CHANNEL_ID)
+                if log_channel:
+                    await send_member_leave_notification(log_channel, member.id, nickname)
+                    logger.info(f"Отправлено уведомление о выходе пользователя {member.id} с ролью вайтлиста")
+                else:
+                    logger.error(f"Не удалось найти канал логов {LOG_CHANNEL_ID}")
+            
+        except Exception as e:
+            logger.error(f"Ошибка при обработке выхода пользователя: {e}", exc_info=True)
 
 
 class MineBuildCommands(commands.Cog):
@@ -926,3 +948,184 @@ def run_bot():
 
 if __name__ == '__main__':
     run_bot()
+
+
+class RemoveFromWhitelistButton(discord.ui.Button):
+    """Кнопка для исключения игрока из белого списка."""
+    
+    def __init__(self, member_id: str, nickname: str) -> None:
+        super().__init__(
+            style=discord.ButtonStyle.danger,
+            label="Исключить",
+            custom_id=f"remove_whitelist_{member_id}_{nickname}",
+            emoji="❌"
+        )
+        
+    async def callback(self, interaction: discord.Interaction) -> None:
+        """Обработчик нажатия кнопки исключения."""
+        # Проверяем права пользователя
+        if not has_moderation_permissions(interaction.user):
+            await interaction.response.send_message(
+                "У вас нет прав для удаления игрока из вайтлиста. Необходимо быть администратором или модератором.", 
+                ephemeral=True
+            )
+            return
+
+        # Получаем идентификаторы из custom_id
+        parts = self.custom_id.split('_')
+        member_id = parts[2]
+        nickname = '_'.join(parts[3:])  # Восстанавливаем никнейм, если он содержал подчеркивания
+        
+        # Отвечаем на взаимодействие сразу, чтобы не было таймаута
+        await interaction.response.defer(ephemeral=True)
+        
+        # Удаляем из белого списка через RCON
+        success = await remove_from_whitelist(nickname)
+        
+        # Обновляем сообщение
+        view = discord.ui.View(timeout=None)
+        button = discord.ui.Button(
+            style=discord.ButtonStyle.danger,
+            label="Исключён",
+            emoji="✅",
+            disabled=True,
+            custom_id=f"removed_{member_id}"
+        )
+        view.add_item(button)
+        
+        await interaction.message.edit(
+            content=f"## Игрок <@{member_id}> с ником `{nickname}` вышел из дискорд сервера!\n> - Игрок исключен из белого списка.",
+            view=view
+        )
+        
+        # Отправляем сообщение в лог-канал
+        log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+        if log_channel:
+            await log_channel.send(
+                f"# Куратор <@{interaction.user.id}> исключил игрока {nickname} из белого списка после его выхода из сервера."
+            )
+        
+        # Отчет модератору
+        if success:
+            await interaction.followup.send(
+                f"Игрок {nickname} успешно удален из белого списка.",
+                ephemeral=True
+            )
+        else:
+            await interaction.followup.send(
+                f"Произошла ошибка при удалении игрока {nickname} из белого списка. Проверьте состояние сервера.",
+                ephemeral=True
+            )
+
+
+class IgnoreLeaveButton(discord.ui.Button):
+    """Кнопка для игнорирования выхода игрока."""
+    
+    def __init__(self, member_id: str, nickname: str) -> None:
+        super().__init__(
+            style=discord.ButtonStyle.secondary,
+            label="Игнорировать",
+            custom_id=f"ignore_leave_{member_id}_{nickname}",
+            emoji="🔕"
+        )
+        
+    async def callback(self, interaction: discord.Interaction) -> None:
+        """Обработчик нажатия кнопки игнорирования."""
+        # Проверяем права пользователя
+        if not has_moderation_permissions(interaction.user):
+            await interaction.response.send_message(
+                "У вас нет прав для игнорирования уведомлений. Необходимо быть администратором или модератором.", 
+                ephemeral=True
+            )
+            return
+
+        # Получаем идентификаторы из custom_id
+        parts = self.custom_id.split('_')
+        member_id = parts[2]
+        nickname = '_'.join(parts[3:])  # Восстанавливаем никнейм, если он содержал подчеркивания
+        
+        # Обновляем сообщение
+        view = discord.ui.View(timeout=None)
+        button = discord.ui.Button(
+            style=discord.ButtonStyle.secondary,
+            label="Проигнорировано",
+            emoji="🔕",
+            disabled=True,
+            custom_id=f"ignored_{member_id}"
+        )
+        view.add_item(button)
+        
+        await interaction.message.edit(
+            content=f"## Игрок <@{member_id}> с ником `{nickname}` вышел из дискорд сервера!\n> - Уведомление проигнорировано.",
+            view=view
+        )
+        
+        await interaction.response.defer(ephemeral=True)  # Скрытое подтверждение действия
+
+
+async def send_member_leave_notification(channel: discord.TextChannel, member_id: int, nickname: str) -> None:
+    """
+    Отправляет уведомление о выходе пользователя с кнопками действий.
+    
+    Args:
+        channel: Канал для отправки уведомления
+        member_id: ID пользователя Discord
+        nickname: Никнейм пользователя
+    """
+    # Создаем view с кнопками
+    view = discord.ui.View(timeout=None)
+    
+    # Добавляем кнопки
+    view.add_item(RemoveFromWhitelistButton(str(member_id), nickname))
+    view.add_item(IgnoreLeaveButton(str(member_id), nickname))
+    
+    # Отправляем сообщение
+    await channel.send(
+        content=f"## Игрок <@{member_id}> с ником `{nickname}` вышел из дискорд сервера!\n> - Желаете его исключить из белого списка?",
+        view=view
+    )
+
+
+async def remove_from_whitelist(minecraft_nickname: str) -> bool:
+    """
+    Удаляет игрока из белого списка сервера.
+    
+    Args:
+        minecraft_nickname: Никнейм игрока в Minecraft
+        
+    Returns:
+        bool: True если игрок успешно удален, иначе False
+    """
+    # Проверяем доступность сервера
+    is_server_available = await check_minecraft_server_availability()
+    
+    if not is_server_available:
+        logger.error(f"Сервер Minecraft недоступен. Не удалось удалить игрока {minecraft_nickname} из белого списка.")
+        return False
+        
+    # Пробуем подключиться к RCON
+    try:
+        with MCRcon(
+            os.getenv('RCON_HOST'),
+            os.getenv('RCON_PASSWORD'),
+            int(os.getenv('RCON_PORT'))
+        ) as mcr:
+            # Даем серверу время на обработку команды
+            await asyncio.sleep(1)
+            response = mcr.command(f"uw remove {minecraft_nickname}")
+            
+            # Очищаем ответ от форматирования Minecraft
+            clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
+            logger.info(f"RCON response for whitelist removal: {clean_response}")
+            
+            # Проверяем успешность операции
+            success = "removed" in clean_response.lower() or "удален" in clean_response.lower()
+            return success
+            
+    except (socket.timeout, ConnectionRefusedError) as e:
+        error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
+        logger.error(f"{error_message}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Ошибка RCON при удалении из белого списка: {e}", exc_info=True)
+        return False
