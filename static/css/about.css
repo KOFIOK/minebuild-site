@@ -54,6 +54,12 @@
                 0 0 30px rgba(147, 112, 219, 0.2);
 }
 
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .parallax-content {
     position: relative;
     z-index: 2;
@@ -79,6 +85,18 @@
     animation: titleAppear 1s ease-out forwards;
 }
 
+/* Добавляем анимацию для плавного появления заголовка */
+@keyframes titleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .parallax-content .lead {
     font-family: 'Evolventa', sans-serif;
     font-size: 1.5rem;
@@ -87,6 +105,18 @@
     line-height: 1.6;
     animation: textAppear 1s ease-out 0.3s forwards;
     opacity: 0;
+}
+
+/* Добавляем анимацию для плавного появления подзаголовка */
+@keyframes textAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Основная секция */
