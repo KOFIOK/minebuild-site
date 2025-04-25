@@ -23,6 +23,7 @@ if platform.system() == 'Windows':
 # Настройка дополнительного логирования для main.py
 main_logger = logging.getLogger("MineBuildMain")
 main_logger.setLevel(logging.INFO)
+main_logger.propagate = False  # Отключаем передачу логов вверх по иерархии
 if not main_logger.handlers:
     # Создаем консольный обработчик с поддержкой UTF-8
     console_handler = logging.StreamHandler(sys.stdout)
