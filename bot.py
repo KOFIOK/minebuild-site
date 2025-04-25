@@ -122,6 +122,108 @@ class MineBuildBot(commands.Bot):
             
         except Exception as e:
             logger.error(f"Ошибка при обработке выхода пользователя: {e}", exc_info=True)
+    
+    async def handle_donation(self, nickname: str, amount: int) -> bool:
+        """
+        Обрабатывает донат в зависимости от суммы и выполняет соответствующие действия:
+        - Благодарственное сообщение для всех донатов от 100₽
+        - Выдача роли донатера за донаты от 300₽
+        - Установка суффикса через RCON за донаты от 500₽
+        
+        Args:
+            nickname: Никнейм игрока
+            amount: Сумма доната в рублях
+            
+        Returns:
+            bool: True если обработка прошла успешно, False в случае ошибки
+        """
+        try:
+            # Получаем канал для отправки сообщений о донатах
+            donation_channel = self.get_channel(DONATION_CHANNEL_ID)
+            if not donation_channel:
+                logger.error(f"Не удалось найти канал для донатов с ID {DONATION_CHANNEL_ID}")
+                return False
+
+            logger.info(f"Обработка доната: игрок={nickname}, сумма={amount}₽")
+
+            # Создаем красивое embed-сообщение с благодарностью
+            embed = discord.Embed(
+                title="Новый донат!",
+                description=f"**{nickname}** - спасибо за **{amount} ₽** переводом",
+                color=0x68caff  # Голубой цвет (68caff)
+            )
+            
+            embed.set_footer(text="MineBuild Donations")
+            embed.timestamp = discord.utils.utcnow()
+
+            # Добавляем информацию о наградах
+            rewards = []
+            if amount >= 100:
+                rewards.append("✅ Благодарственное сообщение")
+            
+            if amount >= 300:
+                rewards.append("✅ Роль Благодеятеля в Discord")
+            
+            if amount >= 500:
+                rewards.append("✅ Уникальный суффикс в игре")
+            
+            if amount >= 1000:
+                rewards.append("✅ Индивидуальный суффикс в игре")
+            
+            if rewards:
+                embed.add_field(name="Награды", value="\n".join(rewards), inline=False)
+
+            # Отправляем сообщение о донате
+            await donation_channel.send(embed=embed)
+            logger.info(f"Отправлено сообщение о донате игрока {nickname} на сумму {amount}₽")
+
+            # Если сумма доната 300₽ и больше - выдаем роль Благодеятеля
+            if amount >= 300:
+                # Получаем сервер
+                guild = donation_channel.guild
+                
+                # Найти пользователя по нику
+                member = None
+                for m in guild.members:
+                    member_nick = m.nick or m.name
+                    if member_nick.lower() == nickname.lower():
+                        member = m
+                        break
+                
+                if member:
+                    # Выдаем роль Благодеятеля
+                    donator_role = guild.get_role(DONATOR_ROLE_ID)
+                    if donator_role:
+                        await member.add_roles(donator_role)
+                        logger.info(f"Выдана роль Благодеятеля пользователю {nickname}")
+                    else:
+                        logger.error(f"Не удалось найти роль Благодеятеля с ID {DONATOR_ROLE_ID}")
+                else:
+                    logger.warning(f"Не удалось найти пользователя с ником {nickname} для выдачи роли Благодеятеля")
+
+            # Если сумма доната 500₽ и больше - выдаем суффикс через RCON
+            if amount >= 500:
+                # Выполняем команду на сервере Minecraft через RCON
+                success = await execute_minecraft_command(f"lp user {nickname} permission set title.u.donate")
+                
+                if success:
+                    logger.info(f"Выдан суффикс донатера игроку {nickname}")
+                else:
+                    logger.error(f"Не удалось выдать суффикс донатера игроку {nickname}")
+                    
+                    # Отправляем сообщение о проблеме
+                    error_embed = discord.Embed(
+                        title="⚠️ Внимание!",
+                        description=f"Не удалось выдать суффикс игроку **{nickname}**. Требуется ручная выдача.",
+                        color=0xFF0000
+                    )
+                    await donation_channel.send(embed=error_embed)
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Ошибка при обработке доната: {e}", exc_info=True)
+            return False
 
 
 class MineBuildCommands(commands.Cog):
@@ -1153,120 +1255,6 @@ async def remove_from_whitelist(minecraft_nickname: str) -> bool:
         return False
     except Exception as e:
         logger.error(f"Ошибка RCON при удалении из белого списка: {e}", exc_info=True)
-        return False
-
-
-async def handle_donation(nickname: str, amount: int) -> bool:
-    """
-    Обрабатывает донат в зависимости от суммы и выполняет соответствующие действия:
-    - Благодарственное сообщение для всех донатов от 100₽
-    - Выдача роли донатера за донаты от 300₽
-    - Установка суффикса через RCON за донаты от 500₽
-    
-    Args:
-        nickname: Никнейм игрока
-        amount: Сумма доната в рублях
-        
-    Returns:
-        bool: True если обработка прошла успешно, False в случае ошибки
-    """
-    try:
-        # Получаем глобальный экземпляр бота
-        bot = None
-        for bot_instance in discord.client._DiscordClientInternal._clients:
-            if isinstance(bot_instance, MineBuildBot):
-                bot = bot_instance
-                break
-                
-        if not bot:
-            logger.error("Не удалось найти экземпляр бота для обработки доната")
-            return False
-        
-        # Получаем канал для отправки сообщений о донатах
-        donation_channel = bot.get_channel(DONATION_CHANNEL_ID)
-        if not donation_channel:
-            logger.error(f"Не удалось найти канал для донатов с ID {DONATION_CHANNEL_ID}")
-            return False
-
-        logger.info(f"Обработка доната: игрок={nickname}, сумма={amount}₽")
-
-        # Создаем красивое embed-сообщение с благодарностью
-        embed = discord.Embed(
-            title="Новый донат!",
-            description=f"**{nickname}** - спасибо за **{amount} ₽** переводом",
-            color=0x68caff  # Голубой цвет (68caff)
-        )
-        
-        embed.set_footer(text="MineBuild Donations")
-        embed.timestamp = discord.utils.utcnow()
-
-        # Добавляем информацию о наградах
-        rewards = []
-        if amount >= 100:
-            rewards.append("✅ Благодарственное сообщение")
-        
-        if amount >= 300:
-            rewards.append("✅ Роль Благодеятеля в Discord")
-        
-        if amount >= 500:
-            rewards.append("✅ Уникальный суффикс в игре")
-        
-        if amount >= 1000:
-            rewards.append("✅ Индивидуальный суффикс в игре")
-        
-        if rewards:
-            embed.add_field(name="Награды", value="\n".join(rewards), inline=False)
-
-        # Отправляем сообщение о донате
-        await donation_channel.send(embed=embed)
-        logger.info(f"Отправлено сообщение о донате игрока {nickname} на сумму {amount}₽")
-
-        # Если сумма доната 300₽ и больше - выдаем роль Благодеятеля
-        if amount >= 300:
-            # Получаем сервер
-            guild = donation_channel.guild
-            
-            # Найти пользователя по нику
-            member = None
-            for m in guild.members:
-                member_nick = m.nick or m.name
-                if member_nick.lower() == nickname.lower():
-                    member = m
-                    break
-            
-            if member:
-                # Выдаем роль Благодеятеля
-                donator_role = guild.get_role(DONATOR_ROLE_ID)
-                if donator_role:
-                    await member.add_roles(donator_role)
-                    logger.info(f"Выдана роль Благодеятеля пользователю {nickname}")
-                else:
-                    logger.error(f"Не удалось найти роль Благодеятеля с ID {DONATOR_ROLE_ID}")
-            else:
-                logger.warning(f"Не удалось найти пользователя с ником {nickname} для выдачи роли Благодеятеля")
-
-        # Если сумма доната 500₽ и больше - выдаем суффикс через RCON
-        if amount >= 500:
-            # Выполняем команду на сервере Minecraft через RCON
-            success = await execute_minecraft_command(f"lp user {nickname} permission set title.u.donate")
-            
-            if success:
-                logger.info(f"Выдан суффикс донатера игроку {nickname}")
-            else:
-                logger.error(f"Не удалось выдать суффикс донатера игроку {nickname}")
-                
-                # Отправляем сообщение о проблеме
-                error_embed = discord.Embed(
-                    title="⚠️ Внимание!",
-                    description=f"Не удалось выдать суффикс игроку **{nickname}**. Требуется ручная выдача.",
-                    color=0xFF0000
-                )
-                await donation_channel.send(embed=error_embed)
-
-        return True
-
-    except Exception as e:
-        logger.error(f"Ошибка при обработке доната: {e}", exc_info=True)
         return False
 
 

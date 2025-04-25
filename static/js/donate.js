@@ -1,10 +1,19 @@
 // Обработка платежной формы MineBuild
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM загружен, инициализация скрипта donate.js");
     const paymentForm = document.querySelector('.payment-form');
     
     if (paymentForm) {
+        console.log("Форма оплаты найдена, настраиваем обработчики");
         const nicknameInput = document.getElementById('payment-comment');
         const amountInput = document.getElementById('payment-amount');
+        const submitButton = paymentForm.querySelector('.payment-submit-btn');
+        
+        console.log("Найдены элементы формы:", {
+            nicknameInput: !!nicknameInput,
+            amountInput: !!amountInput,
+            submitButton: !!submitButton
+        });
 
         // Добавляем валидацию полей в реальном времени
         if (nicknameInput) {
@@ -70,29 +79,91 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Метод для прямой отправки формы на ЮMoney
+        // Метод для отправки формы на ЮMoney через API сервера
         paymentForm.addEventListener('submit', function(event) {
-            const nickname = document.getElementById('payment-comment');
-            const amount = document.getElementById('payment-amount');
+            console.log("Событие отправки формы сработало!");
+            event.preventDefault(); // Останавливаем стандартную отправку формы
+            
+            const nickname = document.getElementById('payment-comment').value;
+            const amount = document.getElementById('payment-amount').value;
+            
+            // Используем банковскую карту как способ оплаты по умолчанию 
+            const paymentType = 'AC'; // AC - банковская карта
+            
+            console.log("Собраны данные формы:", { nickname, amount, paymentType });
             
             // Проверка данных
-            if (!amount.value || amount.value < 1) {
-                event.preventDefault();
+            if (!amount || amount < 1) {
+                console.log("Ошибка: некорректная сумма", amount);
                 showMessage('Минимальная сумма пожертвования - 1 ₽', 'error');
-                amount.classList.add('input-error');
+                document.getElementById('payment-amount').classList.add('input-error');
                 return false;
             }
             
-            if (!nickname.value.trim()) {
-                event.preventDefault();
+            if (!nickname || !nickname.trim()) {
+                console.log("Ошибка: никнейм не указан");
                 showMessage('Пожалуйста, укажите игровой ник', 'error');
-                nickname.classList.add('input-error');
+                document.getElementById('payment-comment').classList.add('input-error');
                 return false;
             }
             
-            // Если всё правильно, форма отправится обычным способом
-            return true;
+            // Показываем индикатор загрузки
+            console.log("Отправляем запрос на создание платежа");
+            showMessage('Подготовка платежа...', 'info');
+            
+            // Отправляем запрос на сервер для получения защищенного URL и токена
+            fetch('/api/create-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    comment: nickname,
+                    payment_type: paymentType
+                }),
+            })
+            .then(response => {
+                console.log("Получен ответ сервера:", response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log("Получены данные платежа:", data);
+                if (data.success) {
+                    // Сохраняем данные в localStorage для восстановления при необходимости
+                    localStorage.setItem('donation_nickname', nickname);
+                    localStorage.setItem('donation_amount', amount);
+                    localStorage.setItem('donation_token', data.donation_token);
+                    
+                    // Перенаправляем на страницу оплаты
+                    console.log("Перенаправляем на URL:", data.redirect_url);
+                    showMessage('Перенаправляем вас на страницу оплаты...', 'info');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1000);
+                } else {
+                    console.error("Ошибка при создании платежа:", data.error);
+                    showMessage(data.error || 'Произошла ошибка при создании платежа', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка API запроса:', error);
+                showMessage('Произошла ошибка при подготовке платежа. Пожалуйста, попробуйте еще раз.', 'error');
+            });
+            
+            return false;
         });
+        
+        // Для дополнительной надежности добавим прямой обработчик клика на кнопку
+        if (submitButton) {
+            submitButton.addEventListener('click', function(e) {
+                console.log("Клик по кнопке отправки формы");
+                // Проверим, сработает ли событие submit формы или нужен дополнительный триггер
+                if (!paymentForm.checkValidity()) {
+                    paymentForm.reportValidity(); // Показать стандартные сообщения валидации
+                }
+            });
+        }
         
         // Предварительный выбор суммы
         const rewardOptions = document.querySelectorAll('.reward-option');
@@ -109,6 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+    } else {
+        console.error("Форма оплаты не найдена на странице!");
     }
 });
 

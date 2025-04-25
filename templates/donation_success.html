@@ -201,6 +201,12 @@
                 {% else %}
                 <li class="unavailable"><i class="fas fa-times"></i> Уникальный суффикс на сервере (от 500 ₽)</li>
                 {% endif %}
+
+                {% if amount|int >= 500 %}
+                <li><i class="fas fa-check"></i> Индивидуальный суффикс на сервере</li>
+                {% else %}
+                <li class="unavailable"><i class="fas fa-times"></i> Индивидуальный суффикс на сервере (от 1000 ₽)</li>
+                {% endif %}
             </ul>
             <p><strong>Награды будут активированы в течение нескольких минут.</strong></p>
             <p>Если вы не получили награды в игре в течение 15 минут, пожалуйста, напишите администрации в Discord.</p>
@@ -217,4 +223,40 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Проверяем наличие флага processed=true в URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const isProcessed = urlParams.get('processed') === 'true';
+        
+        // Проверяем, есть ли параметры никнейма и суммы на странице
+        const nicknameElement = document.querySelector('.donation-details .detail-value:first-of-type');
+        const amountElement = document.querySelector('.donation-details .detail-value:nth-of-type(2)');
+        
+        // Если параметры отсутствуют, пробуем восстановить их из localStorage
+        // Но только если донат еще не был обработан
+        if (!isProcessed && 
+            (!nicknameElement || !nicknameElement.textContent.trim()) && 
+            (!amountElement || amountElement.textContent.includes('0 ₽'))) {
+            
+            const storedNickname = localStorage.getItem('donation_nickname');
+            const storedAmount = localStorage.getItem('donation_amount');
+            
+            if (storedNickname && storedAmount) {
+                console.log("Восстановление параметров доната из localStorage");
+                
+                // Перенаправляем на страницу с восстановленными параметрами
+                window.location.href = `/donation-success?sum=${storedAmount}&comment=${encodeURIComponent(storedNickname)}`;
+                return; // Прерываем выполнение, т.к. страница будет перезагружена
+            }
+        } else {
+            // Очищаем localStorage, так как данные были успешно переданы или обработаны
+            localStorage.removeItem('donation_nickname');
+            localStorage.removeItem('donation_amount');
+        }
+    });
+</script>
 {% endblock %}

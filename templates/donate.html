@@ -142,16 +142,7 @@
                     <!-- YooMoney форма вместо iframe-виджета -->
                     <div class="yoomoney-form-container">
                         <div class="form-glow"></div>
-                        <form class="payment-form" action="https://yoomoney.ru/quickpay/confirm.xml" method="post">
-                            <input type="hidden" name="receiver" value="4100116641745516">
-                            <input type="hidden" name="quickpay-form" value="donate">
-                            <input type="hidden" name="targets" value="Поддержка MineBuild">
-                            <input type="hidden" name="need-fio" value="false">
-                            <input type="hidden" name="need-email" value="false">
-                            <input type="hidden" name="need-phone" value="false">
-                            <input type="hidden" name="need-address" value="false">
-                            <input type="hidden" name="successURL" value="https://minebuild.com/donation-success">
-                            
+                        <form class="payment-form">
                             <div class="payment-input-group">
                                 <label for="payment-amount">Сумма поддержки</label>
                                 <div class="amount-input-wrapper">
@@ -163,23 +154,6 @@
                             <div class="payment-input-group">
                                 <label for="payment-comment">Игровой ник</label>
                                 <input type="text" name="comment" id="payment-comment" placeholder="Введите ваш игровой ник">
-                            </div>
-                            
-                            <div class="payment-methods-selector">
-                                <div class="payment-method">
-                                    <input type="radio" name="paymentType" value="AC" id="payment-card" checked>
-                                    <label for="payment-card">Банковской картой</label>
-                                </div>
-                                
-                                <div class="payment-method">
-                                    <input type="radio" name="paymentType" value="PC" id="payment-wallet">
-                                    <label for="payment-wallet">Кошельком ЮMoney</label>
-                                </div>
-                                
-                                <div class="payment-method">
-                                    <input type="radio" name="paymentType" value="MC" id="payment-mobile">
-                                    <label for="payment-mobile">Мобильный платёж</label>
-                                </div>
                             </div>
                             
                             <button type="submit" class="payment-submit-btn">Поддержать сервер</button>

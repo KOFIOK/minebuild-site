@@ -293,7 +293,7 @@
     transform: rotate(45deg);
     font-weight: bold;
     text-transform: uppercase;
-    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
 
@@ -1064,4 +1064,46 @@
 .nickname-info i {
     margin-right: 5px;
     font-size: 0.9rem;
+}
+
+/* Стили для сообщений обратной связи */
+.donation-message {
+    position: relative;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+    border-left: 4px solid #00E5A1;
+    background: rgba(0, 229, 161, 0.1);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    animation: messageAppear 0.3s ease;
+}
+
+@keyframes messageAppear {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.donation-message.info {
+    background: rgba(104, 202, 255, 0.1);
+    border-left-color: #68caff;
+}
+
+.donation-message.error {
+    background: rgba(255, 77, 77, 0.1);
+    border-left-color: #ff4d4d;
+}
+
+.donation-message.success {
+    background: rgba(0, 229, 161, 0.1);
+    border-left-color: #00E5A1;
+}
+
+.donation-message.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
