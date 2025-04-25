@@ -22,3 +22,6 @@ main.log
 .vscode/
 *.swp
 *.swo
+
+# Другое
+secret-key
