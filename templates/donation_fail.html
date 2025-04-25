@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка при оплате | MineBuild{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fail-container {
+        padding: 50px 20px;
+        text-align: center;
+        max-width: 800px;
+        margin: 80px auto;
+        background: rgba(18, 18, 22, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 16px;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    
+    .fail-icon {
+        font-size: 5rem;
+        color: #ff4d4d;
+        margin-bottom: 20px;
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    
+    .fail-title {
+        font-family: 'Intro Demo', sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: #ff4d4d;
+    }
+    
+    .fail-message {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .fail-action {
+        margin-top: 30px;
+    }
+    
+    .btn-retry {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+        border: none;
+        border-radius: 8px;
+        color: var(--bg-dark);
+        font-family: 'Intro Demo', sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+        margin-right: 15px;
+    }
+    
+    .btn-retry:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 229, 161, 0.5);
+    }
+    
+    .btn-home {
+        display: inline-block;
+        padding: 12px 30px;
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: 'Intro Demo', sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-home:hover {
+        border-color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-3px);
+    }
+    
+    .error-info {
+        margin-top: 30px;
+        padding: 15px 20px;
+        background: rgba(255, 77, 77, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #ff4d4d;
+        text-align: left;
+    }
+    
+    .error-info h3 {
+        color: #ff4d4d;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    
+    .error-info ul {
+        color: var(--text-secondary);
+        padding-left: 20px;
+    }
+    
+    .error-info li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="fail-container">
+        <div class="fail-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        
+        <h1 class="fail-title">Ошибка при оплате</h1>
+        
+        <div class="fail-message">
+            <p>К сожалению, при обработке платежа произошла ошибка.</p>
+            <p>Ваш платеж не был завершен, и средства не были списаны с вашего счета.</p>
+        </div>
+        
+        <div class="error-info">
+            <h3>Возможные причины ошибки:</h3>
+            <ul>
+                <li>Недостаточно средств на карте или счете</li>
+                <li>Банк отклонил операцию из соображений безопасности</li>
+                <li>Временная техническая проблема на стороне платежной системы</li>
+                <li>Проблемы с подключением к интернету во время оплаты</li>
+            </ul>
+        </div>
+        
+        <div class="fail-action">
+            <a href="/donate" class="btn-retry">Попробовать снова</a>
+            <a href="/" class="btn-home">Вернуться на главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
