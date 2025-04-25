@@ -103,15 +103,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const amountGroup = amountInput.closest('.payment-input-group');
             const amountValidation = document.createElement('div');
             amountValidation.className = 'validation-message';
-            amountValidation.textContent = 'Минимальная сумма пожертвования - 1 ₽';
+            amountValidation.textContent = 'Минимальная сумма пожертвования - 100 ₽';
             amountGroup.appendChild(amountValidation);
 
             amountInput.addEventListener('blur', function() {
                 const value = parseInt(this.value, 10);
-                if (isNaN(value) || value < 1) {
+                if (isNaN(value) || value < 100) {
                     this.classList.add('input-error');
                     amountValidation.classList.add('show');
-                    this.value = Math.max(1, value || 1);
+                    this.value = Math.max(100, value || 100);
                 } else {
                     this.classList.remove('input-error');
                     amountValidation.classList.remove('show');
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             amountInput.addEventListener('input', function() {
                 const value = parseInt(this.value, 10);
-                if (!isNaN(value) && value >= 1) {
+                if (!isNaN(value) && value >= 100) {
                     this.classList.remove('input-error');
                     amountValidation.classList.remove('show');
                 }
@@ -141,9 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Собраны данные формы:", { nickname, amount, paymentType });
             
             // Проверка данных
-            if (!amount || amount < 1) {
+            if (!amount || amount < 100) {
                 console.log("Ошибка: некорректная сумма", amount);
-                showMessage('Минимальная сумма пожертвования - 1 ₽', 'error');
+                showMessage('Минимальная сумма пожертвования - 100 ₽', 'error');
                 document.getElementById('payment-amount').classList.add('input-error');
                 return false;
             }

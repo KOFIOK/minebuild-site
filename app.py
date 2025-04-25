@@ -95,9 +95,9 @@ def create_payment():
         nickname = data['comment']  # Получаем ник из поля comment
         payment_type = data.get('payment_type', 'AC')  # По умолчанию - банковская карта
         
-        if amount < 1:
+        if amount < 100:
             logger.warning(f"Попытка создать платеж на сумму меньше минимальной: {amount}")
-            return jsonify({'success': False, 'error': 'Минимальная сумма - 1 ₽'}), 400
+            return jsonify({'success': False, 'error': 'Минимальная сумма - 100 ₽'}), 400
         
         # Создаем уникальный идентификатор для платежа
         payment_id = str(uuid.uuid4())
