@@ -975,37 +975,565 @@
     animation: sectionHighlight 1s ease-out;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-    .minecraft-block {
-        width: 60px;
-        height: 60px;
+/* Стили для кнопки перехода к пожертвованию */
+.donate-scroll-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 15px 30px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+    color: var(--bg-dark);
+    text-decoration: none;
+    border-radius: 30px;
+    font-family: 'Intro Demo', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 
+                0 0 15px rgba(0, 229, 161, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 1s 0.6s forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    
-    .custom-amount-card {
-        padding: 30px 20px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    .donation-rewards {
-        gap: 10px;
+}
+
+.donate-scroll-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+    z-index: 1;
+}
+
+.donate-scroll-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 
+                0 0 30px rgba(0, 229, 161, 0.5);
+}
+
+.donate-scroll-btn:hover::before {
+    left: 100%;
+}
+
+.donate-scroll-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.donate-scroll-btn i {
+    margin-left: 10px;
+    font-size: 1rem;
+    animation: bounce 2s infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
     }
-    
-    .reward-option {
-        width: 150px;
-        padding: 15px;
+    40% {
+        transform: translateY(-5px);
     }
-    
-    .reward-amount {
-        font-size: 1.2rem;
+    60% {
+        transform: translateY(-3px);
     }
-    
-    .reward-perk {
-        font-size: 0.85rem;
+}
+
+/* Стили для кнопок пожертвований */
+.payment-submit-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+    border: none;
+    border-radius: 8px;
+    color: var(--bg-dark);
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+    margin-top: 25px;
+    z-index: 1;
+}
+
+.payment-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 229, 161, 0.5);
+}
+
+.payment-submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.4);
+}
+
+.payment-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+
+.payment-submit-btn:hover::before {
+    left: 100%;
+}
+
+/* Стили для полей ввода в форме */
+.yoomoney-form-container {
+    position: relative;
+    margin: 30px 0;
+    z-index: 1;
+}
+
+.form-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 229, 161, 0.08);
+    border-radius: 16px;
+    filter: blur(20px);
+    z-index: -1;
+    animation: formGlowPulse 3s infinite alternate;
+}
+
+@keyframes formGlowPulse {
+    0% { opacity: 0.3; transform: scale(0.95); }
+    100% { opacity: 0.6; transform: scale(1); }
+}
+
+.payment-form {
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.payment-input-group {
+    margin-bottom: 20px;
+}
+
+.payment-input-group label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.payment-input-group input[type="text"],
+.payment-input-group input[type="number"] {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(10, 10, 12, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.payment-input-group input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.2);
+}
+
+.payment-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Стиль для поля с суммой и значком валюты */
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.amount-input-wrapper input {
+    padding-right: 40px;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 15px;
+    font-size: 1.1rem;
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* Стили для валидации и предупреждений */
+.validation-message {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.validation-message.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-error {
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+}
+
+/* Стили для информационного сообщения о вводе ника */
+.nickname-info {
+    font-size: 0.85rem;
+    color: var(--accent-green);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.nickname-info i {
+    margin-right: 5px;
+    font-size: 0.9rem;
+}
+
+/* Стили для сообщений обратной связи */
+.donation-message {
+    position: relative;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+    border-left: 4px solid #00E5A1;
+    background: rgba(0, 229, 161, 0.1);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    animation: messageAppear 0.3s ease;
+}
+
+@keyframes messageAppear {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.donation-message.info {
+    background: rgba(104, 202, 255, 0.1);
+    border-left-color: #68caff;
+}
+
+.donation-message.error {
+    background: rgba(255, 77, 77, 0.1);
+    border-left-color: #ff4d4d;
+}
+
+.donation-message.success {
+    background: rgba(0, 229, 161, 0.1);
+    border-left-color: #00E5A1;
+}
+
+.donation-message.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Эффект выделения секции при скролле к ней */
+@keyframes sectionHighlight {
+    0% { box-shadow: 0 0 0 rgba(0, 229, 161, 0); }
+    50% { box-shadow: 0 0 50px 10px rgba(0, 229, 161, 0.5); }
+    100% { box-shadow: 0 0 0 rgba(0, 229, 161, 0); }
+}
+
+.highlight-section {
+    animation: sectionHighlight 1s ease-out;
+}
+
+/* Стили для кнопки перехода к пожертвованию */
+.donate-scroll-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 15px 30px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+    color: var(--bg-dark);
+    text-decoration: none;
+    border-radius: 30px;
+    font-family: 'Intro Demo', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 
+                0 0 15px rgba(0, 229, 161, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 1s 0.6s forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    
-    .donation-footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.donate-scroll-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+    z-index: 1;
+}
+
+.donate-scroll-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 
+                0 0 30px rgba(0, 229, 161, 0.5);
+}
+
+.donate-scroll-btn:hover::before {
+    left: 100%;
+}
+
+.donate-scroll-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.donate-scroll-btn i {
+    margin-left: 10px;
+    font-size: 1rem;
+    animation: bounce 2s infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Стили для кнопок пожертвований */
+.payment-submit-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+    border: none;
+    border-radius: 8px;
+    color: var(--bg-dark);
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+    margin-top: 25px;
+    z-index: 1;
+}
+
+.payment-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 229, 161, 0.5);
+}
+
+.payment-submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.4);
+}
+
+.payment-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+
+.payment-submit-btn:hover::before {
+    left: 100%;
+}
+
+/* Стили для полей ввода в форме */
+.yoomoney-form-container {
+    position: relative;
+    margin: 30px 0;
+    z-index: 1;
+}
+
+.form-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 229, 161, 0.08);
+    border-radius: 16px;
+    filter: blur(20px);
+    z-index: -1;
+    animation: formGlowPulse 3s infinite alternate;
+}
+
+@keyframes formGlowPulse {
+    0% { opacity: 0.3; transform: scale(0.95); }
+    100% { opacity: 0.6; transform: scale(1); }
+}
+
+.payment-form {
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.payment-input-group {
+    margin-bottom: 20px;
+}
+
+.payment-input-group label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.payment-input-group input[type="text"],
+.payment-input-group input[type="number"] {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(10, 10, 12, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.payment-input-group input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.2);
+}
+
+.payment-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Стиль для поля с суммой и значком валюты */
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.amount-input-wrapper input {
+    padding-right: 40px;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 15px;
+    font-size: 1.1rem;
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* Стили для валидации и предупреждений */
+.validation-message {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.validation-message.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-error {
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+}
+
+/* Стили для информационного сообщения о вводе ника */
+.nickname-info {
+    font-size: 0.85rem;
+    color: var(--accent-green);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.nickname-info i {
+    margin-right: 5px;
+    font-size: 0.9rem;
 }

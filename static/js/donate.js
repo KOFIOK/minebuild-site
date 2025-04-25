@@ -1,5 +1,53 @@
-// Обработка платежной формы MineBuild
+// Обработка плавного скролла для кнопки "Перейти к пожертвованию"
 document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.querySelector('.donate-scroll-btn');
+    if (scrollBtn) {
+        scrollBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                // Плавная прокрутка к элементу
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Добавление эффекта подсветки секции после прокрутки
+                setTimeout(() => {
+                    targetElement.classList.add('highlight-section');
+                    
+                    // Убираем класс подсветки через 1.5 секунды
+                    setTimeout(() => {
+                        targetElement.classList.remove('highlight-section');
+                    }, 1500);
+                }, 500);
+            }
+        });
+    }
+
+    // Функция для отображения сообщений пользователю
+    function showMessage(message, type = 'info') {
+        const messagesContainer = document.querySelector('.yoomoney-form-container');
+        if (!messagesContainer) return;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `donation-message ${type}`;
+        messageElement.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i> <span>${message}</span>`;
+        
+        messagesContainer.insertBefore(messageElement, messagesContainer.firstChild);
+        
+        // Удаляем сообщение через 5 секунд
+        setTimeout(() => {
+            messageElement.classList.add('fade-out');
+            setTimeout(() => {
+                messageElement.remove();
+            }, 500);
+        }, 5000);
+    }
+    
+    // Обработка платежной формы MineBuild
     console.log("DOM загружен, инициализация скрипта donate.js");
     const paymentForm = document.querySelector('.payment-form');
     
@@ -184,29 +232,3 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Форма оплаты не найдена на странице!");
     }
 });
-
-// Функция для отображения сообщений пользователю
-function showMessage(message, type = 'info') {
-    // Проверяем, есть ли уже сообщение на странице
-    let messageContainer = document.querySelector('.donation-message');
-    
-    if (!messageContainer) {
-        // Если контейнера нет, создаем его
-        messageContainer = document.createElement('div');
-        messageContainer.className = 'donation-message';
-        const formContainer = document.querySelector('.yoomoney-form-container');
-        formContainer.parentNode.insertBefore(messageContainer, formContainer);
-    }
-    
-    // Настраиваем класс в зависимости от типа сообщения
-    messageContainer.className = `donation-message ${type}`;
-    messageContainer.textContent = message;
-    
-    // Автоматически скрываем через 5 секунд
-    setTimeout(() => {
-        messageContainer.classList.add('fade-out');
-        setTimeout(() => {
-            messageContainer.remove();
-        }, 500);
-    }, 5000);
-}
