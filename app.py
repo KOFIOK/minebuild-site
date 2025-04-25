@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Конфигурация ЮMoney API
 YOOMONEY_CLIENT_ID = "F5301946C2DEFAA64BB2BE12EBDC4D7A0074754D58364B7E0A84BE12D5542134"
 YOOMONEY_REDIRECT_URI = "http://minebuild.fun"
-YOOMONEY_NOTIFICATION_URI = "https://minebuild.fun"
+YOOMONEY_NOTIFICATION_URI = "https://minebuild.fun/yoomoney-notification"
 SUCCESS_URL = "https://minebuild.fun/donation-success"  # URL для редиректа после успешной оплаты
 FAIL_URL = "https://minebuild.fun/donation-fail"        # URL для редиректа при ошибке
 
@@ -67,9 +67,9 @@ def create_payment():
         nickname = data['comment']  # Получаем ник из поля comment, как передает frontend
         payment_type = data.get('payment_type', 'AC')  # По умолчанию - банковская карта
         
-        if amount < 100:
+        if amount < 1:
             logger.warning(f"Попытка создать платеж на сумму меньше минимальной: {amount}")
-            return jsonify({'success': False, 'error': 'Минимальная сумма - 100 ₽'}), 400
+            return jsonify({'success': False, 'error': 'Минимальная сумма - 1 ₽'}), 400
         
         # Создаем уникальный идентификатор для платежа
         payment_id = str(uuid.uuid4())

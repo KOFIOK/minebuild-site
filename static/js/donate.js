@@ -46,15 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const amountGroup = amountInput.closest('.payment-input-group');
             const amountValidation = document.createElement('div');
             amountValidation.className = 'validation-message';
-            amountValidation.textContent = 'Минимальная сумма пожертвования - 100 ₽';
+            amountValidation.textContent = 'Минимальная сумма пожертвования - 1 ₽';
             amountGroup.appendChild(amountValidation);
 
             amountInput.addEventListener('blur', function() {
                 const value = parseInt(this.value, 10);
-                if (isNaN(value) || value < 100) {
+                if (isNaN(value) || value < 1) {
                     this.classList.add('input-error');
                     amountValidation.classList.add('show');
-                    this.value = Math.max(100, value || 100);
+                    this.value = Math.max(1, value || 1);
                 } else {
                     this.classList.remove('input-error');
                     amountValidation.classList.remove('show');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             amountInput.addEventListener('input', function() {
                 const value = parseInt(this.value, 10);
-                if (!isNaN(value) && value >= 100) {
+                if (!isNaN(value) && value >= 1) {
                     this.classList.remove('input-error');
                     amountValidation.classList.remove('show');
                 }
@@ -76,9 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const amount = document.getElementById('payment-amount');
             
             // Проверка данных
-            if (!amount.value || amount.value < 100) {
+            if (!amount.value || amount.value < 1) {
                 event.preventDefault();
-                showMessage('Минимальная сумма пожертвования - 100 ₽', 'error');
+                showMessage('Минимальная сумма пожертвования - 1 ₽', 'error');
                 amount.classList.add('input-error');
                 return false;
             }
