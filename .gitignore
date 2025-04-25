@@ -1,6 +1,8 @@
 # 
 __pycache__/
 .venv/
+.venv/Lib/
+.venv/Lib/site-packages/
 .env
 bot.log
 main.log

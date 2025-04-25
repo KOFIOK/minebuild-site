@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Поддержать проект MineBuild{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/donate.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Параллакс секция -->
+<section class="parallax-hero">
+    <div class="parallax-bg"></div>
+    <div class="parallax-content">
+        <h1>ПОДДЕРЖАТЬ ПРОЕКТ</h1>
+        <p class="lead">Ваша поддержка помогает нам развивать сервер и делать игровой опыт лучше</p>
+    </div>
+</section>
+
+<!-- Основная информация - обновленный дизайн -->
+<section class="donate-info-section">
+    <div class="container">
+        <div class="donate-info-wrapper">
+            <div class="donate-info-header">
+                <h2 class="section-title">ПОДДЕРЖИ НАШЕ РАЗВИТИЕ</h2>
+                <p class="donate-intro">
+                    MineBuild развивается благодаря энтузиазму команды и поддержке игроков. 
+                    Каждый донат помогает нам создавать уникальные возможности для всего сообщества.
+                </p>
+            </div>
+            
+            <div class="donate-goals-grid">
+                <div class="donate-goal-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="goal-icon-wrapper">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3>Мощные серверы</h3>
+                    <p>Стабильная работа и отсутствие лагов даже при большом количестве игроков онлайн</p>
+                    <div class="goal-progress">
+                        <div class="progress-bar" style="width: 75%"></div>
+                        <span class="progress-text">75% к апгрейду</span>
+                    </div>
+                </div>
+                
+                <div class="donate-goal-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="goal-icon-wrapper">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3>Новые механики</h3>
+                    <p>Разработка уникальных игровых механик, которых нет на других серверах Minecraft</p>
+                    <div class="goal-progress">
+                        <div class="progress-bar" style="width: 60%"></div>
+                        <span class="progress-text">60% к обновлению</span>
+                    </div>
+                </div>
+                
+                <div class="donate-goal-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="goal-icon-wrapper">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Ивенты и конкурсы</h3>
+                    <p>Регулярные мероприятия с ценными призами и уникальным игровым опытом</p>
+                    <div class="goal-progress">
+                        <div class="progress-bar" style="width: 40%"></div>
+                        <span class="progress-text">40% к новому ивенту</span>
+                    </div>
+                </div>
+            
+                <div class="donate-goal-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="goal-icon-wrapper">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Защита и безопасность</h3>
+                    <p>Современные системы защиты от читеров и обеспечение сохранности прогресса игроков</p>
+                    <div class="goal-progress">
+                        <div class="progress-bar" style="width: 85%"></div>
+                        <span class="progress-text">85% к улучшению</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="donate-note">
+                <i class="fas fa-info-circle"></i>
+                <p>Каждый донатер получает особую роль на сервере в Discord, а также уникальные косметические особенности на игровом сервере.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Пожертвовать - обновленный дизайн -->
+<section class="custom-amount-section">
+    <div class="container">
+        <div class="donation-blocks-wrapper">
+            <!-- Декоративные блоки в стиле Minecraft -->
+            <div class="minecraft-block stone"></div>
+            <div class="minecraft-block diamond-ore"></div>
+            <div class="minecraft-block gold-ore"></div>
+            <div class="minecraft-block emerald-ore"></div>
+            
+            <div class="custom-amount-card">
+                <div class="content-wrapper">
+                    <div class="donate-header">
+                        <i class="fas fa-gem donation-icon"></i>
+                        <h2 class="section-title">Поддержать проект</h2>
+                        <div class="donation-divider"></div>
+                    </div>
+                    
+                    <p class="section-text" style="text-align: center;">
+                        Вы можете пожертвовать любую удобную сумму в форме ниже, указав свой игровой ник в комментарии к платежу.
+                        В зависимости от суммы пожертвования вы получите следующие награды:
+                    </p>
+                    
+                    <div class="donation-rewards">
+                        <div class="reward-option">
+                            <span class="reward-amount">от 100 ₽</span>
+                            <span class="reward-perk">Благодарственное письмо</span>
+                        </div>
+                        <div class="reward-option">
+                            <span class="reward-amount">от 300 ₽</span>
+                            <span class="reward-perk">Роль в Discord</span>
+                        </div>
+                        <div class="reward-option featured">
+                            <div class="popular-badge">Популярно</div>
+                            <span class="reward-amount">от 500 ₽</span>
+                            <span class="reward-perk">Уникальный Суффикс</span>
+                        </div>
+                        <div class="reward-option">
+                            <span class="reward-amount">от 1000 ₽</span>
+                            <span class="reward-perk">Индивидуальный Суффикс</span>
+                        </div>
+                    </div>
+                    
+                    <div class="donation-info">
+                        <span class="info-text">Выберите сумму поддержки и укажите игровой ник в форме ниже</span>
+                        <div class="payment-methods">
+                            <i class="fas fa-credit-card" title="Банковская карта"></i>
+                            <i class="fas fa-mobile-alt" title="Мобильный платёж"></i>
+                            <i class="fas fa-wallet" title="Электронный кошелёк"></i>
+                            <i class="fas fa-university" title="СБП"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- YooMoney форма вместо iframe-виджета -->
+                    <div class="yoomoney-form-container">
+                        <div class="form-glow"></div>
+                        <form class="payment-form" action="https://yoomoney.ru/quickpay/confirm.xml" method="post">
+                            <input type="hidden" name="receiver" value="4100116641745516">
+                            <input type="hidden" name="quickpay-form" value="donate">
+                            <input type="hidden" name="targets" value="Поддержка MineBuild">
+                            <input type="hidden" name="need-fio" value="false">
+                            <input type="hidden" name="need-email" value="false">
+                            <input type="hidden" name="need-phone" value="false">
+                            <input type="hidden" name="need-address" value="false">
+                            <input type="hidden" name="successURL" value="https://minebuild.com/donation-success">
+                            
+                            <div class="payment-input-group">
+                                <label for="payment-amount">Сумма поддержки</label>
+                                <div class="amount-input-wrapper">
+                                    <input type="number" name="sum" value="300" id="payment-amount" data-type="number" min="100">
+                                    <span class="currency-symbol">₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-input-group">
+                                <label for="payment-comment">Игровой ник</label>
+                                <input type="text" name="comment" id="payment-comment" placeholder="Введите ваш игровой ник">
+                            </div>
+                            
+                            <div class="payment-methods-selector">
+                                <div class="payment-method">
+                                    <input type="radio" name="paymentType" value="AC" id="payment-card" checked>
+                                    <label for="payment-card">Банковской картой</label>
+                                </div>
+                                
+                                <div class="payment-method">
+                                    <input type="radio" name="paymentType" value="PC" id="payment-wallet">
+                                    <label for="payment-wallet">Кошельком ЮMoney</label>
+                                </div>
+                                
+                                <div class="payment-method">
+                                    <input type="radio" name="paymentType" value="MC" id="payment-mobile">
+                                    <label for="payment-mobile">Мобильный платёж</label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="payment-submit-btn">Поддержать сервер</button>
+                        </form>
+                    </div>
+                    
+                    <div class="donation-footer">
+                        <div class="secure-payment">
+                            <i class="fas fa-lock"></i>
+                            <span>Безопасный платеж</span>
+                        </div>
+                        <div class="instant-activation">
+                            <i class="fas fa-bolt"></i>
+                            <span>Мгновенная активация</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/donate.js') }}"></script>
+{% endblock %}

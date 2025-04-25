@@ -1,226 +1,170 @@
-from quart import Quart, render_template, request, jsonify
-import discord
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+import requests
+import json
+import logging
+import hashlib
+import time
+import uuid
 from datetime import datetime
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key_here'
 
-app = Quart(__name__)
+# Настройка логгера
+logging.basicConfig(
+    filename='main.log',
+    level=logging.DEBUG,  # Устанавливаем уровень DEBUG для отладки
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Максимальное количество символов в одном поле embed
-MAX_FIELD_LENGTH = 1024
+# Конфигурация ЮMoney API
+YOOMONEY_CLIENT_ID = "F5301946C2DEFAA64BB2BE12EBDC4D7A0074754D58364B7E0A84BE12D5542134"
+YOOMONEY_REDIRECT_URI = "http://minebuild.fun"
+YOOMONEY_NOTIFICATION_URI = "https://minebuild.fun"
+SUCCESS_URL = "https://minebuild.fun/donation-success"  # URL для редиректа после успешной оплаты
+FAIL_URL = "https://minebuild.fun/donation-fail"        # URL для редиректа при ошибке
 
-# Конфигурация вопросов
-formQuestions = [
-    {
-        'id': 'discord',
-        'question': 'Ваш Discord ID пользователя',
-        'type': 'number',
-        'required': True
-    },
-    {
-        'id': 'nickname',
-        'question': 'Ваш никнейм в Minecraft',
-        'type': 'text',
-        'required': True
-    },
-    {
-        'id': 'age',
-        'question': 'Ваш возраст',
-        'type': 'number',
-        'required': True
-    },
-    {
-        'id': 'experience',
-        'question': 'Опыт игры в Minecraft',
-        'type': 'radio',
-        'required': True
-    },
-    {
-        'id': 'gameplay',
-        'question': 'Опишите ваш стиль игры',
-        'type': 'text',
-        'required': True
-    },
-    {
-        'id': 'important',
-        'question': 'Что для вас самое важное на приватных серверах?',
-        'type': 'text',
-        'required': True
-    },
-    {
-        'id': 'about',
-        'question': 'Расскажите о себе',
-        'type': 'textarea',
-        'required': True
-    },
-    {
-        'id': 'biography',
-        'question': 'Напишите краткую биографию',
-        'type': 'textarea',
-        'required': True
-    }
-]
-
-def split_long_text(text, max_length):
-    """Разделяет длинный текст на части с учетом переносов строк и слов"""
-    if len(text) <= max_length:
-        return [text]
-    
-    parts = []
-    current_part = ""
-    words = text.split()
-    
-    for word in words:
-        if len(current_part) + len(word) + 1 <= max_length:
-            current_part += (" " + word if current_part else word)
-        else:
-            parts.append(current_part)
-            current_part = word
-    
-    if current_part:
-        parts.append(current_part)
-    
-    return parts
-
+# Главные страницы
 @app.route('/')
-async def index():
-    return await render_template('index.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/about')
-async def about():
-    return await render_template('about.html')
+def about():
+    return render_template('about.html')
 
 @app.route('/rules')
-async def rules():
-    return await render_template('rules.html')
+def rules():
+    return render_template('rules.html')
 
 @app.route('/build')
-async def build():
-    return await render_template('build.html')
+def build():
+    return render_template('build.html')
 
 @app.route('/apply')
-async def apply():
-    return await render_template('apply.html')
+def apply():
+    return render_template('apply.html')
 
-@app.route('/api/submit-application', methods=['POST'])
-async def submit_application():
-    """Обработчик отправки заявки."""
+@app.route('/donate')
+def donate():
+    return render_template('donate.html')
+
+# API для обработки платежей
+@app.route('/api/create-payment', methods=['POST'])
+def create_payment():
     try:
-        print("Получен запрос на отправку заявки")
-        data = await request.get_json()
-        print("Полученные данные:", data)
+        data = request.json
+        logger.debug(f"Получены данные из формы: {data}")
         
-        if not data:
-            print("Ошибка: данные не получены")
-            return jsonify({"status": "error", "message": "Данные не получены"}), 400
-
-        # Проверяем обязательные поля
-        required_fields = ['discord', 'nickname', 'age', 'experience', 'about', 'biography']
-        missing_fields = [field for field in required_fields if not data.get(field)]
+        # Валидация данных
+        if not data or 'amount' not in data or 'comment' not in data:
+            logger.error("Неверные параметры запроса: отсутствуют обязательные поля")
+            return jsonify({'success': False, 'error': 'Неверные параметры запроса'}), 400
         
-        if missing_fields:
-            print(f"Ошибка: отсутствуют поля {missing_fields}")
-            return jsonify({
-                "status": "error",
-                "message": f"Не заполнены обязательные поля: {', '.join(missing_fields)}"
-            }), 400
-
-        # Проверяем, существует ли пользователь с указанным Discord ID
-        discord_id = str(data['discord'])
-        try:
-            user = await app.bot.fetch_user(discord_id)
-        except discord.NotFound:
-            print(f"Ошибка: пользователь с ID {discord_id} не найден")
-            return jsonify({
-                "status": "error",
-                "message": "Пользователь с указанным Discord ID не найден."
-            }), 400
-
-        # Получаем все гильдии, в которых находится бот
-        guilds = app.bot.guilds
-        member = None
-
-        # Проверяем, является ли пользователь участником хотя бы одной из гильдий
-        for guild in guilds:
-            try:
-                member = await guild.fetch_member(user.id)
-                break  # Если нашли участника, выходим из цикла
-            except discord.NotFound:
-                continue  # Если участник не найден, продолжаем проверку
-
-        if member is None:
-            print(f"Ошибка: пользователь {discord_id} не является участником сервера")
-            return jsonify({
-                "status": "error",
-                "message": "Вы должны быть участником дискорд-сервера для подачи заявки."
-            }), 403
-
-        # Создаем базовый embed
-        embed = discord.Embed()
-        embed.title = "📝 Новая заявка на сервер"
-        embed.color = 0x00E5A1
-        embed.timestamp = datetime.now()
+        amount = float(data['amount'])
+        nickname = data['comment']  # Получаем ник из поля comment, как передает frontend
+        payment_type = data.get('payment_type', 'AC')  # По умолчанию - банковская карта
         
-        print("Создан базовый embed")
-
-        # Добавляем поля с проверкой длины
-        for field in formQuestions:
-            value = str(data.get(field['id'], 'Не указано'))
-            
-            # Проверяем длину значения
-            if len(value) > MAX_FIELD_LENGTH:
-                parts = split_long_text(value, MAX_FIELD_LENGTH)
-                for i, part in enumerate(parts, 1):
-                    embed.add_field(
-                        name=f"{field['question']} (часть {i}/{len(parts)})",
-                        value=part,
-                        inline=False
-                    )
-            else:
-                embed.add_field(
-                    name=field['question'],
-                    value=value,
-                    inline=False
-                )
+        if amount < 100:
+            logger.warning(f"Попытка создать платеж на сумму меньше минимальной: {amount}")
+            return jsonify({'success': False, 'error': 'Минимальная сумма - 100 ₽'}), 400
         
-        print(f"Добавлены поля в embed: {len(embed.fields)} полей")
-
-        # Получаем канал
-        channel_id = 1360709668770418789
-        channel = app.bot.get_channel(channel_id)
+        # Создаем уникальный идентификатор для платежа
+        payment_id = str(uuid.uuid4())
         
-        if not channel:
-            print(f"Ошибка: канал {channel_id} не найден")
-            return jsonify({
-                "status": "error",
-                "message": "Канал для отправки заявок недоступен"
-            }), 500
-
-        print("Канал для отправки найден")
-
-        # Отправляем сообщение используя функцию из bot.py
-        from bot import create_application_message
-        success = await create_application_message(channel, discord_id, embed)
+        # Формируем параметры для формы ЮMoney
+        quickpay_form = {
+            "receiver": "4100116641745516",  # Номер кошелька ЮMoney для приема платежей
+            "quickpay-form": "donate",
+            "targets": f"Поддержка MineBuild от игрока {nickname}",
+            "paymentType": payment_type,
+            "sum": amount,
+            "formcomment": f"Поддержка MineBuild от игрока {nickname}",
+            "short-dest": f"Поддержка MineBuild от игрока {nickname}",
+            "label": payment_id,
+            "comment": nickname,
+            "successURL": SUCCESS_URL,
+            "need-fio": "false",
+            "need-email": "false",
+            "need-phone": "false",
+            "need-address": "false"
+        }
         
-        if not success:
-            print("Ошибка: не удалось отправить заявку через create_application_message")
-            return jsonify({
-                "status": "error",
-                "message": "Не удалось отправить заявку в Discord"
-            }), 500
-
-        print("Заявка успешно отправлена")
-        return jsonify({"status": "success"}), 200
-
-    except Exception as e:
-        print(f"Критическая ошибка при отправке заявки: {str(e)}")
-        print("Полный traceback:", exc_info=True)
+        # Формируем URL для редиректа на форму ЮMoney
+        quickpay_url = "https://yoomoney.ru/quickpay/confirm.xml"
+        
+        # В реальном приложении здесь можно сохранить информацию о платеже в базу данных
+        logger.info(f"Создан платеж: ID={payment_id}, Игрок={nickname}, Сумма={amount}")
+        
+        # Логирование параметров запроса
+        logger.debug(f"Параметры запроса: {quickpay_form}")
+        
+        # Возвращаем данные для формирования URL на фронтенде
         return jsonify({
-            "status": "error",
-            "message": f"Внутренняя ошибка сервера: {str(e)}"
-        }), 500
+            'success': True,
+            'payment_id': payment_id,
+            'redirect_url': f"{quickpay_url}?{requests.compat.urlencode(quickpay_form)}"
+        })
+            
+    except Exception as e:
+        logger.exception(f"Ошибка при обработке платежа: {str(e)}")
+        return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
+
+# API для проверки статуса платежа
+@app.route('/api/check-payment/<payment_id>', methods=['GET'])
+def check_payment(payment_id):
+    # В текущей реализации с формой ЮMoney мы не можем проверять статус программно
+    # Для этого нужно настраивать уведомления от ЮMoney
+    # Возвращаем статус pending, чтобы пользователь перешел на сайт оплаты
+    
+    logger.info(f"Запрос на проверку статуса платежа: {payment_id}")
+    return jsonify({
+        'success': True,
+        'status': 'pending',
+        'message': 'Пожалуйста, завершите платеж на сайте ЮMoney'
+    })
+
+# Страницы успешного платежа и ошибки
+@app.route('/donation-success')
+def donation_success():
+    label = request.args.get('label', '')
+    logger.info(f"Успешный платеж, label: {label}")
+    
+    # Здесь можно добавить логику для проверки платежа и активации привилегий
+    return render_template('donation_success.html')
+
+@app.route('/donation-fail')
+def donation_fail():
+    label = request.args.get('label', '')
+    logger.info(f"Неуспешный платеж, label: {label}")
+    return render_template('donation_fail.html')
+
+# Обработка вебхуков от ЮMoney (требуется настройка в кабинете ЮMoney)
+@app.route('/yoomoney-notification', methods=['POST'])
+def yoomoney_notification():
+    try:
+        data = request.form
+        logger.debug(f"Получено уведомление от ЮMoney: {data}")
+        
+        # Проверка подлинности запроса (требуется настраивать на основе рекомендаций ЮMoney)
+        # В простой версии просто логируем уведомления
+        
+        notification_type = data.get('notification_type')
+        operation_id = data.get('operation_id')
+        amount = data.get('amount')
+        label = data.get('label')  # Это наш payment_id
+        comment = data.get('comment', '')  # Это никнейм игрока
+        
+        logger.info(f"Уведомление: тип={notification_type}, платеж={label}, сумма={amount}, комментарий={comment}")
+        
+        # Здесь можно добавить логику для активации привилегий в игре
+        
+        return 'OK', 200
+    except Exception as e:
+        logger.exception(f"Ошибка обработки уведомления: {str(e)}")
+        return 'ERROR', 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,1067 @@
+/* Глобальные переменные в стиле остального сайта */
+:root {
+    --bg-dark: rgb(12, 12, 15);
+    --bg-darker: rgb(8, 8, 10);
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --accent-green: #00E5A1;
+    --accent-purple: #9370db;
+}
+
+/* Параллакс секция */
+.parallax-hero {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-image: url('../images/build/2025-04-20_13.33.22.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.parallax-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+/* Градиентная маска снизу первой секции */
+.parallax-hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, var(--bg-dark));
+    z-index: 2;
+}
+
+/* Градиентная разделительная линия */
+.parallax-hero::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--accent-green), 
+        var(--accent-purple), 
+        var(--accent-green));
+    background-size: 200% 100%;
+    animation: gradient 5s linear infinite;
+    z-index: 3;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(147, 112, 219, 0.2);
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.parallax-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 80px auto 0; /* Отступ сверху для компенсации хедера */
+}
+
+.parallax-content h1 {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    letter-spacing: 4px;
+    line-height: 1.2;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleAppear 1s ease-out forwards;
+}
+
+@keyframes titleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.parallax-content .lead {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+    line-height: 1.6;
+    animation: textAppear 1s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+@keyframes textAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Секция с основной информацией */
+.donate-info-section {
+    background: var(--bg-dark);
+    position: relative;
+    padding: 100px 0;
+    overflow: hidden;
+}
+
+.donate-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/background/stone_art.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.donate-info-wrapper {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.donate-info-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.donate-intro {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+}
+
+/* Сетка целей донатов */
+.donate-goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.donate-goal-card {
+    background: rgba(20, 20, 25, 0.5);
+    border-radius: 16px;
+    padding: 30px 25px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.donate-goal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(0, 229, 161, 0.05),
+        rgba(147, 112, 219, 0.05));
+    clip-path: polygon(0 0, 100% 0, 100% 30%, 0 100%);
+    z-index: 1;
+}
+
+.donate-goal-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 
+                0 0 20px rgba(0, 229, 161, 0.2);
+    border-color: var(--accent-green);
+}
+
+.featured-goal-card {
+    background: linear-gradient(135deg, 
+        rgba(20, 20, 25, 0.8),
+        rgba(30, 30, 40, 0.8));
+    border: 1px solid rgba(0, 229, 161, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
+                0 0 20px rgba(0, 229, 161, 0.2);
+    position: relative;
+}
+
+.donate-goal-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.goal-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.2),
+        rgba(147, 112, 219, 0.2));
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.2);
+    font-size: 2rem;
+    color: var(--accent-green);
+    transition: all 0.3s ease;
+}
+
+.donate-goal-card:hover .goal-icon-wrapper {
+    transform: scale(1.1) rotate(10deg);
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.3),
+        rgba(147, 112, 219, 0.3));
+    box-shadow: 0 5px 20px rgba(0, 229, 161, 0.4);
+}
+
+.donate-goal-card h3 {
+    font-family: 'Rimma Sans', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.donate-goal-card p {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.next-goal-badge {
+    position: absolute;
+    top: 45px;
+    right: -45px;
+    background: linear-gradient(135deg, #00E5A1, #9370db);
+    color: white;
+    padding: 5px 40px;
+    font-size: 0.8rem;
+    transform: rotate(45deg);
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.4);
+    z-index: 10;
+}
+
+/* Прогресс-бары */
+.goal-progress {
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    height: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    border-radius: 10px;
+    transition: width 1.5s ease-in-out;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent);
+    animation: progressShine 2s infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    position: absolute;
+    top: -25px;
+    right: 0;
+    font-size: 0.9rem;
+    color: var(--accent-green);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+}
+
+/* Информационная заметка */
+.donate-note {
+    display: flex;
+    align-items: center;
+    background: rgba(20, 20, 25, 0.7);
+    border-left: 4px solid var(--accent-green);
+    padding: 20px 25px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 40px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.donate-note i {
+    font-size: 2rem;
+    color: var(--accent-green);
+    margin-right: 20px;
+}
+
+.donate-note p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.1rem;
+}
+
+/* Произвольная сумма */
+.custom-amount-section {
+    background: var(--bg-darker);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Фоновые эффекты */
+.custom-amount-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, 
+        rgba(0, 229, 161, 0.1) 0%,
+        transparent 60%);
+    pointer-events: none;
+    animation: pulseGlow 4s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { opacity: 0.4; }
+    100% { opacity: 0.9; }
+}
+
+.donation-blocks-wrapper {
+    position: relative;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+/* Minecraft блоки для декорации */
+.minecraft-block {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: rotate(-3deg);
+    opacity: 0.8;
+    filter: brightness(0.85);
+    z-index: 1;
+    transition: all 0.5s ease;
+}
+
+.minecraft-block:hover {
+    transform: rotate(0) scale(1.1);
+    filter: brightness(1.1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 
+                0 0 20px rgba(0, 229, 161, 0.4);
+    z-index: 10;
+}
+
+.minecraft-block.stone {
+    background-image: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b8/Stone_JE4_BE3.png');
+    top: -20px;
+    left: 20px;
+    transform: rotate(5deg);
+}
+
+.minecraft-block.diamond-ore {
+    background-image: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/8/8e/Diamond_Ore_JE5_BE5.png');
+    top: 100px;
+    right: 30px;
+    transform: rotate(-10deg);
+    z-index: 2;
+}
+
+.minecraft-block.gold-ore {
+    background-image: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/8/8a/Gold_Ore_JE7_BE4.png');
+    bottom: -15px;
+    right: 15%;
+}
+
+.minecraft-block.emerald-ore {
+    background-image: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/8/8b/Emerald_Ore_JE4_BE3.png');
+    bottom: 100px;
+    left: 15px;
+    transform: rotate(7deg);
+    z-index: 2;
+}
+
+/* Основная карточка */
+.custom-amount-card {
+    background: rgba(18, 18, 22, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 5;
+    overflow: hidden;
+}
+
+/* Эффект стеклянной панели */
+.custom-amount-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(120deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.05) 40%, 
+        transparent 70%);
+    pointer-events: none;
+    border-radius: 16px;
+}
+
+/* Декоративные линии */
+.custom-amount-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(90deg, transparent, transparent 50%, rgba(0, 229, 161, 0.1) 50%, rgba(0, 229, 161, 0.1)) 0 0 / 8px 100%,
+        linear-gradient(0deg, transparent, transparent 50%, rgba(0, 229, 161, 0.1) 50%, rgba(0, 229, 161, 0.1)) 0 0 / 100% 8px;
+    pointer-events: none;
+    opacity: 0.4;
+    border-radius: 16px;
+}
+
+.custom-amount-card .content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+/* Заголовок секции донатов */
+.donate-header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.donation-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    background: linear-gradient(135deg, #00E5A1, #9370db);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 229, 161, 0.4));
+    animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.donation-divider {
+    height: 4px;
+    width: 80px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    margin: 15px auto 10px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.donation-divider::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    animation: shine 2s infinite;
+}
+
+/* Селектор суммы пожертвования */
+.donation-amount-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 30px 0;
+    justify-content: center;
+}
+
+.amount-option {
+    width: 100px;
+    height: 90px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(30, 30, 35, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.amount-option:hover {
+    border-color: var(--accent-green);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(0, 229, 161, 0.2);
+}
+
+.amount-option.featured {
+    border: 2px solid var(--accent-green);
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.15), 
+        rgba(147, 112, 219, 0.15));
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15),
+                0 0 15px rgba(0, 229, 161, 0.2);
+    transform: scale(1.05);
+}
+
+.amount-option.featured:hover {
+    transform: scale(1.05) translateY(-5px);
+}
+
+.amount-option.active {
+    border-color: var(--accent-green);
+    background: rgba(0, 229, 161, 0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(0, 229, 161, 0.3);
+}
+
+.amount-option.recommended {
+    border-color: rgba(0, 229, 161, 0.4);
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.05), 
+        rgba(147, 112, 219, 0.05));
+    position: relative;
+}
+
+.amount-option.recommended::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, var(--accent-green), transparent, var(--accent-purple));
+    border-radius: 14px;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+.amount-option.recommended:hover {
+    border-color: var(--accent-green);
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.1), 
+        rgba(147, 112, 219, 0.1));
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15),
+                0 0 15px rgba(0, 229, 161, 0.2);
+}
+
+.recommended-amounts {
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    color: var(--accent-green);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    animation: pulsateText 2s infinite alternate;
+}
+
+@keyframes pulsateText {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.recommended-label {
+    position: relative;
+    padding: 0 15px;
+}
+
+.recommended-label::before,
+.recommended-label::after {
+    content: '•';
+    position: absolute;
+    top: 0;
+    opacity: 0.8;
+}
+
+.recommended-label::before {
+    left: 0;
+}
+
+.recommended-label::after {
+    right: 0;
+}
+
+/* Информация о способах оплаты */
+.donation-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.info-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.payment-methods i {
+    font-size: 1.2rem;
+    color: var(--accent-green);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.payment-methods i:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+/* Контейнер для виджета YooMoney */
+.yoomoney-widget-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    margin: 10px 0 20px;
+}
+
+.widget-glow {
+    position: absolute;
+    width: 340px;
+    height: 60px;
+    background: rgba(0, 229, 161, 0.1);
+    border-radius: 10px;
+    filter: blur(20px);
+    animation: glowPulse 2s infinite alternate;
+}
+
+@keyframes glowPulse {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+
+.yoomoney-widget {
+    position: relative;
+    z-index: 2;
+    transform: scale(1.1);
+    margin: 10px 0;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+/* Дополнительная информация */
+.donation-footer {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.secure-payment, .instant-activation {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.donation-footer i {
+    margin-right: 8px;
+    color: var(--accent-green);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .minecraft-block {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .custom-amount-card {
+        padding: 30px 20px;
+    }
+    
+    .donation-amount-selector {
+        gap: 8px;
+    }
+    
+    .amount-option {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .amount-option .amount {
+        font-size: 1.2rem;
+    }
+    
+    .amount-option .perk {
+        font-size: 0.75rem;
+    }
+    
+    .donation-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+}
+
+/* Стили для блока с наградами (donation-rewards) */
+.donation-rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.reward-option {
+    width: 180px;
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(18, 18, 22, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.reward-option:hover {
+    transform: translateY(-5px);
+    background: rgba(30, 30, 35, 0.8);
+    border-color: var(--accent-green);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(0, 229, 161, 0.2);
+}
+
+.reward-option.featured {
+    background: linear-gradient(135deg, 
+        rgba(20, 20, 25, 0.8),
+        rgba(30, 30, 40, 0.8));
+    border: 1px solid rgba(0, 229, 161, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(0, 229, 161, 0.2);
+    transform: scale(1.05);
+}
+
+.reward-option.featured:hover {
+    transform: scale(1.05) translateY(-5px);
+}
+
+.reward-amount {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent-green);
+    font-weight: bold;
+    margin-bottom: 12px;
+    display: block;
+    text-shadow: 0 0 10px rgba(0, 229, 161, 0.3);
+}
+
+.reward-perk {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+/* Адаптивность для секции с наградами */
+@media (max-width: 768px) {
+    .donation-rewards {
+        gap: 10px;
+    }
+    
+    .reward-option {
+        width: 150px;
+        padding: 15px;
+    }
+    
+    .reward-amount {
+        font-size: 1.2rem;
+    }
+    
+    .reward-perk {
+        font-size: 0.85rem;
+    }
+}
+
+/* Стили для кнопок пожертвований */
+.payment-submit-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #4AEDC4 50%, var(--accent-green) 100%);
+    border: none;
+    border-radius: 8px;
+    color: var(--bg-dark);
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+    margin-top: 25px;
+    z-index: 1;
+}
+
+.payment-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 229, 161, 0.5);
+}
+
+.payment-submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 229, 161, 0.4);
+}
+
+.payment-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+
+.payment-submit-btn:hover::before {
+    left: 100%;
+}
+
+/* Стили для полей ввода в форме */
+.yoomoney-form-container {
+    position: relative;
+    margin: 30px 0;
+    z-index: 1;
+}
+
+.form-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 229, 161, 0.08);
+    border-radius: 16px;
+    filter: blur(20px);
+    z-index: -1;
+    animation: formGlowPulse 3s infinite alternate;
+}
+
+@keyframes formGlowPulse {
+    0% { opacity: 0.3; transform: scale(0.95); }
+    100% { opacity: 0.6; transform: scale(1); }
+}
+
+.payment-form {
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.payment-input-group {
+    margin-bottom: 20px;
+}
+
+.payment-input-group label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.payment-input-group input[type="text"],
+.payment-input-group input[type="number"] {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(10, 10, 12, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.payment-input-group input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.2);
+}
+
+.payment-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Стиль для поля с суммой и значком валюты */
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.amount-input-wrapper input {
+    padding-right: 40px;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 15px;
+    font-size: 1.1rem;
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* Стили для валидации и предупреждений */
+.validation-message {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.validation-message.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-error {
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+}
+
+/* Стили для информационного сообщения о вводе ника */
+.nickname-info {
+    font-size: 0.85rem;
+    color: var(--accent-green);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.nickname-info i {
+    margin-right: 5px;
+    font-size: 0.9rem;
+}
