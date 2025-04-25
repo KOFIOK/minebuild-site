@@ -5,6 +5,7 @@ import sys
 import traceback
 import logging
 import platform
+import io
 from dotenv import load_dotenv
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
@@ -13,12 +14,23 @@ from bot import MineBuildBot, logger
 
 load_dotenv()
 
+# Настройка кодировки вывода для Windows
+if platform.system() == 'Windows':
+    # Изменяем кодировку вывода консоли на UTF-8
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 # Настройка дополнительного логирования для main.py
 main_logger = logging.getLogger("MineBuildMain")
 main_logger.setLevel(logging.INFO)
 if not main_logger.handlers:
-    main_logger.addHandler(logging.StreamHandler())
-    file_handler = logging.FileHandler("main.log")
+    # Создаем консольный обработчик с поддержкой UTF-8
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    main_logger.addHandler(console_handler)
+    
+    # Добавляем файловый обработчик с кодировкой UTF-8
+    file_handler = logging.FileHandler("main.log", encoding='utf-8')
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     main_logger.addHandler(file_handler)
 

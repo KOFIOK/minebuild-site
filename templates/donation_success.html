@@ -86,6 +86,71 @@
         color: var(--text-secondary);
         margin: 5px 0;
     }
+
+    .donation-details {
+        background: rgba(104, 202, 255, 0.1);
+        border-left: 4px solid #68caff;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin: 20px auto;
+        max-width: 500px;
+        text-align: left;
+    }
+
+    .donation-details h3 {
+        color: #68caff;
+        margin-bottom: 10px;
+    }
+
+    .donation-details p {
+        margin: 8px 0;
+        color: var(--text-secondary);
+    }
+
+    .donation-details .detail-row {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 8px 0;
+    }
+
+    .donation-details .detail-label {
+        font-weight: bold;
+        color: var(--text-primary);
+    }
+
+    .donation-details .detail-value {
+        color: #68caff;
+    }
+
+    .rewards-list {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0;
+        text-align: left;
+    }
+    
+    .rewards-list li {
+        padding: 8px 0;
+        margin: 5px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+    }
+
+    .rewards-list li i {
+        color: var(--accent-green);
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .rewards-list li.unavailable i {
+        color: rgba(255,255,255,0.3);
+    }
+
+    .rewards-list li.unavailable {
+        opacity: 0.5;
+    }
 </style>
 {% endblock %}
 
@@ -102,11 +167,50 @@
             <p>Спасибо за вашу поддержку! Ваш платеж успешно обработан.</p>
             <p>Ваша поддержка помогает нам развивать сервер и делать игровой опыт лучше для всех игроков.</p>
         </div>
-        
+
+        {% if nickname and amount %}
+        <div class="donation-details">
+            <h3>Детали пожертвования</h3>
+            <div class="detail-row">
+                <span class="detail-label">Игровой ник:</span>
+                <span class="detail-value">{{ nickname }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Сумма:</span>
+                <span class="detail-value">{{ amount }} ₽</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Дата:</span>
+                <span class="detail-value">{{ now().strftime('%d.%m.%Y %H:%M') }}</span>
+            </div>
+        </div>
+
+        <div class="reward-info">
+            <h3>Полученные награды:</h3>
+            <ul class="rewards-list">
+                <li><i class="fas fa-check"></i> Благодарственное письмо</li>
+
+                {% if amount|int >= 300 %}
+                <li><i class="fas fa-check"></i> Роль "Донатер" в Discord</li>
+                {% else %}
+                <li class="unavailable"><i class="fas fa-times"></i> Роль "Донатер" в Discord (от 300 ₽)</li>
+                {% endif %}
+
+                {% if amount|int >= 500 %}
+                <li><i class="fas fa-check"></i> Уникальный суффикс на сервере</li>
+                {% else %}
+                <li class="unavailable"><i class="fas fa-times"></i> Уникальный суффикс на сервере (от 500 ₽)</li>
+                {% endif %}
+            </ul>
+            <p><strong>Награды будут активированы в течение нескольких минут.</strong></p>
+            <p>Если вы не получили награды в игре в течение 15 минут, пожалуйста, напишите администрации в Discord.</p>
+        </div>
+        {% else %}
         <div class="reward-info">
             <p><strong>Награды будут активированы в течение нескольких минут.</strong></p>
             <p>Если вы не получили награды в игре в течение 15 минут, пожалуйста, напишите администрации в Discord.</p>
         </div>
+        {% endif %}
         
         <div class="success-action">
             <a href="/" class="btn-home">Вернуться на главную</a>
