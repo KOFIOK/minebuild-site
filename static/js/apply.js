@@ -357,6 +357,14 @@ class ApplicationForm {
         this.form.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (this.validateCurrentSlide()) {
+                // Получаем ссылку на кнопку отправки
+                const submitButton = document.getElementById('submitButton');
+                
+                // Блокируем кнопку и показываем процесс загрузки
+                submitButton.disabled = true;
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Отправка...';
+                
                 const answers = this.collectAnswers();
                 console.log('Отправка данных:', answers);
                 
@@ -377,11 +385,19 @@ class ApplicationForm {
                         this.showSuccessMessage();
                     } else {
                         console.error('Ошибка сервера:', responseData);
-                        this.showErrorMessage(responseData.message || 'Произошла ошибка при отправке заявки');
+                        this.showErrorMessage(responseData.error || 'Произошла ошибка при отправке заявки');
+                        
+                        // Разблокируем кнопку и восстанавливаем текст при ошибке
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
                     }
                 } catch (error) {
                     console.error('Ошибка при отправке формы:', error);
                     this.showErrorMessage('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+                    
+                    // Разблокируем кнопку и восстанавливаем текст при ошибке
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 }
             }
         });

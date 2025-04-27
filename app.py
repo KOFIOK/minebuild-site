@@ -320,39 +320,16 @@ def process_application_in_discord(application_data):
     """
     try:
         logger.info(f"Обработка заявки для пользователя {application_data.get('discord_id')}")
+        logger.debug(f"Данные заявки: {application_data}")
         
         # Проверяем, есть ли доступ к экземпляру бота
         if hasattr(app, 'bot') and app.bot is not None:
             import asyncio
             
-            # Получаем ID канала для заявок
+            # Получаем ID канала для заявок и создаем embed-сообщение
             discord_id = application_data.get('discord_id')
-            
-            # Создаем embed-сообщение с данными заявки
             import discord
-            
-            # Создаем поля для embed на основе данных заявки
-            fields_data = []
-            for key, value in application_data.items():
-                # Преобразуем ключи в читаемые названия полей
-                field_name = key.replace('_', ' ').capitalize()
-                # Для некоторых полей можем задать отдельные имена
-                field_mapping = {
-                    'Discord id': 'Ваш Discord ID пользователя',
-                    'Minecraft nickname': 'Ваш никнейм в Minecraft',
-                    'Age': 'Ваш возраст',
-                    'Experience': 'Опыт игры в Minecraft',
-                    'About yourself': 'О себе',
-                    'Bio': 'Ваша биография',
-                    'Build examples': 'Примеры ваших построек'
-                }
-                
-                field_name = field_mapping.get(field_name, field_name)
-                fields_data.append({
-                    'name': field_name,
-                    'value': str(value),
-                    'inline': field_name in ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
-                })
+            from bot import QUESTION_MAPPING
             
             # Создаем embed-сообщение
             embed = discord.Embed(
@@ -361,11 +338,30 @@ def process_application_in_discord(application_data):
                 timestamp=discord.utils.utcnow()
             )
             
-            # Добавляем поля
-            for field in fields_data:
-                embed.add_field(**field)
+            # Список полей, которые должны быть inline в основной информации
+            inline_fields = ['minecraft_nickname', 'age', 'experience']
             
-            # Используем функцию create_application_message из модуля bot, а не как метод канала
+            # Явное добавление полей в определенном порядке
+            field_order = [
+                ('minecraft_nickname', 'Ваш никнейм в Minecraft', True),
+                ('age', 'Ваш возраст', True),
+                ('experience', 'Опыт игры в Minecraft', True),
+                ('gameplay', 'Опишите ваш стиль игры', False),
+                ('important', 'Что для вас самое важное на приватных серверах?', False),
+                ('about', 'Расскажите о себе', False),
+                ('biography', 'Напишите краткую биографию', False)
+            ]
+            
+            # Добавляем поля в правильном порядке
+            for field_id, field_name, is_inline in field_order:
+                if field_id in application_data:
+                    embed.add_field(
+                        name=field_name,
+                        value=application_data[field_id],
+                        inline=is_inline
+                    )
+            
+            # Используем функцию create_application_message из модуля bot
             from bot import create_application_message
             
             # Создаем объект для будущего результата

@@ -648,3 +648,43 @@ textarea.form-control {
 .btn-outline-light:hover i {
     transform: translateX(-4px);
 }
+
+/* Стили для спиннера загрузки */
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+/* Стили для кнопки отправки при блокировке */
+#submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Обновленные стили для сообщений об ошибках */
+.error-message.global {
+    background-color: var(--accent-purple);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
