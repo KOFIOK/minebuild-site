@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
 {% endblock %}
 
 {% block content %}
@@ -25,19 +26,195 @@
     </div>
 </div>
 
+<!-- Секция "Как начать игру" -->
+<section class="how-to-start-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>КАК НАЧАТЬ ИГРУ</h2>
+            <p class="section-subtitle">Всего несколько шагов, чтобы присоединиться к нашему сообществу</p>
+        </div>
+        
+        <div class="steps-container">
+            <div class="step-item" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3 class="step-title">УСТАНОВИТЕ MINECRAFT: JAVA EDITION</h3>
+                    <p class="step-description">
+                        Вам потребуется любая некрякнутая версия Minecraft: Java Edition версии 1.21.1 для игры на нашем сервере.
+                        Запускайте с помощью лаунчера TLauncher, CurseForge или официального.
+                    </p>
+                    <div class="tip-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p class="tip-content">
+                            Рекомендуем использовать TLauncher как самый простой и удобный способ запуска игры.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3 class="step-title">ПОДАЙТЕ ЗАЯВКУ НА СЕРВЕР</h3>
+                    <p class="step-description">
+                        Заполните небольшую анкету, чтобы мы могли познакомиться с вами. 
+                        Мы рассматриваем все заявки и стремимся создать дружное сообщество игроков.
+                    </p>
+                    <div class="step-actions">
+                        <a href="/apply" class="btn btn-primary">ЗАПОЛНИТЬ АНКЕТУ</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3 class="step-title">ДОЖДИТЕСЬ ОДОБРЕНИЯ</h3>
+                    <p class="step-description">
+                        После подачи заявки администраторы рассмотрят её в течение 24 часов. 
+                        В случае одобрения вы получите уведомление на указанный вами Discord или Email.
+                    </p>
+                    <div class="tip-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p class="tip-content">
+                            Вы можете отслеживать статус вашей заявки в нашем Discord канале.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3 class="step-title">ПОДКЛЮЧИТЕСЬ К СЕРВЕРУ</h3>
+                    <p class="step-description">
+                        Используйте IP-адрес mc.minebuild.fun для подключения к серверу. 
+                        После первого входа ознакомьтесь с правилами сервера и начните ваше приключение!
+                    </p>
+                    <div class="step-actions">
+                        <button class="btn btn-outline-light copy-ip" data-ip="mc.minebuild.fun">
+                            <i class="fas fa-copy me-2"></i>СКОПИРОВАТЬ IP
+                        </button>
+                        <a href="/rules" class="btn btn-outline-light">ПРАВИЛА</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script>
-document.querySelector('.copy-ip').addEventListener('click', function() {
-    const ip = this.dataset.ip;
-    navigator.clipboard.writeText(ip).then(() => {
-        const originalText = this.innerHTML;
-        this.innerHTML = '<i class="fas fa-check me-2"></i>IP СКОПИРОВАН';
-        setTimeout(() => {
-            this.innerHTML = originalText;
-        }, 2000);
+document.querySelectorAll('.copy-ip').forEach(button => {
+    button.addEventListener('click', function() {
+        const ip = this.dataset.ip;
+        navigator.clipboard.writeText(ip).then(() => {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check me-2"></i>IP СКОПИРОВАН';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
     });
+});
+
+// Инициализация Swiper для галереи скриншотов
+const swiper = new Swiper('.screenshots-slider', {
+    slidesPerView: 1,
+    spaceBetween: 30,
+    loop: true,
+    centeredSlides: true,
+    autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+    },
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+    },
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    breakpoints: {
+        640: {
+            slidesPerView: 1.5,
+            spaceBetween: 20,
+        },
+        768: {
+            slidesPerView: 2,
+            spaceBetween: 30,
+        },
+        1024: {
+            slidesPerView: 2.5,
+            spaceBetween: 40,
+        },
+    }
+});
+
+// Анимация счетчиков статистики
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-value');
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-count');
+        const text = counter.innerText;
+        const suffix = text.replace(/[0-9]/g, '');
+        let count = 0;
+        const increment = target / 50; // Скорость анимации
+        const updateCounter = () => {
+            if (count < target) {
+                count += increment;
+                counter.innerText = Math.ceil(count) + suffix;
+                setTimeout(updateCounter, 30);
+            } else {
+                counter.innerText = target + suffix;
+            }
+        };
+        updateCounter();
+    });
+}
+
+// Анимация шагов "Как начать игру"
+function animateSteps() {
+    const stepItems = document.querySelectorAll('.step-item');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+                // Добавляем небольшую задержку в зависимости от номера шага
+                const stepNumber = entry.target.dataset.step;
+                entry.target.style.transitionDelay = `${(stepNumber - 1) * 0.2}s`;
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    stepItems.forEach(item => {
+        observer.observe(item);
+    });
+}
+
+// Запуск анимации счетчиков при прокрутке до секции
+const statsSection = document.querySelector('.stats-section');
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            animateCounters();
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+if (statsSection) {
+    statsObserver.observe(statsSection);
+}
+
+// Инициализация анимации шагов
+document.addEventListener('DOMContentLoaded', () => {
+    animateSteps();
 });
 </script>
 {% endblock %}

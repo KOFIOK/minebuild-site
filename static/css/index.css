@@ -7,6 +7,8 @@
     z-index: 1;
     overflow: hidden;
     padding: 0;
+    animation: subtle-background 20s ease infinite alternate;
+    background-attachment: fixed;
 }
 
 .hero-section::before {
@@ -111,7 +113,46 @@
     position: relative;
 }
 
-/* Анимации */
+/* Улучшенные стили для кнопок на главной странице */
+.hero-buttons .btn-primary {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(45deg, var(--accent-green), var(--accent-dark-green));
+    border: none;
+    color: var(--bg-dark);
+    box-shadow: 0 5px 15px rgba(0, 229, 161, 0.3);
+}
+
+.hero-buttons .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 229, 161, 0.4);
+}
+
+.hero-buttons .btn-outline-light {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-buttons .btn-outline-light:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-green);
+    box-shadow: 0 8px 25px rgba(0, 229, 161, 0.15);
+}
+
+.copy-ip {
+    position: relative;
+}
+
+.copy-ip i {
+    transition: all 0.3s ease;
+}
+
+.copy-ip:hover i {
+    transform: translateY(-3px);
+}
+
+/* Анимации для hero-section */
 @keyframes titleAppear {
     0% {
         opacity: 0;
@@ -156,8 +197,232 @@
     }
 }
 
+@keyframes subtle-background {
+    0% {
+        background-position: 50% 0%;
+    }
+    100% {
+        background-position: 50% 10%;
+    }
+}
+
+/* Общие стили секций */
+.section-title {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.section-title h2 {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 3px;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    position: relative;
+}
+
+.section-title h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -15px;
+    width: 80px;
+    height: 3px;
+    transform: translateX(-50%);
+    background: var(--accent-green);
+    border-radius: 3px;
+}
+
+.section-subtitle {
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 1rem auto 0;
+}
+
+/* Стили для секции "Как начать игру" */
+.how-to-start-section {
+    padding: 6rem 0;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(0deg, 
+                rgba(10, 10, 10, 0.9) 0%, 
+                rgba(5, 5, 5, 0.9) 100%);
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.how-to-start-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../images/background/cave_1.webp');
+    background-size: cover;
+    opacity: 0.15;
+    filter: blur(3px);
+    z-index: -1;
+}
+
+.steps-container {
+    max-width: 900px;
+    margin: 3rem auto 0;
+    position: relative;
+}
+
+.steps-container::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+        var(--accent-green) 0%,
+        var(--accent-purple) 100%);
+    z-index: 0; /* Изменено с 1 на 0 для размещения линии на заднем плане */
+}
+
+.step-item {
+    display: flex;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+    position: relative; /* Добавлено для правильного расположения элементов */
+    z-index: 1; /* Добавлено для размещения над линией */
+}
+
+.step-item.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.step-item:last-child {
+    margin-bottom: 0;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-purple));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.2rem;
+    color: var(--bg-darker);
+    flex-shrink: 0;
+    margin-right: 2rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(0, 229, 161, 0.4);
+}
+
+.step-content {
+    background: rgba(15, 15, 15, 0.6);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    flex-grow: 1;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.step-content:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 229, 161, 0.3);
+}
+
+.step-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--accent-green);
+}
+
+.step-description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.step-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.step-actions .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Стили для выносок с подсказками */
+.tip-box {
+    background: rgba(0, 229, 161, 0.1);
+    border-left: 3px solid var(--accent-green);
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tip-box i {
+    color: var(--accent-green);
+    font-size: 1.2rem;
+}
+
+.tip-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
 /* Адаптивность */
 @media (max-width: 991px) {
+    .section-title h2 {
+        font-size: 2rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .steps-container::before {
+        left: 20px;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin-right: 1.5rem;
+    }
+    
+    .step-title {
+        font-size: 1.2rem;
+    }
+    
+    .step-description {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
     .hero-section {
         display: flex;
         justify-content: center;
@@ -197,45 +462,93 @@
         width: 100%;
         max-width: 100%;
     }
-}
-
-/* Поддержка touch-устройств */
-@media (hover: none) and (pointer: coarse) {
-    .hero-buttons .btn:hover {
-        transform: none;
+    
+    .how-to-start-section {
+        padding: 4rem 0;
     }
     
-    .copy-ip:hover {
-        transform: none;
+    .section-title h2 {
+        font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem;
+        padding: 0 1.5rem;
+    }
+    
+    .steps-container::before {
+        left: 18px;
+    }
+    
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+        margin-right: 1.2rem;
+    }
+    
+    .step-content {
+        padding: 1.5rem;
+    }
+    
+    .step-title {
+        font-size: 1.1rem;
+    }
+    
+    .step-description {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-item {
+        flex-direction: column;
+        margin-bottom: 2rem;
+    }
+    
+    .steps-container::before {
+        display: none;
+    }
+    
+    .step-number {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .step-content {
+        width: 100%;
+    }
+    
+    .step-title {
+        font-size: 1rem;
+    }
+    
+    .step-description {
+        font-size: 0.85rem;
+    }
+    
+    .step-actions .btn {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .section-title h2 {
+        font-size: 1.6rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem;
     }
 }
 
 /* Поддержка уменьшенного движения */
 @media (prefers-reduced-motion: reduce) {
-    .hero-title,
-    .hero-description,
-    .hero-buttons,
-    .server-info {
+    .hero-section {
         animation: none !important;
-        transition: none !important;
-    }
-}
-
-/* Поддержка высококонтрастного режима */
-@media (forced-colors: active) {
-    .hero-title {
-        color: ButtonText;
     }
     
-    .hero-description {
-        color: ButtonText;
-    }
-    
-    .hero-buttons .btn {
-        border: 2px solid currentColor;
-    }
-    
-    .server-info {
-        color: ButtonText;
+    .step-content:hover {
+        transform: none !important;
     }
 }
