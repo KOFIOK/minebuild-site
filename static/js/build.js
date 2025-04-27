@@ -352,5 +352,128 @@ class Gallery {
 
 // Инициализация галереи после загрузки страницы
 document.addEventListener('DOMContentLoaded', () => {
-    new Gallery();
+    const gallery = new Gallery();
+    
+    // Инициализация функционала для таблицы модификаций
+    initModsTable();
 });
+
+/**
+ * Инициализация и управление таблицей модификаций
+ */
+function initModsTable() {
+    const modsTable = document.querySelector('.mods-table');
+    if (!modsTable) return;
+    
+    const modsTableBody = modsTable.querySelector('tbody');
+    const searchInput = document.querySelector('.mods-search-input');
+    const filterButtons = document.querySelectorAll('.filter-button');
+    const sortableHeaders = document.querySelectorAll('.mods-table th.sortable');
+    const showingInfo = document.querySelector('.showing-info');
+    
+    let modRows = Array.from(modsTableBody.querySelectorAll('tr'));
+    let currentFilter = 'all';
+    let currentSort = { column: 'name', direction: 'asc' };
+    let searchTerm = '';
+    
+    /**
+     * Применение фильтров и сортировки к таблице
+     */
+    function updateTable() {
+        const filteredRows = modRows.filter(row => {
+            // Фильтрация по категории
+            if (currentFilter !== 'all' && row.dataset.category !== currentFilter) {
+                return false;
+            }
+            
+            // Фильтрация по поисковому запросу
+            if (searchTerm) {
+                const searchLower = searchTerm.toLowerCase();
+                const nameText = row.querySelector('.mod-name').textContent.toLowerCase();
+                const descText = row.querySelector('.mod-description').textContent.toLowerCase();
+                return nameText.includes(searchLower) || descText.includes(searchLower);
+            }
+            
+            return true;
+        });
+        
+        // Сортировка отфильтрованных строк
+        filteredRows.sort((a, b) => {
+            let valueA, valueB;
+            
+            if (currentSort.column === 'name') {
+                valueA = a.querySelector('.mod-name').textContent.toLowerCase();
+                valueB = b.querySelector('.mod-name').textContent.toLowerCase();
+            } else if (currentSort.column === 'category') {
+                valueA = a.dataset.category;
+                valueB = b.dataset.category;
+            }
+            
+            if (valueA < valueB) return currentSort.direction === 'asc' ? -1 : 1;
+            if (valueA > valueB) return currentSort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        // Очистка таблицы
+        modsTableBody.innerHTML = '';
+        
+        // Добавление отсортированных и отфильтрованных строк
+        filteredRows.forEach(row => {
+            modsTableBody.appendChild(row);
+        });
+        
+        // Обновление информации о количестве отображаемых модов
+        if (showingInfo) {
+            showingInfo.textContent = `Показано ${filteredRows.length} из ${modRows.length} модификаций`;
+        }
+    }
+    
+    // Обработка поискового запроса
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value.trim();
+            updateTable();
+        });
+    }
+    
+    // Обработка фильтров по категориям
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            currentFilter = button.dataset.filter;
+            updateTable();
+        });
+    });
+    
+    // Обработка сортировки по столбцам
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const column = header.dataset.sort;
+            
+            if (currentSort.column === column) {
+                // Меняем направление сортировки, если это тот же столбец
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Сбрасываем сортировку для всех столбцов
+                sortableHeaders.forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                });
+                
+                // Устанавливаем новый столбец для сортировки
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Обновляем визуальное представление сортировки
+            header.classList.remove('sort-asc', 'sort-desc');
+            header.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            
+            updateTable();
+        });
+    });
+    
+    // Инициализация с изначальными настройками
+    updateTable();
+}
