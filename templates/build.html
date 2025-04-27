@@ -26,41 +26,56 @@
             
             <section class="gallery-section">
                 <div class="gallery-container">
-                    {% set build_images = [
-                        '2024-08-19_14.14.19.webp',
-                        '2024-08-29_13.35.54.webp',
-                        '2024-09-14_22.57.40.webp',
-                        '2024-09-14_23.03.49.webp',
-                        '2024-10-26_23.09.56.webp',
-                        '2024-10-27_16.21.52.webp',
-                        '2024-11-03_17.54.01.webp',
-                        '2024-11-04_16.36.15.webp',
-                        '2024-11-09_13.57.33.webp',
-                        '2024-11-09_13.57.39.webp',
-                        '2024-11-19_17.54.29.webp',
-                        '2024-11-20_22.02.24.webp',
-                        '2024-12-15_15.13.58.webp',
-                        '2024-12-28_22.27.40.webp',
-                        '2025-01-07_00.29.14.webp',
-                        '2025-03-01_13.38.55.webp',
-                        '2025-04-20_13.33.16.webp',
-                        '2025-04-20_13.33.22.webp',
-                        '2025-04-20_13.33.27.webp',
-                        '2025-04-20_17.32.54.webp',
-                        '2025-04-20_17.32.58.webp',
-                        '2025-04-20_17.33.03.webp',
-                        '2025-04-20_17.33.08.webp',
-                        'Снежный городок.webp'
-                    ] %}
-                    {% for image in build_images %}
-                    <div class="gallery-item{% if loop.first %} current{% elif loop.index == 2 %} next{% elif loop.index == build_images|length %} prev{% else %} hidden{% endif %}">
-                        <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
+                    <div class="gallery-track">
+                        {% set build_images = [
+                            '2024-08-19_14.14.19.webp',
+                            '2024-08-29_13.35.54.webp',
+                            '2024-09-14_22.57.40.webp',
+                            '2024-09-14_23.03.49.webp',
+                            '2024-10-26_23.09.56.webp',
+                            '2024-10-27_16.21.52.webp',
+                            '2024-11-03_17.54.01.webp',
+                            '2024-11-04_16.36.15.webp',
+                            '2024-11-09_13.57.33.webp',
+                            '2024-11-09_13.57.39.webp',
+                            '2024-11-19_17.54.29.webp',
+                            '2024-11-20_22.02.24.webp',
+                            '2024-12-15_15.13.58.webp',
+                            '2024-12-28_22.27.40.webp',
+                            '2025-01-07_00.29.14.webp',
+                            '2025-03-01_13.38.55.webp',
+                            '2025-04-20_13.33.16.webp',
+                            '2025-04-20_13.33.22.webp',
+                            '2025-04-20_13.33.27.webp',
+                            '2025-04-20_17.32.54.webp',
+                            '2025-04-20_17.32.58.webp',
+                            '2025-04-20_17.33.03.webp',
+                            '2025-04-20_17.33.08.webp',
+                            'Снежный городок.webp'
+                        ] %}
+                        {% for image in build_images %}
+                        <div class="gallery-item" data-index="{{ loop.index0 }}">
+                            <div class="gallery-item-inner">
+                                <img src="{{ url_for('static', filename='images/build/' + image) }}" 
+                                     alt="MineBuild Screenshot {{ loop.index }}" loading="lazy">
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    
+                    <div class="gallery-controls">
+                        <button class="gallery-arrow prev-arrow" aria-label="Предыдущее изображение">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="gallery-arrow next-arrow" aria-label="Следующее изображение">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="gallery-nav">
                     {% for image in build_images %}
-                    <div class="gallery-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></div>
+                    <button class="gallery-dot" data-index="{{ loop.index0 }}" aria-label="Перейти к изображению {{ loop.index }}"></button>
                     {% endfor %}
                 </div>
             </section>
@@ -71,167 +86,400 @@
                     <div class="accent-line"></div>
                 </div>
 
-                <div class="mod-category">
-                    <h3 class="category-title">Оптимизация и функции OptiFine</h3>
-                    <div class="mods-list">
-                        <div class="mod-card">
-                            <h3 class="mod-name">Sodium и дополнения</h3>
-                            <p class="mod-description">Замена OptiFine с улучшенной производительностью. Включает Sodium Extra для дополнительных настроек, Reeses Sodium Options для удобного интерфейса и Sodium Dynamic Lights для динамического освещения</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">CIT Resewn</h3>
-                            <p class="mod-description">Возвращает функцию OptiFine для изменения текстуры предмета по переименованию в наковальне</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Continuity</h3>
-                            <p class="mod-description">Добавляет соединение текстур между блоками. Например, стекло не будет иметь рамки внутри окна</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Entity Culling</h3>
-                            <p class="mod-description">Использует асинхронную трассировку лучей для скрытия невидимых объектов, значительно улучшая производительность</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Lithium и ModernFix</h3>
-                            <p class="mod-description">Оптимизация игровых механик и общей производительности без изменения ванильного геймплея</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">EMF & ETF</h3>
-                            <p class="mod-description">Поддержка ресурс-паков с анимированными сущностями, например Fresh Animations</p>
-                        </div>
+                <div class="mods-notice">
+                    <div class="warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Внимание! Представлен не полный список модификаций. Полный перечень модов доступен в <a href="https://github.com/KOFIOK/EventsPack" target="_blank">репозитории сборки</a>.</p>
                     </div>
                 </div>
 
-                <div class="mod-category">
-                    <h3 class="category-title">Улучшения визуальной составляющей</h3>
-                    <div class="mods-list">
-                        <div class="mod-card">
-                            <h3 class="mod-name">Advancement Plaques</h3>
-                            <p class="mod-description">Улучшенный внешний вид достижений и их описаний</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Better Clouds</h3>
-                            <p class="mod-description">Улучшенные облака с поддержкой различных шейдеров и настраиваемыми пресетами</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Falling Leaves</h3>
-                            <p class="mod-description">Добавляет анимацию падающих листьев с деревьев</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Particle Rain</h3>
-                            <p class="mod-description">Значительно улучшает погодные эффекты, сохраняя ванильную стилистику</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Particular</h3>
-                            <p class="mod-description">Добавляет различные визуальные эффекты и частицы для многих игровых действий</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Not Enough Animations</h3>
-                            <p class="mod-description">Улучшенные анимации персонажа</p>
-                        </div>
+                <div class="mods-filters">
+                    <div class="search-box">
+                        <input type="text" id="mods-search" placeholder="Поиск мода...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="filter-controls">
+                        <button class="filter-button active" data-filter="all">Все</button>
+                        <button class="filter-button" data-filter="optimize">Оптимизация</button>
+                        <button class="filter-button" data-filter="visual">Визуальные</button>
+                        <button class="filter-button" data-filter="interface">Интерфейс</button>
+                        <button class="filter-button" data-filter="sound">Звук</button>
+                        <button class="filter-button" data-filter="utility">Утилиты</button>
                     </div>
                 </div>
 
-                <div class="mod-category">
-                    <h3 class="category-title">Улучшения интерфейса</h3>
-                    <div class="mods-list">
-                        <div class="mod-card">
-                            <h3 class="mod-name">Chat Patches</h3>
-                            <p class="mod-description">Расширенный менеджер чата: время отправки сообщений, сохранение истории, дополнительные функции</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Chat Heads</h3>
-                            <p class="mod-description">Показывает головы игроков перед их сообщениями в чате</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Mouse Tweaks</h3>
-                            <p class="mod-description">Улучшенное управление инвентарем: новые механики перетаскивания и быстрого перемещения предметов</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Smooth Scrolling</h3>
-                            <p class="mod-description">Плавная прокрутка во всех меню игры</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">BetterF3</h3>
-                            <p class="mod-description">Улучшенный отладочный экран с настраиваемым интерфейсом на русском языке</p>
-                        </div>
+                <div class="mods-table-container">
+                    <table class="mods-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="name">Название <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="category">Категория <i class="fas fa-sort"></i></th>
+                                <th>Описание</th>
+                                <th class="actions-column">Ссылка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Оптимизация и функции OptiFine -->
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">Sodium и дополнения</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Замена OptiFine с улучшенной производительностью. Включает Sodium Extra для дополнительных настроек, Reeses Sodium Options для удобного интерфейса и Sodium Dynamic Lights для динамического освещения</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/sodium" target="_blank" class="mod-link" aria-label="Sodium на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">CIT Resewn</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Возвращает функцию OptiFine для изменения текстуры предмета по переименованию в наковальне</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/cit-resewn" target="_blank" class="mod-link" aria-label="CIT Resewn на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">Continuity</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Добавляет соединение текстур между блоками. Например, стекло не будет иметь рамки внутри окна</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/continuity" target="_blank" class="mod-link" aria-label="Continuity на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">Entity Culling</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Использует асинхронную трассировку лучей для скрытия невидимых объектов, значительно улучшая производительность</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/entityculling" target="_blank" class="mod-link" aria-label="Entity Culling на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">Lithium и ModernFix</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Оптимизация игровых механик и общей производительности без изменения ванильного геймплея</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/lithium" target="_blank" class="mod-link" aria-label="Lithium на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="optimize">
+                                <td class="mod-name">EMF & ETF</td>
+                                <td class="mod-category">Оптимизация</td>
+                                <td class="mod-description">Поддержка ресурс-паков с анимированными сущностями, например Fresh Animations</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/entity-model-features" target="_blank" class="mod-link" aria-label="EMF на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Улучшения визуальной составляющей -->
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Advancement Plaques</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Улучшенный внешний вид достижений и их описаний</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/advancement-plaques" target="_blank" class="mod-link" aria-label="Advancement Plaques на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Better Clouds</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Улучшенные облака с поддержкой различных шейдеров и настраиваемыми пресетами</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/better-clouds" target="_blank" class="mod-link" aria-label="Better Clouds на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Falling Leaves</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Добавляет анимацию падающих листьев с деревьев</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/falling-leaves" target="_blank" class="mod-link" aria-label="Falling Leaves на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Particle Rain</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Значительно улучшает погодные эффекты, сохраняя ванильную стилистику</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/particle-rain" target="_blank" class="mod-link" aria-label="Particle Rain на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Particular</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Добавляет различные визуальные эффекты и частицы для многих игровых действий</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/particular" target="_blank" class="mod-link" aria-label="Particular на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="visual">
+                                <td class="mod-name">Not Enough Animations</td>
+                                <td class="mod-category">Визуальные</td>
+                                <td class="mod-description">Улучшенные анимации персонажа</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/not-enough-animations" target="_blank" class="mod-link" aria-label="Not Enough Animations на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Улучшения интерфейса -->
+                            <tr class="mod-row" data-category="interface">
+                                <td class="mod-name">Chat Patches</td>
+                                <td class="mod-category">Интерфейс</td>
+                                <td class="mod-description">Расширенный менеджер чата: время отправки сообщений, сохранение истории, дополнительные функции</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/chatpatches" target="_blank" class="mod-link" aria-label="Chat Patches на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="interface">
+                                <td class="mod-name">Chat Heads</td>
+                                <td class="mod-category">Интерфейс</td>
+                                <td class="mod-description">Показывает головы игроков перед их сообщениями в чате</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/chat-heads" target="_blank" class="mod-link" aria-label="Chat Heads на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="interface">
+                                <td class="mod-name">Mouse Tweaks</td>
+                                <td class="mod-category">Интерфейс</td>
+                                <td class="mod-description">Улучшенное управление инвентарем: новые механики перетаскивания и быстрого перемещения предметов</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/mouse-tweaks" target="_blank" class="mod-link" aria-label="Mouse Tweaks на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="interface">
+                                <td class="mod-name">Smooth Scrolling</td>
+                                <td class="mod-category">Интерфейс</td>
+                                <td class="mod-description">Плавная прокрутка во всех меню игры</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/smooth-scrolling" target="_blank" class="mod-link" aria-label="Smooth Scrolling на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="interface">
+                                <td class="mod-name">BetterF3</td>
+                                <td class="mod-category">Интерфейс</td>
+                                <td class="mod-description">Улучшенный отладочный экран с настраиваемым интерфейсом на русском языке</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/betterf3" target="_blank" class="mod-link" aria-label="BetterF3 на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Улучшения звука -->
+                            <tr class="mod-row" data-category="sound">
+                                <td class="mod-name">Presence Footsteps</td>
+                                <td class="mod-category">Звук</td>
+                                <td class="mod-description">Значительно улучшает звуки ходьбы по различным поверхностям</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/presence-footsteps" target="_blank" class="mod-link" aria-label="Presence Footsteps на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="sound">
+                                <td class="mod-name">Sound Physics Remastered</td>
+                                <td class="mod-category">Звук</td>
+                                <td class="mod-description">Добавляет реалистичное эхо и объемное звучание</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/sound-physics-remastered" target="_blank" class="mod-link" aria-label="Sound Physics Remastered на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="sound">
+                                <td class="mod-name">Sounds</td>
+                                <td class="mod-category">Звук</td>
+                                <td class="mod-description">Добавляет звуки для интерфейса и различных действий с настраиваемыми параметрами</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/sound" target="_blank" class="mod-link" aria-label="Sounds на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Полезные утилиты -->
+                            <tr class="mod-row" data-category="utility">
+                                <td class="mod-name">Litematica</td>
+                                <td class="mod-category">Утилиты</td>
+                                <td class="mod-description">Позволяет создавать и просматривать схемы построек даже на серверах</td>
+                                <td class="mod-actions">
+                                    <a href="https://www.curseforge.com/minecraft/mc-mods/litematica" target="_blank" class="mod-link" aria-label="Litematica на CurseForge">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="utility">
+                                <td class="mod-name">WorldEdit</td>
+                                <td class="mod-category">Утилиты</td>
+                                <td class="mod-description">Мощный инструмент для строительства и редактирования мира</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/worldedit" target="_blank" class="mod-link" aria-label="WorldEdit на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="utility">
+                                <td class="mod-name">Xaero's World Map</td>
+                                <td class="mod-category">Утилиты</td>
+                                <td class="mod-description">Детальная карта мира с множеством функций</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/xaeros-world-map" target="_blank" class="mod-link" aria-label="Xaero's World Map на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="utility">
+                                <td class="mod-name">Bobby</td>
+                                <td class="mod-category">Утилиты</td>
+                                <td class="mod-description">Сохраняет прогруженные чанки в кэш для большей дистанции прорисовки даже на серверах</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/bobby" target="_blank" class="mod-link" aria-label="Bobby на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="mod-row" data-category="utility">
+                                <td class="mod-name">Resourcify</td>
+                                <td class="mod-category">Утилиты</td>
+                                <td class="mod-description">Позволяет скачивать и обновлять ресурс-паки, шейдеры и датапаки прямо в игре</td>
+                                <td class="mod-actions">
+                                    <a href="https://modrinth.com/mod/resourcify" target="_blank" class="mod-link" aria-label="Resourcify на Modrinth">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mods-pagination">
+                    <span class="showing-info">Показано <span id="showing-count">25</span> из <span id="total-count">25</span> модов</span>
+                </div>
+            </section>
+
+            <section class="download-options-fullwidth" id="download">
+                <div class="download-options-overlay"></div>
+                <div class="container">
+                    <div class="download-options-header">
+                        <h2>Способы установки</h2>
+                        <div class="accent-line"></div>
+                        <p class="section-description">Выберите наиболее удобный для вас способ установки нашей сборки. Мы предлагаем несколько вариантов, от простого автоустановщика до архива для продвинутых пользователей.</p>
                     </div>
                 </div>
-
-                <div class="mod-category">
-                    <h3 class="category-title">Улучшения звука</h3>
-                    <div class="mods-list">
-                        <div class="mod-card">
-                            <h3 class="mod-name">Presence Footsteps</h3>
-                            <p class="mod-description">Значительно улучшает звуки ходьбы по различным поверхностям</p>
+                
+                <div class="download-options-grid">
+                    <div class="download-option-card">
+                        <div class="download-option-icon">
+                            <i class="fas fa-file-download"></i>
                         </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Sound Physics Remastered</h3>
-                            <p class="mod-description">Добавляет реалистичное эхо и объемное звучание</p>
+                        <div class="download-option-content">
+                            <h3>Автоустановщик</h3>
+                            <p>Простой установщик, который автоматически настроит всю сборку за вас. Просто скачайте, запустите и следуйте инструкциям.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Удобный интерфейс</span>
+                                <span><i class="fas fa-check"></i> Под любой лаунчер</span>
+                                <span><i class="fas fa-check"></i> Импорт модов и настроек</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">~500 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/" target="_blank" class="download-option-button disabled">
+                                    <i class="fas fa-hourglass-half"></i> Временно недоступно
+                                </a>
+                            </div>
                         </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Sounds</h3>
-                            <p class="mod-description">Добавляет звуки для интерфейса и различных действий с настраиваемыми параметрами</p>
+                        <div class="card-glow"></div>
+                    </div>
+                    
+                    <div class="download-option-card featured">
+                        <div class="featured-badge"><i class="fas fa-star"></i> Рекомендуем</div>
+                        <div class="download-option-icon">
+                            <i class="fas fa-cube"></i>
                         </div>
+                        <div class="download-option-content">
+                            <h3>Modrinth Pack</h3>
+                            <p>Файл .mrpack для импорта в приложение или лаунчер Modrinth. Идеально для тех, кто уже использует Modrinth.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Простой импорт</span>
+                                <span><i class="fas fa-check"></i> Автоматические обновления</span>
+                                <span><i class="fas fa-check"></i> Лёгкая настройка</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">434 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/download/release/EventsPack.1.mrpack" target="_blank" class="download-option-button">
+                                    <i class="fas fa-download"></i> Скачать .mrpack
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-glow"></div>
+                    </div>
+                    
+                    <div class="download-option-card">
+                        <div class="download-option-icon">
+                            <i class="fas fa-file-archive"></i>
+                        </div>
+                        <div class="download-option-content">
+                            <h3>ZIP-архив</h3>
+                            <p>Полная сборка в виде ZIP-архива для ручной установки. Подходит для опытных пользователей или тех, кто хочет внести свои изменения.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Полный контроль</span>
+                                <span><i class="fas fa-check"></i> Возможность изменения</span>
+                                <span><i class="fas fa-check"></i> Все файлы сборки</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">749 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/download/release/EventsPack.v1.zip" target="_blank" class="download-option-button">
+                                    <i class="fas fa-download"></i> Скачать .zip
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-glow"></div>
                     </div>
                 </div>
-
-                <div class="mod-category">
-                    <h3 class="category-title">Полезные утилиты</h3>
-                    <div class="mods-list">
-                        <div class="mod-card">
-                            <h3 class="mod-name">Litematica</h3>
-                            <p class="mod-description">Позволяет создавать и просматривать схемы построек даже на серверах</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">WorldEdit</h3>
-                            <p class="mod-description">Мощный инструмент для строительства и редактирования мира</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Xaero's World Map</h3>
-                            <p class="mod-description">Детальная карта мира с множеством функций</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Bobby</h3>
-                            <p class="mod-description">Сохраняет прогруженные чанки в кэш для большей дистанции прорисовки даже на серверах</p>
-                        </div>
-                        <div class="mod-card">
-                            <h3 class="mod-name">Resourcify</h3>
-                            <p class="mod-description">Позволяет скачивать и обновлять ресурс-паки, шейдеры и датапаки прямо в игре</p>
-                        </div>
+                
+                <div class="container">
+                    <div class="download-note">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Все файлы сборки также доступны на нашем <a href="https://github.com/KOFIOK/EventsPack" target="_blank">репозитории GitHub</a>. Там вы найдете полную документацию по установке и настройке.</p>
                     </div>
                 </div>
             </section>
 
-            <section class="requirements-section animate-slide-up">
-                <div class="section-title-container">
-                    <h2>Системные требования</h2>
-                    <div class="accent-line"></div>
-                </div>
-                <div class="requirements-list">
-                    <div class="requirement-card">
-                        <i class="fas fa-microchip"></i>
-                        <h3>Процессор</h3>
-                        <p>Intel Core i3 / AMD Ryzen 3 или лучше</p>⁠
-                    </div>
-                    <div class="requirement-card">
-                        <i class="fas fa-memory"></i>
-                        <h3>Оперативная память</h3>
-                        <p>Минимум 4 ГБ, рекомендуется 8 ГБ</p>
-                    </div>
-                    <div class="requirement-card">
-                        <i class="fas fa-desktop"></i>
-                        <h3>Видеокарта</h3>
-                        <p>NVIDIA GeForce GTX 1060 / AMD Radeon RX 580 или лучше</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="download" class="download-section animate-slide-up">
+            <section class="download-section animate-slide-up">
                 <div class="download-card">
                     <h2>Готовы начать игру?</h2>
                     <p>Скачайте нашу сборку и присоединяйтесь к серверу прямо сейчас!</p>
                     <a href="https://github.com/KOFIOK/EventsPack" target="_blank" class="download-button">
-                        <i class="fas fa-download me-2"></i>Скачать сборку
+                        <i class="fas fa-download me-2"></i>Узнать о сборке больше
                     </a>
                 </div>
             </section>

@@ -62,6 +62,81 @@ DONATOR_ROLE_ID = 1153006749218000918
 recent_applications = defaultdict(list)
 DEDUP_WINDOW = 60  # Окно в секундах для дедупликации
 
+# Словарь соответствий ID вопросов их названиям
+QUESTION_MAPPING = {
+    'discord': 'Ваш Discord ID пользователя',
+    'nickname': 'Ваш никнейм в Minecraft',
+    'age': 'Ваш возраст',
+    'experience': 'Опыт игры в Minecraft',
+    'gameplay': 'Опишите ваш стиль игры',
+    'important': 'Что для вас самое важное на приватных серверах?',
+    'about': 'Расскажите о себе',
+    'biography': 'Напишите краткую биографию'
+}
+
+class BaseActionButton(discord.ui.Button):
+    """Базовый класс для кнопок действий с защитой от случайных множественных нажатий."""
+    
+    def __init__(self, style, label, custom_id, emoji=None, disabled=False):
+        super().__init__(
+            style=style,
+            label=label,
+            custom_id=custom_id,
+            emoji=emoji,
+            disabled=disabled
+        )
+        
+    async def callback(self, interaction: discord.Interaction) -> None:
+        """Базовый обработчик нажатия с защитой от повторных нажатий."""
+        # Немедленно блокируем все кнопки в сообщении, чтобы избежать повторных нажатий
+        try:
+            # Создаем копию текущего view с неактивными кнопками
+            view = discord.ui.View(timeout=None)
+            
+            # Добавляем копию этой кнопки с индикатором загрузки
+            loading_button = discord.ui.Button(
+                style=self.style,
+                label="Обработка...",
+                emoji="⌛",
+                disabled=True,
+                custom_id=f"{self.custom_id}_loading"
+            )
+            view.add_item(loading_button)
+            
+            # Сохраняем ссылку на оригинальное сообщение
+            original_message = interaction.message
+            
+            # Обновляем сообщение, заменяя все кнопки на неактивные
+            await interaction.message.edit(view=view)
+            
+            # Вызываем основной обработчик действия
+            await self.process_action(interaction, original_message)
+                
+        except Exception as e:
+            logger.error(f"Ошибка при обработке нажатия кнопки: {e}", exc_info=True)
+            if not interaction.response.is_done():
+                await interaction.response.send_message(
+                    "Произошла ошибка при обработке запроса. Попробуйте снова.", 
+                    ephemeral=True
+                )
+            else:
+                await interaction.followup.send(
+                    "Произошла ошибка при обработке запроса. Попробуйте снова.",
+                    ephemeral=True
+                )
+    
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
+        """
+        Основная логика обработки действия кнопки.
+        Переопределяется в дочерних классах.
+        
+        Args:
+            interaction: Взаимодействие Discord
+            original_message: Оригинальное сообщение с кнопками
+        """
+        pass
+
+
 class MineBuildBot(commands.Bot):
     """Основной класс бота для сервера MineBuild."""
     
@@ -394,6 +469,9 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
     async def on_submit(self, interaction: discord.Interaction) -> None:
         """Обработка отправки формы отказа."""
         try:
+            # Сначала отвечаем на взаимодействие, чтобы предотвратить ошибку "Interaction already responded to"
+            await interaction.response.defer(ephemeral=True)
+            
             # Получаем пользователя
             member = await interaction.guild.fetch_member(int(self.discord_id))
             if member:
@@ -440,14 +518,21 @@ class RejectModal(discord.ui.Modal, title="Отказ в заявке"):
                 content=f"## Заявка игрока <@{self.discord_id}> отклонена!\n-# Причина: {self.reason.value}",
                 view=view
             )
-            await interaction.response.send_message("Отказ в заявке успешно обработан.", ephemeral=True)
+            
+            # Используем followup вместо response, так как мы уже ответили на взаимодействие
+            await interaction.followup.send("Отказ в заявке успешно обработан.", ephemeral=True)
 
         except Exception as e:
             logger.error(f"Ошибка при обработке отказа: {e}", exc_info=True)
-            await interaction.response.send_message(f"Произошла ошибка: {str(e)}", ephemeral=True)
+            # Если возникла ошибка и мы еще не ответили на взаимодействие
+            if not interaction.response.is_done():
+                await interaction.response.send_message(f"Произошла ошибка: {str(e)}", ephemeral=True)
+            else:
+                # Используем followup, если уже ответили
+                await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
 
 
-class RejectButton(discord.ui.Button):
+class RejectButton(BaseActionButton):
     """Кнопка для отклонения заявки."""
     
     def __init__(self, discord_id: str, is_candidate: bool = False) -> None:
@@ -457,9 +542,10 @@ class RejectButton(discord.ui.Button):
             custom_id=f"reject_{discord_id}_{is_candidate}",
             emoji="❎"
         )
+        self.discord_id = discord_id
         self.is_candidate = is_candidate
         
-    async def callback(self, interaction: discord.Interaction) -> None:
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки отказа."""
         # Проверяем права пользователя
         if not has_moderation_permissions(interaction.user):
@@ -470,16 +556,13 @@ class RejectButton(discord.ui.Button):
             return
 
         # Получаем URL сообщения
-        message_url = interaction.message.jump_url
-        parts = self.custom_id.split('_')
-        discord_id = parts[1]
-        is_candidate = len(parts) > 2 and parts[2] == 'True'
+        message_url = original_message.jump_url
 
         # Показываем модальное окно для ввода причины
-        await interaction.response.send_modal(RejectModal(discord_id, message_url, is_candidate))
+        await interaction.response.send_modal(RejectModal(self.discord_id, message_url, self.is_candidate))
 
 
-class ApproveButton(discord.ui.Button):
+class ApproveButton(BaseActionButton):
     """Кнопка для одобрения заявки."""
     
     def __init__(self, discord_id: str, is_candidate: bool = False) -> None:
@@ -489,9 +572,10 @@ class ApproveButton(discord.ui.Button):
             custom_id=f"approve_{discord_id}_{is_candidate}",
             emoji="✅"
         )
+        self.discord_id = discord_id
         self.is_candidate = is_candidate
         
-    async def callback(self, interaction: discord.Interaction) -> None:
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки одобрения."""
         # Проверяем права пользователя
         if not has_moderation_permissions(interaction.user):
@@ -500,12 +584,8 @@ class ApproveButton(discord.ui.Button):
                 ephemeral=True
             )
             return
-
-        # Получаем информацию
-        parts = self.custom_id.split('_')
-        discord_id = parts[1]
-        is_candidate = len(parts) > 2 and parts[2] == 'True'
-        
+            
+        # Получаем роли
         whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
         candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
         
@@ -515,7 +595,7 @@ class ApproveButton(discord.ui.Button):
 
         try:
             # Получаем объект участника
-            member = await interaction.guild.fetch_member(int(discord_id))
+            member = await interaction.guild.fetch_member(int(self.discord_id))
             if not member:
                 await interaction.response.send_message("Пользователь не найден.", ephemeral=True)
                 return
@@ -527,17 +607,17 @@ class ApproveButton(discord.ui.Button):
             log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
             if log_channel:
                 await log_channel.send(
-                    f"## Куратор <@{interaction.user.id}> одобрил [заявку]({interaction.message.jump_url})."
+                    f"## Куратор <@{interaction.user.id}> одобрил [заявку]({original_message.jump_url})."
                 )
 
             # Получаем никнейм из заявки
-            minecraft_nickname = extract_minecraft_nickname(interaction.message.embeds)
+            minecraft_nickname = extract_minecraft_nickname(original_message.embeds)
             
             if minecraft_nickname:
                 # Если это кандидат, снимаем с него роль кандидата
-                if is_candidate and candidate_role and candidate_role in member.roles:
+                if self.is_candidate and candidate_role and candidate_role in member.roles:
                     await member.remove_roles(candidate_role)
-                    logger.info(f"Снята роль кандидата с пользователя {discord_id} при одобрении")
+                    logger.info(f"Снята роль кандидата с пользователя {self.discord_id} при одобрении")
                 
                 await process_approval(interaction, member, minecraft_nickname)
             else:
@@ -550,17 +630,23 @@ class ApproveButton(discord.ui.Button):
             await member.add_roles(whitelist_role)
             
             # Обновляем сообщение
-            await update_approval_message(interaction.message, discord_id)
+            await update_approval_message(original_message, self.discord_id)
             
             # Отправляем личное сообщение пользователю
             await send_welcome_message(member)
+            
+            # Сообщаем модератору об успешной обработке
+            await interaction.followup.send(
+                f"✅ Заявка игрока <@{self.discord_id}> успешно одобрена!",
+                ephemeral=True
+            )
             
         except Exception as e:
             logger.error(f"Ошибка при одобрении заявки: {e}", exc_info=True)
             await interaction.followup.send(f"Произошла ошибка: {str(e)}", ephemeral=True)
 
 
-class CandidateButton(discord.ui.Button):
+class CandidateButton(BaseActionButton):
     """Кнопка для перевода в кандидаты."""
     
     def __init__(self, discord_id: str) -> None:
@@ -570,8 +656,9 @@ class CandidateButton(discord.ui.Button):
             custom_id=f"candidate_{discord_id}",
             emoji="🔍"
         )
+        self.discord_id = discord_id
         
-    async def callback(self, interaction: discord.Interaction) -> None:
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки перевода в кандидаты."""
         # Проверяем права пользователя
         if not has_moderation_permissions(interaction.user):
@@ -581,8 +668,7 @@ class CandidateButton(discord.ui.Button):
             )
             return
 
-        # Получаем информацию
-        discord_id = self.custom_id.split('_')[1]
+        # Получаем роль кандидата
         candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
         
         if not candidate_role:
@@ -591,7 +677,7 @@ class CandidateButton(discord.ui.Button):
 
         try:
             # Получаем объект участника
-            member = await interaction.guild.fetch_member(int(discord_id))
+            member = await interaction.guild.fetch_member(int(self.discord_id))
             if not member:
                 await interaction.response.send_message("Пользователь не найден.", ephemeral=True)
                 return
@@ -600,7 +686,7 @@ class CandidateButton(discord.ui.Button):
             await interaction.response.defer(ephemeral=True)
 
             # Получаем никнейм из заявки
-            minecraft_nickname = extract_minecraft_nickname(interaction.message.embeds)
+            minecraft_nickname = extract_minecraft_nickname(original_message.embeds)
             
             if minecraft_nickname:
                 # Пробуем изменить никнейм
@@ -622,13 +708,13 @@ class CandidateButton(discord.ui.Button):
             await member.add_roles(candidate_role)
             
             # Обновляем сообщение с заявкой
-            await update_candidate_message(interaction.message, discord_id)
+            await update_candidate_message(original_message, self.discord_id)
             
             # Отправляем сообщение в канал кандидатов
             candidate_channel = interaction.guild.get_channel(CANDIDATE_CHAT_ID)
             if candidate_channel:
                 await candidate_channel.send(
-                    f"# Привет, <@{discord_id}>!\n"
+                    f"# Привет, <@{self.discord_id}>!\n"
                     f"Твоя заявка была отправлена на рассмотрение куратором <@{interaction.user.id}>.\n"
                     f"Ты получил временную роль кандидата, которая предоставляет доступ к этому каналу.\n"
                     f"В ближайшее время с тобой свяжутся для обсуждения деталей."
@@ -638,13 +724,13 @@ class CandidateButton(discord.ui.Button):
             log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
             if log_channel:
                 await log_channel.send(
-                    f"## Куратор <@{interaction.user.id}> перевел игрока <@{discord_id}> в кандидаты. "
-                    f"[Ссылка на заявку]({interaction.message.jump_url})"
+                    f"## Куратор <@{interaction.user.id}> перевел игрока <@{self.discord_id}> в кандидаты. "
+                    f"[Ссылка на заявку]({original_message.jump_url})"
                 )
             
             # Отправляем сообщение куратору
             await interaction.followup.send(
-                f"Игрок <@{discord_id}> успешно переведен в кандидаты и получил соответствующую роль.",
+                f"Игрок <@{self.discord_id}> успешно переведен в кандидаты и получил соответствующую роль.",
                 ephemeral=True
             )
             
@@ -717,27 +803,39 @@ async def create_application_message(
         recent_apps.append(current_time)
         recent_applications[discord_id] = recent_apps
 
-        # Продолжаем обработку заявки...
+        # Разделяем поля на основную и подробную информацию
         main_fields = []
         details_fields = []
         
+        # Определяем поля для основной информации
+        inline_field_names = ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
+        
+        # Сохраняем все поля из embeds в отладочных целях
+        all_field_names = [field.name for field in embed.fields]
+        logger.info(f"Заявка от {discord_id} содержит поля: {all_field_names}")
+        
         for field in embed.fields:
-            if field.name == 'Ваш Discord ID пользователя':
+            # Пропускаем поля с Discord ID
+            if 'discord' in field.name.lower() or 'discord_id' == field.name:
                 continue
                 
+            # Для каждого поля формируем словарь данных
             field_data = {
                 'name': field.name,
                 'value': field.value,
-                'inline': field.name in ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
+                'inline': field.name in inline_field_names
             }
             
-            if field_data['inline']:
+            # Распределяем поля по категориям
+            if field.name in inline_field_names:
                 main_fields.append(field_data)
             else:
                 details_fields.append(field_data)
 
         # Создаем embeds для канала
         embeds = []
+        
+        # Добавляем основную информацию (если есть)
         if main_fields:
             embeds.append(create_embed_with_fields(
                 "📝 Основная информация",
@@ -745,12 +843,21 @@ async def create_application_message(
                 embed.timestamp
             ))
         
+        # Добавляем подробную информацию (если есть)
         if details_fields:
+            logger.info(f"Добавляем подробную информацию: {details_fields}")
             embeds.append(create_embed_with_fields(
                 "📋 Подробная информация",
                 details_fields,
                 embed.timestamp
             ))
+        else:
+            logger.warning(f"Отсутствуют поля для подробной информации в заявке пользователя {discord_id}")
+
+        # Проверяем, есть ли хоть один embed для отправки
+        if not embeds:
+            logger.error(f"Отсутствуют поля для отображения в заявке пользователя {discord_id}")
+            return False
 
         # Отправляем заявку в канал
         view = discord.ui.View(timeout=None)
@@ -758,17 +865,22 @@ async def create_application_message(
         view.add_item(RejectButton(discord_id))
         view.add_item(CandidateButton(discord_id))
         
-        await channel.send(
-            content=f"-# ||<@&{MODERATOR_ROLE_ID}>||\n## <@{discord_id}> отправил заявку на сервер!",
+        message = await channel.send(
+            content=f"-# <@{MODERATOR_ROLE_ID}>\n## <@{discord_id}> отправил заявку на сервер!",
             embeds=embeds,
             view=view
         )
+        
+        # Записываем в лог ID сообщения для отладки
+        logger.info(f"Отправлена заявка с ID сообщения: {message.id}")
 
         # Отправляем копию заявки пользователю
         try:
             user = await channel.guild.fetch_member(int(discord_id))
             if user:
                 user_embeds = []
+                
+                # Копируем основную информацию для пользователя
                 if main_fields:
                     user_main_embed = create_embed_with_fields(
                         "📝 Ваша заявка (основная информация)",
@@ -778,6 +890,7 @@ async def create_application_message(
                     user_main_embed.description = "Ваша заявка успешно отправлена на рассмотрение!"
                     user_embeds.append(user_main_embed)
                 
+                # Копируем подробную информацию для пользователя
                 if details_fields:
                     user_details_embed = create_embed_with_fields(
                         "📋 Ваша заявка (подробная информация)",
@@ -786,6 +899,7 @@ async def create_application_message(
                     )
                     user_embeds.append(user_details_embed)
 
+                # Отправляем пользователю копию заявки
                 await user.send(
                     content="# ✅ Ваша заявка успешно отправлена!\nОжидайте решения кураторов набора. Вы получите уведомление, когда заявка будет рассмотрена.",
                     embeds=user_embeds
@@ -915,60 +1029,6 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
         )
 
 
-async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) -> None:
-    """
-    Обертка для функции add_to_whitelist, которая работает с разными типами контекста.
-    
-    Args:
-        response_channel: Объект для отправки ответов (может быть Context или Follow-up)
-        minecraft_nickname: Никнейм игрока в Minecraft
-    """
-    # Проверяем доступность сервера
-    is_server_available = await check_minecraft_server_availability()
-    
-    if not is_server_available:
-        await response_channel.send(
-            "Сервер Minecraft недоступен. Пожалуйста, проверьте его состояние и добавьте игрока в белый список вручную.",
-            ephemeral=hasattr(response_channel, 'followup')
-        )
-        return
-        
-    # Пробуем подключиться к RCON
-    try:
-        with MCRcon(
-            os.getenv('RCON_HOST'),
-            os.getenv('RCON_PASSWORD'),
-            int(os.getenv('RCON_PORT'))
-        ) as mcr:
-            # Даем серверу время на обработку команды
-            await asyncio.sleep(1)
-            response = mcr.command(f"uw add {minecraft_nickname}")
-            
-            # Очищаем ответ от форматирования Minecraft
-            clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-            logger.info(f"RCON response: {clean_response}")
-            
-            # Отправляем сообщение только если есть ошибка
-            if "уже в вайтлисте" in clean_response.lower():
-                await response_channel.send(
-                    f"Игрок {minecraft_nickname} уже находится в белом списке.",
-                    ephemeral=hasattr(response_channel, 'followup')
-                )
-    except (socket.timeout, ConnectionRefusedError) as e:
-        error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
-        logger.error(f"{error_message}: {e}")
-        await response_channel.send(
-            f"{error_message}. Пожалуйста, добавьте игрока вручную.",
-            ephemeral=hasattr(response_channel, 'followup')
-        )
-    except Exception as e:
-        logger.error(f"Ошибка RCON: {e}", exc_info=True)
-        await response_channel.send(
-            f"Произошла ошибка при добавлении в белый список: {str(e)}. Пожалуйста, добавьте игрока вручную.",
-            ephemeral=hasattr(response_channel, 'followup')
-        )
-
-
 async def check_minecraft_server_availability() -> bool:
     """
     Проверяет доступность сервера Minecraft.
@@ -999,7 +1059,7 @@ async def update_approval_message(message: discord.Message, discord_id: str) -> 
         message: Сообщение Discord с заявкой
         discord_id: ID пользователя Discord
     """
-    # Создаем новую view с кнопкой "Одобрено"
+    # Создаем новую view с неактивными кнопками
     view = discord.ui.View(timeout=None)
     button = discord.ui.Button(
         style=discord.ButtonStyle.green,
@@ -1092,7 +1152,7 @@ if __name__ == '__main__':
     run_bot()
 
 
-class RemoveFromWhitelistButton(discord.ui.Button):
+class RemoveFromWhitelistButton(BaseActionButton):
     """Кнопка для исключения игрока из белого списка."""
     
     def __init__(self, member_id: str, nickname: str) -> None:
@@ -1102,8 +1162,10 @@ class RemoveFromWhitelistButton(discord.ui.Button):
             custom_id=f"remove_whitelist_{member_id}_{nickname}",
             emoji="❌"
         )
+        self.member_id = member_id
+        self.nickname = nickname
         
-    async def callback(self, interaction: discord.Interaction) -> None:
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки исключения."""
         # Проверяем права пользователя
         if not has_moderation_permissions(interaction.user):
@@ -1112,17 +1174,12 @@ class RemoveFromWhitelistButton(discord.ui.Button):
                 ephemeral=True
             )
             return
-
-        # Получаем идентификаторы из custom_id
-        parts = self.custom_id.split('_')
-        member_id = parts[2]
-        nickname = '_'.join(parts[3:])  # Восстанавливаем никнейм, если он содержал подчеркивания
         
         # Отвечаем на взаимодействие сразу, чтобы не было таймаута
         await interaction.response.defer(ephemeral=True)
         
         # Удаляем из белого списка через RCON
-        success = await remove_from_whitelist(nickname)
+        success = await remove_from_whitelist(self.nickname)
         
         # Обновляем сообщение
         view = discord.ui.View(timeout=None)
@@ -1131,12 +1188,12 @@ class RemoveFromWhitelistButton(discord.ui.Button):
             label="Исключён",
             emoji="✅",
             disabled=True,
-            custom_id=f"removed_{member_id}"
+            custom_id=f"removed_{self.member_id}"
         )
         view.add_item(button)
         
-        await interaction.message.edit(
-            content=f"## Игрок <@{member_id}> с ником `{nickname}` вышел из дискорд сервера!\n> - Игрок исключен из белого списка.",
+        await original_message.edit(
+            content=f"## Игрок <@{self.member_id}> с ником `{self.nickname}` вышел из дискорд сервера!\n> - Игрок исключен из белого списка.",
             view=view
         )
         
@@ -1144,23 +1201,23 @@ class RemoveFromWhitelistButton(discord.ui.Button):
         log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
         if log_channel:
             await log_channel.send(
-                f"# Куратор <@{interaction.user.id}> исключил игрока {nickname} из белого списка после его выхода из сервера."
+                f"# Куратор <@{interaction.user.id}> исключил игрока {self.nickname} из белого списка после его выхода из сервера."
             )
         
         # Отчет модератору
         if success:
             await interaction.followup.send(
-                f"Игрок {nickname} успешно удален из белого списка.",
+                f"Игрок {self.nickname} успешно удален из белого списка.",
                 ephemeral=True
             )
         else:
             await interaction.followup.send(
-                f"Произошла ошибка при удалении игрока {nickname} из белого списка. Проверьте состояние сервера.",
+                f"Произошла ошибка при удалении игрока {self.nickname} из белого списка. Проверьте состояние сервера.",
                 ephemeral=True
             )
 
 
-class IgnoreLeaveButton(discord.ui.Button):
+class IgnoreLeaveButton(BaseActionButton):
     """Кнопка для игнорирования выхода игрока."""
     
     def __init__(self, member_id: str, nickname: str) -> None:
@@ -1170,8 +1227,10 @@ class IgnoreLeaveButton(discord.ui.Button):
             custom_id=f"ignore_leave_{member_id}_{nickname}",
             emoji="🔕"
         )
+        self.member_id = member_id
+        self.nickname = nickname
         
-    async def callback(self, interaction: discord.Interaction) -> None:
+    async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки игнорирования."""
         # Проверяем права пользователя
         if not has_moderation_permissions(interaction.user):
@@ -1180,11 +1239,9 @@ class IgnoreLeaveButton(discord.ui.Button):
                 ephemeral=True
             )
             return
-
-        # Получаем идентификаторы из custom_id
-        parts = self.custom_id.split('_')
-        member_id = parts[2]
-        nickname = '_'.join(parts[3:])  # Восстанавливаем никнейм, если он содержал подчеркивания
+        
+        # Отвечаем на взаимодействие
+        await interaction.response.defer(ephemeral=True)
         
         # Обновляем сообщение
         view = discord.ui.View(timeout=None)
@@ -1193,16 +1250,20 @@ class IgnoreLeaveButton(discord.ui.Button):
             label="Проигнорировано",
             emoji="🔕",
             disabled=True,
-            custom_id=f"ignored_{member_id}"
+            custom_id=f"ignored_{self.member_id}"
         )
         view.add_item(button)
         
-        await interaction.message.edit(
-            content=f"## Игрок <@{member_id}> с ником `{nickname}` вышел из дискорд сервера!\n> - Уведомление проигнорировано.",
+        await original_message.edit(
+            content=f"## Игрок <@{self.member_id}> с ником `{self.nickname}` вышел из дискорд сервера!\n> - Уведомление проигнорировано.",
             view=view
         )
         
-        await interaction.response.defer(ephemeral=True)  # Скрытое подтверждение действия
+        # Подтверждаем модератору
+        await interaction.followup.send(
+            "Уведомление проигнорировано.",
+            ephemeral=True
+        )
 
 
 async def send_member_leave_notification(channel: discord.TextChannel, member_id: int, nickname: str) -> None:
@@ -1319,3 +1380,57 @@ async def execute_minecraft_command(command: str) -> bool:
     except Exception as e:
         logger.error(f"Ошибка RCON: {e}", exc_info=True)
         return False
+
+
+async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) -> None:
+    """
+    Обертка для функции add_to_whitelist, которая работает с разными типами контекста.
+    
+    Args:
+        response_channel: Объект для отправки ответов (может быть Context или Follow-up)
+        minecraft_nickname: Никнейм игрока в Minecraft
+    """
+    # Проверяем доступность сервера
+    is_server_available = await check_minecraft_server_availability()
+    
+    if not is_server_available:
+        await response_channel.send(
+            "Сервер Minecraft недоступен. Пожалуйста, проверьте его состояние и добавьте игрока в белый список вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )
+        return
+        
+    # Пробуем подключиться к RCON
+    try:
+        with MCRcon(
+            os.getenv('RCON_HOST'),
+            os.getenv('RCON_PASSWORD'),
+            int(os.getenv('RCON_PORT'))
+        ) as mcr:
+            # Даем серверу время на обработку команды
+            await asyncio.sleep(1)
+            response = mcr.command(f"uw add {minecraft_nickname}")
+            
+            # Очищаем ответ от форматирования Minecraft
+            clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
+            logger.info(f"RCON response: {clean_response}")
+            
+            # Отправляем сообщение только если есть ошибка
+            if "уже в вайтлисте" in clean_response.lower():
+                await response_channel.send(
+                    f"Игрок {minecraft_nickname} уже находится в белом списке.",
+                    ephemeral=hasattr(response_channel, 'followup')
+                )
+    except (socket.timeout, ConnectionRefusedError) as e:
+        error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
+        logger.error(f"{error_message}: {e}")
+        await response_channel.send(
+            f"{error_message}. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )
+    except Exception as e:
+        logger.error(f"Ошибка RCON: {e}", exc_info=True)
+        await response_channel.send(
+            f"Произошла ошибка при добавлении в белый список: {str(e)}. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )

@@ -6,38 +6,151 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}
 
 {% block content %}
 <div class="hero-section">
+    <!-- Добавляем анимированные фоновые элементы -->
+    <div class="floating-blocks">
+        <div class="floating-block block-1"></div>
+        <div class="floating-block block-2"></div>
+        <div class="floating-block block-3"></div>
+        <div class="floating-block block-4"></div>
+        <div class="floating-block block-5"></div>
+    </div>
+    
+    <!-- Декоративные извивающиеся линии -->
+    <div class="decorative-lines">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+    </div>
+    
+    <!-- Обновленный контент секции -->
     <div class="hero-content container-fluid px-4">
-        <h1 class="hero-title">MINEBUILD</h1>
-        <p class="hero-description">Пространство с идеальными условиями для раскрытия собственного творческого потенциала в среде ванильного выживания</p>
+        <div class="glitch-wrapper">
+            <h1 class="hero-title">MINEBUILD</h1>
+            <span class="hero-title-border"></span>
+            <div class="title-decoration"></div>
+        </div>
+        
+        <div class="description-wrapper">
+            <p class="hero-description">
+                <span class="highlight-word">Пространство</span> с идеальными условиями для 
+                <span class="highlight-word">раскрытия</span> собственного творческого 
+                <span class="highlight-word">потенциала</span> в среде ванильного выживания
+            </p>
+        </div>
+        
         <div class="hero-buttons">
-            <a href="/apply" class="btn btn-primary btn-lg">ПОДАТЬ ЗАЯВКУ</a>
-            <button class="btn btn-outline-light btn-lg copy-ip" data-ip="mc.minebuild.fun">
+            <a href="/apply" class="btn btn-primary btn-lg btn-glow">
+                <span class="btn-text">ПОДАТЬ ЗАЯВКУ</span>
+                <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+            </a>
+            <button class="btn btn-outline-light btn-lg copy-ip btn-shimmer" data-ip="mc.minebuild.fun">
                 <i class="fas fa-copy me-2"></i>СКОПИРОВАТЬ IP
+                <span class="shimmer"></span>
             </button>
         </div>
+        
         <div class="server-info">
-            Для игры НЕ нужна лицензия Minecraft: Java Edition. Версия сервера — 1.21.1
+            <span class="server-tag">Java Edition</span> Для игры НЕ нужна лицензия Minecraft. 
+            <span class="server-tag">Версия</span> 1.21.1
         </div>
     </div>
+    
+    <!-- Индикатор прокрутки (вынесен за пределы hero-content) -->
+    <div class="scroll-indicator">
+        <span>Узнать больше</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+    
+    <!-- Интерактивные частицы -->
+    <div class="particles-container" id="particles-js"></div>
 </div>
 
+<!-- Секция "Как начать игру" -->
+<section class="how-to-start-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>КАК НАЧАТЬ ИГРУ</h2>
+            <p class="section-subtitle">Всего несколько шагов, чтобы присоединиться к нашему сообществу</p>
+        </div>
+        
+        <div class="steps-container">
+            <div class="step-item" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3 class="step-title">УСТАНОВИТЕ MINECRAFT: JAVA EDITION</h3>
+                    <p class="step-description">
+                        Вам потребуется любая версия Minecraft: Java Edition 1.21 для игры на нашем сервере.
+                        Запускайте с помощью лаунчера Modrinth, CurseForge или официального (рекомендуем AstralRinth для пиратов).
+                    </p>
+                    <div class="tip-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p class="tip-content">
+                            Рекомендуем использовать официальный лаунчер как самый простой и удобный способ запуска игры.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3 class="step-title">ПОДАЙТЕ ЗАЯВКУ НА СЕРВЕР</h3>
+                    <p class="step-description">
+                        Заполните небольшую анкету, чтобы мы могли познакомиться с вами. 
+                        Мы рассматриваем все заявки и стремимся создать дружное сообщество игроков.
+                    </p>
+                    <div class="step-actions">
+                        <a href="/apply" class="btn btn-primary">ЗАПОЛНИТЬ АНКЕТУ</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3 class="step-title">ДОЖДИТЕСЬ ОДОБРЕНИЯ</h3>
+                    <p class="step-description">
+                        После подачи заявки кураторы набора рассмотрят её в течение 24 часов. 
+                        В случае одобрения вы получите уведомление на указанный вами Discord.
+                    </p>
+                    <div class="tip-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p class="tip-content">
+                            Вы можете отслеживать статус вашей заявки в личных сообщениях у Discord бота.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-item" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3 class="step-title">ПОДКЛЮЧИТЕСЬ К СЕРВЕРУ</h3>
+                    <p class="step-description">
+                        Используйте IP-адрес mc.minebuild.fun для подключения к серверу. 
+                        После первого входа ознакомьтесь с правилами сервера и начните ваше приключение!
+                    </p>
+                    <div class="step-actions">
+                        <button class="btn btn-outline-light copy-ip" data-ip="mc.minebuild.fun">
+                            <i class="fas fa-copy me-2"></i>СКОПИРОВАТЬ IP
+                        </button>
+                        <a href="/rules" class="btn btn-outline-light">ПРАВИЛА</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.querySelector('.copy-ip').addEventListener('click', function() {
-    const ip = this.dataset.ip;
-    navigator.clipboard.writeText(ip).then(() => {
-        const originalText = this.innerHTML;
-        this.innerHTML = '<i class="fas fa-check me-2"></i>IP СКОПИРОВАН';
-        setTimeout(() => {
-            this.innerHTML = originalText;
-        }, 2000);
-    });
-});
-</script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}
