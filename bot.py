@@ -555,11 +555,43 @@ class RejectButton(BaseActionButton):
             )
             return
 
+        # Сохраняем оригинальные кнопки до показа модального окна
+        # Создаем копию оригинального view для возможного восстановления
+        original_view = discord.ui.View(timeout=None)
+        original_view.add_item(ApproveButton(self.discord_id, self.is_candidate))
+        original_view.add_item(RejectButton(self.discord_id, self.is_candidate))
+        if not self.is_candidate:
+            original_view.add_item(CandidateButton(self.discord_id))
+
         # Получаем URL сообщения
         message_url = original_message.jump_url
 
+        # Планируем восстановление оригинальных кнопок в случае отмены модального окна
+        # Для этого отслеживаем идентификатор сообщения и восстановим кнопки через короткий таймаут
+        message_id = original_message.id
+        
         # Показываем модальное окно для ввода причины
-        await interaction.response.send_modal(RejectModal(self.discord_id, message_url, self.is_candidate))
+        try:
+            await interaction.response.send_modal(RejectModal(self.discord_id, message_url, self.is_candidate))
+            
+            # Установка таймера для проверки - был ли отправлен модал или отменён
+            await asyncio.sleep(30)  # Ждем 30 секунд - достаточно для обработки или отмены
+            
+            # Проверяем текущее состояние сообщения
+            try:
+                current_message = await original_message.channel.fetch_message(message_id)
+                # Если в сообщении всё еще кнопка "Обработка...", значит модал был отменен
+                if any(button.label == "Обработка..." for item in current_message.components for button in item.children):
+                    # Восстанавливаем оригинальные кнопки
+                    await original_message.edit(view=original_view)
+                    logger.info(f"Восстановлены кнопки для заявки {self.discord_id} после отмены модального окна")
+            except Exception as e:
+                logger.error(f"Ошибка при проверке состояния сообщения: {e}", exc_info=True)
+        
+        except Exception as e:
+            logger.error(f"Ошибка при вызове модального окна: {e}", exc_info=True)
+            # В случае ошибки восстанавливаем кнопки
+            await original_message.edit(view=original_view)
 
 
 class ApproveButton(BaseActionButton):
