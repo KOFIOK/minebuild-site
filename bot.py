@@ -866,7 +866,7 @@ async def create_application_message(
         view.add_item(CandidateButton(discord_id))
         
         message = await channel.send(
-            content=f"-# <@{MODERATOR_ROLE_ID}>\n## <@{discord_id}> отправил заявку на сервер!",
+            content=f"-# <@&{MODERATOR_ROLE_ID}>\n## <@{discord_id}> отправил заявку на сервер!",
             embeds=embeds,
             view=view
         )
