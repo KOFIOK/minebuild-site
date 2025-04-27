@@ -81,7 +81,7 @@
 
 .parallax-content h1 {
     font-family: 'Intro Demo', sans-serif;
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 7vw, 5rem); /* Адаптивный размер шрифта */
     font-weight: bold;
     color: var(--text-primary);
     margin-bottom: 1.5rem;
@@ -93,6 +93,8 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: titleAppear 1s ease-out forwards;
+    word-wrap: break-word; /* Обеспечивает перенос длинных слов */
+    overflow-wrap: break-word; /* Дополнительная поддержка переноса */
 }
 
 @keyframes titleAppear {
@@ -108,12 +110,15 @@
 
 .parallax-content .lead {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 3vw, 1.5rem); /* Адаптивный размер шрифта */
     color: var(--text-secondary);
     margin-bottom: 0;
     line-height: 1.6;
     animation: textAppear 1s ease-out 0.3s forwards;
     opacity: 0;
+    max-width: 800px; /* Ограничение максимальной ширины */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @keyframes textAppear {
@@ -124,6 +129,40 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Добавляем медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+    .parallax-content {
+        padding: 0 15px;
+        margin-top: 60px; /* Уменьшенный отступ сверху на мобильных */
+    }
+    
+    .parallax-content h1 {
+        letter-spacing: 2px; /* Уменьшенный междубуквенный интервал */
+        margin-bottom: 1rem;
+    }
+    
+    .donate-scroll-btn {
+        padding: 12px 24px; /* Уменьшенные отступы для кнопки */
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .parallax-content h1 {
+        letter-spacing: 1px; /* Еще меньший междубуквенный интервал */
+    }
+    
+    .parallax-content .lead {
+        padding: 0 5px; /* Дополнительный отступ для лучшей читаемости */
+    }
+    
+    .donate-scroll-btn {
+        padding: 10px 20px; /* Еще меньшие отступы для кнопки */
+        font-size: 0.9rem;
+        margin-top: 20px;
     }
 }
 
