@@ -26,41 +26,56 @@
             
             <section class="gallery-section">
                 <div class="gallery-container">
-                    {% set build_images = [
-                        '2024-08-19_14.14.19.webp',
-                        '2024-08-29_13.35.54.webp',
-                        '2024-09-14_22.57.40.webp',
-                        '2024-09-14_23.03.49.webp',
-                        '2024-10-26_23.09.56.webp',
-                        '2024-10-27_16.21.52.webp',
-                        '2024-11-03_17.54.01.webp',
-                        '2024-11-04_16.36.15.webp',
-                        '2024-11-09_13.57.33.webp',
-                        '2024-11-09_13.57.39.webp',
-                        '2024-11-19_17.54.29.webp',
-                        '2024-11-20_22.02.24.webp',
-                        '2024-12-15_15.13.58.webp',
-                        '2024-12-28_22.27.40.webp',
-                        '2025-01-07_00.29.14.webp',
-                        '2025-03-01_13.38.55.webp',
-                        '2025-04-20_13.33.16.webp',
-                        '2025-04-20_13.33.22.webp',
-                        '2025-04-20_13.33.27.webp',
-                        '2025-04-20_17.32.54.webp',
-                        '2025-04-20_17.32.58.webp',
-                        '2025-04-20_17.33.03.webp',
-                        '2025-04-20_17.33.08.webp',
-                        'Снежный городок.webp'
-                    ] %}
-                    {% for image in build_images %}
-                    <div class="gallery-item{% if loop.first %} current{% elif loop.index == 2 %} next{% elif loop.index == build_images|length %} prev{% else %} hidden{% endif %}">
-                        <img src="{{ url_for('static', filename='images/build/' + image) }}" alt="MineBuild Screenshot">
+                    <div class="gallery-track">
+                        {% set build_images = [
+                            '2024-08-19_14.14.19.webp',
+                            '2024-08-29_13.35.54.webp',
+                            '2024-09-14_22.57.40.webp',
+                            '2024-09-14_23.03.49.webp',
+                            '2024-10-26_23.09.56.webp',
+                            '2024-10-27_16.21.52.webp',
+                            '2024-11-03_17.54.01.webp',
+                            '2024-11-04_16.36.15.webp',
+                            '2024-11-09_13.57.33.webp',
+                            '2024-11-09_13.57.39.webp',
+                            '2024-11-19_17.54.29.webp',
+                            '2024-11-20_22.02.24.webp',
+                            '2024-12-15_15.13.58.webp',
+                            '2024-12-28_22.27.40.webp',
+                            '2025-01-07_00.29.14.webp',
+                            '2025-03-01_13.38.55.webp',
+                            '2025-04-20_13.33.16.webp',
+                            '2025-04-20_13.33.22.webp',
+                            '2025-04-20_13.33.27.webp',
+                            '2025-04-20_17.32.54.webp',
+                            '2025-04-20_17.32.58.webp',
+                            '2025-04-20_17.33.03.webp',
+                            '2025-04-20_17.33.08.webp',
+                            'Снежный городок.webp'
+                        ] %}
+                        {% for image in build_images %}
+                        <div class="gallery-item" data-index="{{ loop.index0 }}">
+                            <div class="gallery-item-inner">
+                                <img src="{{ url_for('static', filename='images/build/' + image) }}" 
+                                     alt="MineBuild Screenshot {{ loop.index }}" loading="lazy">
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    
+                    <div class="gallery-controls">
+                        <button class="gallery-arrow prev-arrow" aria-label="Предыдущее изображение">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="gallery-arrow next-arrow" aria-label="Следующее изображение">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="gallery-nav">
                     {% for image in build_images %}
-                    <div class="gallery-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></div>
+                    <button class="gallery-dot" data-index="{{ loop.index0 }}" aria-label="Перейти к изображению {{ loop.index }}"></button>
                     {% endfor %}
                 </div>
             </section>
@@ -202,36 +217,99 @@
                 </div>
             </section>
 
-            <section class="requirements-section animate-slide-up">
-                <div class="section-title-container">
-                    <h2>Системные требования</h2>
-                    <div class="accent-line"></div>
+            <section class="download-options-fullwidth" id="download">
+                <div class="download-options-overlay"></div>
+                <div class="container">
+                    <div class="download-options-header">
+                        <h2>Способы установки</h2>
+                        <div class="accent-line"></div>
+                        <p class="section-description">Выберите наиболее удобный для вас способ установки нашей сборки. Мы предлагаем несколько вариантов, от простого автоустановщика до архива для продвинутых пользователей.</p>
+                    </div>
                 </div>
-                <div class="requirements-list">
-                    <div class="requirement-card">
-                        <i class="fas fa-microchip"></i>
-                        <h3>Процессор</h3>
-                        <p>Intel Core i3 / AMD Ryzen 3 или лучше</p>⁠
+                
+                <div class="download-options-grid">
+                    <div class="download-option-card">
+                        <div class="download-option-icon">
+                            <i class="fas fa-file-download"></i>
+                        </div>
+                        <div class="download-option-content">
+                            <h3>Автоустановщик</h3>
+                            <p>Простой установщик, который автоматически настроит всю сборку за вас. Просто скачайте, запустите и следуйте инструкциям.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Удобный интерфейс</span>
+                                <span><i class="fas fa-check"></i> Под любой лаунчер</span>
+                                <span><i class="fas fa-check"></i> Импорт модов и настроек</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">~500 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/" target="_blank" class="download-option-button disabled">
+                                    <i class="fas fa-hourglass-half"></i> Временно недоступно
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-glow"></div>
                     </div>
-                    <div class="requirement-card">
-                        <i class="fas fa-memory"></i>
-                        <h3>Оперативная память</h3>
-                        <p>Минимум 4 ГБ, рекомендуется 8 ГБ</p>
+                    
+                    <div class="download-option-card featured">
+                        <div class="featured-badge"><i class="fas fa-star"></i> Рекомендуем</div>
+                        <div class="download-option-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="download-option-content">
+                            <h3>Modrinth Pack</h3>
+                            <p>Файл .mrpack для импорта в приложение или лаунчер Modrinth. Идеально для тех, кто уже использует Modrinth.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Простой импорт</span>
+                                <span><i class="fas fa-check"></i> Автоматические обновления</span>
+                                <span><i class="fas fa-check"></i> Лёгкая настройка</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">434 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/download/release/EventsPack.1.mrpack" target="_blank" class="download-option-button">
+                                    <i class="fas fa-download"></i> Скачать .mrpack
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-glow"></div>
                     </div>
-                    <div class="requirement-card">
-                        <i class="fas fa-desktop"></i>
-                        <h3>Видеокарта</h3>
-                        <p>NVIDIA GeForce GTX 1060 / AMD Radeon RX 580 или лучше</p>
+                    
+                    <div class="download-option-card">
+                        <div class="download-option-icon">
+                            <i class="fas fa-file-archive"></i>
+                        </div>
+                        <div class="download-option-content">
+                            <h3>ZIP-архив</h3>
+                            <p>Полная сборка в виде ZIP-архива для ручной установки. Подходит для опытных пользователей или тех, кто хочет внести свои изменения.</p>
+                            <div class="download-option-features">
+                                <span><i class="fas fa-check"></i> Полный контроль</span>
+                                <span><i class="fas fa-check"></i> Возможность изменения</span>
+                                <span><i class="fas fa-check"></i> Все файлы сборки</span>
+                            </div>
+                            <div class="download-option-footer">
+                                <span class="download-size">749 MB</span>
+                                <a href="https://github.com/KOFIOK/EventsPack/releases/download/release/EventsPack.v1.zip" target="_blank" class="download-option-button">
+                                    <i class="fas fa-download"></i> Скачать .zip
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="download-note">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Все файлы сборки также доступны на нашем <a href="https://github.com/KOFIOK/EventsPack" target="_blank">репозитории GitHub</a>. Там вы найдете полную документацию по установке и настройке.</p>
                     </div>
                 </div>
             </section>
 
-            <section id="download" class="download-section animate-slide-up">
+            <section class="download-section animate-slide-up">
                 <div class="download-card">
                     <h2>Готовы начать игру?</h2>
                     <p>Скачайте нашу сборку и присоединяйтесь к серверу прямо сейчас!</p>
                     <a href="https://github.com/KOFIOK/EventsPack" target="_blank" class="download-button">
-                        <i class="fas fa-download me-2"></i>Скачать сборку
+                        <i class="fas fa-download me-2"></i>Узнать о сборке больше
                     </a>
                 </div>
             </section>
