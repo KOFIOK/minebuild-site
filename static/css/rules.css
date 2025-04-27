@@ -1,3 +1,15 @@
+/* Основные стили для страницы правил */
+:root {
+    --rule-item-border: rgba(0, 229, 161, 0.5);
+    --rule-item-bg: rgba(10, 10, 12, 0.7);
+    --rule-badge-positive-bg: rgba(0, 229, 161, 0.2);
+    --rule-badge-negative-bg: rgba(255, 91, 91, 0.2);
+    --accent-red: #ff5b5b;
+    --section-header-bg: rgba(0, 229, 161, 0.1);
+    --accordion-header-bg: rgba(10, 10, 12, 0.8);
+    --accordion-content-bg: rgba(15, 15, 17, 0.6);
+}
+
 .rules-page {
     position: relative;
     min-height: 100vh;
@@ -6,8 +18,6 @@
     padding-top: var(--navbar-height, 80px);
     overflow-y: auto;
 }
-
-/* Удаляем дублирующие стили навигации, так как они теперь определены в components.css */
 
 .rules-background {
     position: fixed;
@@ -52,184 +62,642 @@
     padding: 0 1rem;
 }
 
+/* Вступительная секция */
+.rules-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    position: relative;
+}
+
+.rules-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        var(--accent-green), 
+        transparent);
+    border-radius: 3px;
+}
+
 .rules-header h1 {
     font-family: 'Intro Demo', sans-serif;
     color: var(--text-primary);
-    margin-bottom: 2.5rem;
-    text-align: center;
-    font-size: 2.5rem;
-}
-
-.rules-section, 
-.theme-section, 
-.addition-section, 
-.coreprotect-section {
-    background-color: rgba(10, 10, 10, 0.85);
-    padding: 30px;
-    border-radius: 15px;
-    margin-bottom: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(15px);
-}
-
-.rules-list {
-    margin-bottom: 3rem;
-}
-
-.rule-item {
-    margin-bottom: 2rem;
-    padding-left: 1.5rem;
-    border-left: 3px solid var(--accent-green);
-    transition: transform 0.3s ease;
-}
-
-.rule-item:hover {
-    transform: translateX(5px);
-}
-
-.rule-item h4 {
-    color: var(--accent-green);
-    margin-bottom: 1rem;
-    font-family: 'Intro Demo', sans-serif;
-    font-size: 1.25rem;
-}
-
-.rule-item p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 0;
-}
-
-.theme-section h2,
-.addition-section h3,
-.coreprotect-section h3 {
-    color: var(--text-primary);
     margin-bottom: 1.5rem;
-    font-family: 'Intro Demo', sans-serif;
+    font-size: 3rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, var(--text-primary) 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
 }
 
-.theme-content,
-.addition-content,
-.coreprotect-content {
+.rules-intro {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.rules-intro p {
     color: var(--text-secondary);
+    font-size: 1.2rem;
+    line-height: 1.6;
 }
 
-.theme-content h3,
-.addition-content h4,
-.coreprotect-content h4 {
-    color: var(--accent-green);
-    margin-bottom: 1rem;
+/* Заголовки секций */
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--section-header-bg);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 3px solid var(--accent-green);
+}
+
+.section-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--bg-darker);
+    box-shadow: 0 0 10px rgba(0, 229, 161, 0.4);
+}
+
+.section-icon i {
     font-size: 1.2rem;
 }
 
-.addition-content ul,
-.coreprotect-content ul {
-    list-style: none;
-    padding-left: 0;
+.section-header h2 {
     margin: 0;
+    font-family: 'Intro Demo', sans-serif;
+    color: var(--text-primary);
+    font-size: 1.8rem;
 }
 
-.addition-content li,
-.coreprotect-content li {
+/* Список основных правил */
+.rules-list-section,
+.theme-section,
+.addition-section,
+.cta-section {
+    margin-bottom: 3.5rem;
+}
+
+.rules-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.rule-item {
+    background-color: var(--rule-item-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
     position: relative;
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.6;
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
-.addition-content li:last-child,
-.coreprotect-content li:last-child {
+.rule-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--rule-item-border);
+}
+
+.rule-number {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent-green);
+    margin-right: 1.5rem;
+    opacity: 0.8;
+    line-height: 1;
+    min-width: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rule-content {
+    flex: 1;
+}
+
+.rule-content h4 {
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.4rem;
+}
+
+.rule-content p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
+}
+
+.rule-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.rule-badge i {
+    margin-right: 8px;
+}
+
+.rule-badge.positive {
+    background-color: var(--rule-badge-positive-bg);
+    color: var(--accent-green);
+    border: 1px solid rgba(0, 229, 161, 0.3);
+}
+
+.rule-badge.negative {
+    background-color: var(--rule-badge-negative-bg);
+    color: var(--accent-red);
+    border: 1px solid rgba(255, 91, 91, 0.3);
+}
+
+/* Стили для секции тематики */
+.theme-section {
+    margin: 3rem 0;
+}
+
+.theme-content {
+    padding: 1rem;
+}
+
+.theme-card {
+    background: linear-gradient(135deg, rgba(0, 229, 161, 0.1) 0%, rgba(10, 10, 12, 0.8) 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 161, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.theme-icon {
+    width: 4rem;
+    height: 4rem;
+    background: rgba(0, 229, 161, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    color: var(--accent-green);
+    flex-shrink: 0;
+}
+
+.theme-icon i {
+    font-size: 1.8rem;
+}
+
+.theme-info {
+    flex: 1;
+}
+
+.theme-info h3 {
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.5rem;
+}
+
+.theme-quote {
+    color: var(--accent-green);
+    font-size: 1.3rem;
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 1.2rem;
+    border-left: 3px solid var(--accent-green);
+}
+
+/* Аккордеон для дополнительной информации (новая реализация) */
+.accordion-container {
+    margin-top: 2rem;
+}
+
+.accordion-item {
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(15, 15, 20, 0.7);
+    overflow: hidden;
+    transition: all 0.35s ease-out;
+}
+
+.accordion-item:last-child {
     margin-bottom: 0;
 }
 
-.addition-content li::before,
-.coreprotect-content li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
+.accordion-item:hover {
+    border-color: rgba(0, 229, 161, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.accordion-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    background: rgba(10, 10, 15, 0.8);
+    transition: background 0.2s ease;
+    user-select: none;
+}
+
+.accordion-header:hover {
+    background: rgba(0, 229, 161, 0.08);
+}
+
+.accordion-header h4 {
+    margin: 0;
+    font-family: 'Intro Demo', sans-serif;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    transition: color 0.2s ease;
+}
+
+.accordion-item.active .accordion-header h4 {
     color: var(--accent-green);
 }
 
-/* Адаптивность */
+.accordion-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 229, 161, 0.1);
+    color: var(--accent-green);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.accordion-icon i {
+    font-size: 0.9rem;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.accordion-item.active .accordion-icon {
+    background: rgba(0, 229, 161, 0.25);
+    transform: rotate(180deg);
+}
+
+.accordion-content-wrapper {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.accordion-content {
+    background-color: rgba(20, 20, 25, 0.5);
+    padding: 1.5rem 1.5rem 1.5rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: 
+        opacity 0.3s ease 0.1s,
+        transform 0.3s ease 0.1s;
+}
+
+.accordion-item.active .accordion-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.info-block {
+    background: rgba(0, 229, 161, 0.05);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 0 0 1.5rem;
+    border: 1px solid rgba(0, 229, 161, 0.15);
+}
+
+.info-note {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Улучшенные списки */
+.enhanced-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.enhanced-list li {
+    display: flex;
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.enhanced-list li:last-child {
+    margin-bottom: 0;
+}
+
+.enhanced-list li i {
+    color: var(--accent-green);
+    margin-right: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.3rem;
+    font-size: 1rem;
+}
+
+/* Секция призыва к действию */
+.cta-section {
+    margin: 4rem 0 1rem;
+}
+
+.cta-container {
+    background: linear-gradient(135deg, rgba(0, 229, 161, 0.2) 0%, rgba(10, 10, 12, 0.8) 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 161, 0.3);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cta-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    color: var(--bg-darker);
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0, 229, 161, 0.5);
+}
+
+.cta-icon i {
+    font-size: 1.8rem;
+}
+
+.cta-content {
+    flex: 1;
+}
+
+.cta-content h3 {
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 1.6rem;
+}
+
+.cta-content p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 2rem;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    border-radius: 30px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-family: 'Rimma Sans', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    margin-left: 2rem;
+    white-space: nowrap;
+}
+
+.cta-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 229, 161, 0.3);
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.cta-button span {
+    margin-right: 10px;
+}
+
+.cta-button i {
+    transition: transform 0.3s ease;
+}
+
+.cta-button:hover i {
+    transform: translateX(5px);
+}
+
+/* Анимации */
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+}
+
+.animate-slide-up {
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: slideIn 0.7s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Адаптивность для разных устройств */
+@media (min-width: 992px) {
+    .rules-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    .cta-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cta-icon {
+        margin: 0 0 1.5rem;
+    }
+    
+    .cta-button {
+        margin: 1.5rem 0 0;
+    }
+}
+
 @media (max-width: 768px) {
-    .rules-section, 
-    .theme-section, 
-    .addition-section, 
-    .coreprotect-section {
-        padding: 20px;
-        margin-bottom: 30px;
+    .rules-header h1 {
+        font-size: 2.2rem;
     }
-
-    .rules-section h1 {
+    
+    .rules-intro p {
+        font-size: 1.1rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .rule-number {
         font-size: 2rem;
-        letter-spacing: 2px;
+        min-width: 40px;
     }
-
-    .theme-section h2 {
-        font-size: 1.8rem;
+    
+    .rule-content h4 {
+        font-size: 1.25rem;
     }
-
-    .addition-section h3, 
-    .coreprotect-section h3 {
-        font-size: 1.4rem;
+    
+    .rule-content p {
+        font-size: 1rem;
     }
-
-    .rule-item {
-        padding-left: 15px;
-        margin-bottom: 20px;
+    
+    .theme-card {
+        flex-direction: column;
+        text-align: center;
     }
-
-    .rule-item h4 {
-        font-size: 1.2rem;
-        margin-bottom: 10px;
+    
+    .theme-icon {
+        margin: 0 0 1.5rem;
     }
-
-    .rule-item p, 
-    .addition-content li, 
-    .coreprotect-content li {
-        font-size: 0.95rem;
-        line-height: 1.6;
+    
+    .theme-info h3 {
+        font-size: 1.3rem;
     }
-
-    .rule-item:hover {
-        transform: none;
+    
+    .theme-quote {
+        font-size: 1.1rem;
+        padding-left: 1rem;
+    }
+    
+    .accordion-header h4 {
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 576px) {
-    .rules-page {
-        padding-top: 50px;
-    }
-
-    .rules-content {
-        padding: 1.5rem 0;
-    }
-
     .rules-header h1 {
-        font-size: 1.75rem;
-        margin-bottom: 2rem;
+        font-size: 1.8rem;
     }
+    
+    .section-header {
+        padding: 0.8rem 1rem;
+    }
+    
+    .section-icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.8rem;
+    }
+    
+    .rule-item {
+        padding: 1.2rem;
+        flex-direction: column;
+    }
+    
+    .rule-number {
+        margin: 0 0 1rem;
+        font-size: 1.8rem;
+        text-align: left;
+        justify-content: flex-start;
+    }
+    
+    .accordion-content {
+        padding: 0 1rem;
+    }
+    
+    .accordion-item.active .accordion-content {
+        padding: 1rem;
+    }
+    
+    .enhanced-list li {
+        font-size: 0.95rem;
+    }
+}
 
-    .rule-item h4 {
-        font-size: 1.1rem;
-    }
+/* Анимация для аккордеона и правил с отложенным запуском */
+.rule-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
 
-    .theme-section h2,
-    .addition-section h3,
-    .coreprotect-section h3 {
-        font-size: 1.5rem;
-    }
+.rule-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
 
-    .theme-content h3,
-    .addition-content h4,
-    .coreprotect-content h4 {
-        font-size: 1.1rem;
-    }
+.rule-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
 
-    .rule-item p, 
-    .addition-content li, 
-    .coreprotect-content li {
-        font-size: 0.9rem;
-    }
+.rule-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.theme-section {
+    animation-delay: 0.5s;
+}
+
+.addition-section {
+    animation-delay: 0.6s;
 }
