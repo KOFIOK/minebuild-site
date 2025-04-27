@@ -259,6 +259,144 @@ def donation_fail():
     logger.info(f"Неуспешный платеж, label: {label}")
     return render_template('donation_fail.html')
 
+# API для обработки заявок
+@app.route('/api/submit-application', methods=['POST'])
+def submit_application():
+    try:
+        logger.info(f"Получен запрос на отправку заявки")
+        
+        # Проверяем, есть ли данные запроса
+        if not request.is_json:
+            logger.error("Запрос не содержит JSON данных")
+            return jsonify({'success': False, 'error': 'Ожидаются данные в формате JSON'}), 400
+            
+        data = request.json
+        logger.debug(f"Получены данные заявки: {data}")
+        
+        # Проверка наличия всех необходимых полей
+        # Обратите внимание на имена полей - они должны соответствовать именам из формы
+        required_fields = ['discord', 'nickname']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            logger.error(f"Неверные параметры запроса: отсутствуют обязательные поля {', '.join(missing_fields)}")
+            return jsonify({'success': False, 'error': 'Неверные параметры запроса'}), 400
+        
+        # Создаем преобразованные данные с правильными ключами для бота
+        processed_data = {
+            'discord_id': data['discord'],
+            'minecraft_nickname': data['nickname']
+        }
+        
+        # Копируем остальные поля
+        for key, value in data.items():
+            if key not in ['discord', 'nickname']:
+                processed_data[key] = value
+        
+        # Отправляем заявку в Discord через бота
+        success = process_application_in_discord(processed_data)
+        
+        if success:
+            logger.info(f"Заявка успешно отправлена в Discord для пользователя {data.get('discord')}")
+            return jsonify({'success': True, 'message': 'Заявка успешно отправлена'})
+        else:
+            logger.error(f"Ошибка при отправке заявки в Discord для пользователя {data.get('discord')}")
+            return jsonify({'success': False, 'error': 'Произошла ошибка при отправке заявки'}), 500
+            
+    except Exception as e:
+        logger.exception(f"Ошибка при обработке заявки: {str(e)}")
+        return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
+
+# Функция для передачи заявки боту Discord
+def process_application_in_discord(application_data):
+    """
+    Асинхронно вызывает обработку заявки в Discord боте
+    
+    Args:
+        application_data: Данные заявки
+        
+    Returns:
+        bool: True если заявка успешно отправлена, иначе False
+    """
+    try:
+        logger.info(f"Обработка заявки для пользователя {application_data.get('discord_id')}")
+        
+        # Проверяем, есть ли доступ к экземпляру бота
+        if hasattr(app, 'bot') and app.bot is not None:
+            import asyncio
+            
+            # Получаем ID канала для заявок
+            discord_id = application_data.get('discord_id')
+            
+            # Создаем embed-сообщение с данными заявки
+            import discord
+            
+            # Создаем поля для embed на основе данных заявки
+            fields_data = []
+            for key, value in application_data.items():
+                # Преобразуем ключи в читаемые названия полей
+                field_name = key.replace('_', ' ').capitalize()
+                # Для некоторых полей можем задать отдельные имена
+                field_mapping = {
+                    'Discord id': 'Ваш Discord ID пользователя',
+                    'Minecraft nickname': 'Ваш никнейм в Minecraft',
+                    'Age': 'Ваш возраст',
+                    'Experience': 'Опыт игры в Minecraft',
+                    'About yourself': 'О себе',
+                    'Bio': 'Ваша биография',
+                    'Build examples': 'Примеры ваших построек'
+                }
+                
+                field_name = field_mapping.get(field_name, field_name)
+                fields_data.append({
+                    'name': field_name,
+                    'value': str(value),
+                    'inline': field_name in ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
+                })
+            
+            # Создаем embed-сообщение
+            embed = discord.Embed(
+                title="Заявка на сервер",
+                color=0x00E5A1,
+                timestamp=discord.utils.utcnow()
+            )
+            
+            # Добавляем поля
+            for field in fields_data:
+                embed.add_field(**field)
+            
+            # Используем функцию create_application_message из модуля bot, а не как метод канала
+            from bot import create_application_message
+            
+            # Создаем объект для будущего результата
+            future = asyncio.run_coroutine_threadsafe(
+                create_application_message(
+                    app.bot.channel_for_applications, 
+                    discord_id, 
+                    embed
+                ),
+                app.bot.loop
+            )
+            
+            # Получаем результат (с таймаутом)
+            try:
+                result = future.result(timeout=10.0)
+                logger.info(f"Обработка заявки успешно завершена: {result}")
+                return result
+            except asyncio.TimeoutError:
+                logger.error("Превышен таймаут обработки заявки")
+                return False
+            except Exception as e:
+                logger.error(f"Ошибка при получении результата обработки заявки: {e}")
+                return False
+        else:
+            logger.warning("Экземпляр бота недоступен. Заявка не будет обработана через Discord.")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Ошибка при обработке заявки через Discord бота: {e}")
+        return False
+
 # Функция для взаимодействия с Discord ботом
 def process_donation_in_discord(nickname, amount):
     """

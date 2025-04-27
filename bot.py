@@ -75,6 +75,8 @@ class MineBuildBot(commands.Bot):
             intents=intents,
             help_command=None  # Отключаем стандартную команду help
         )
+        # Канал для заявок (будет установлен в on_ready)
+        self.channel_for_applications = None
         
     async def setup_hook(self) -> None:
         """Хук настройки для инициализации необходимых компонентов."""
@@ -100,6 +102,19 @@ class MineBuildBot(commands.Bot):
     async def on_ready(self) -> None:
         """Вызывается когда бот успешно подключился к Discord."""
         logger.info(f"Бот {self.user} запущен и готов к работе!")
+        
+        # Находим канал для заявок
+        # ID канала для заявок (настройте на свой)
+        application_channel_id = 1360709668770418789  # Укажите здесь ID вашего канала для заявок
+        
+        try:
+            self.channel_for_applications = self.get_channel(application_channel_id)
+            if self.channel_for_applications:
+                logger.info(f"Канал для заявок найден: {self.channel_for_applications.name}")
+            else:
+                logger.warning(f"Канал для заявок с ID {application_channel_id} не найден")
+        except Exception as e:
+            logger.error(f"Ошибка при поиске канала для заявок: {e}")
 
     async def on_member_remove(self, member: discord.Member) -> None:
         """Вызывается когда пользователь покидает сервер."""
