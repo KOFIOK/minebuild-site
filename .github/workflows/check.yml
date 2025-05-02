@@ -26,3 +26,33 @@ jobs:
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
+  deploy:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3 
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Deploy to server
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 202.181.188.48 >> ~/.ssh/known_hosts
+          
+          # Deploy to server
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && git pull && systemctl restart minebuild-site.service || true"
+          
+          # Clean up
+          rm -rf ~/.ssh/id_rsa
