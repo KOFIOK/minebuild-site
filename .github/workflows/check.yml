@@ -52,30 +52,33 @@ jobs:
       
       - name: Configure Git on server
         run: |
-          ssh -v root@202.181.188.48 "cd /var/www/minebuild-site && \
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && \
           git config --global credential.helper store && \
           echo 'https://KOFIOK:${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials"
       
       - name: Pull latest changes
         run: |
-          ssh -v root@202.181.188.48 "cd /var/www/minebuild-site && \
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && \
           git remote set-url origin https://KOFIOK:${{ secrets.GITHUB_TOKEN }}@github.com/KOFIOK/minebuild-site.git && \
           git pull"
       
       - name: Stop running processes
+        continue-on-error: true
         run: |
-          ssh -v root@202.181.188.48 "pkill -9 -f 'python main.py' || true && \
-          pkill -9 -f 'hypercorn' || true && \
-          sleep 2"
+          ssh root@202.181.188.48 "pkill -f 'python main.py' || true"
+          ssh root@202.181.188.48 "pkill -f 'hypercorn' || true"
+          ssh root@202.181.188.48 "sleep 2"
           
       - name: Cleanup screen sessions
+        continue-on-error: true
         run: |
-          ssh -v root@202.181.188.48 "screen -S minebuild -X quit || true && \
-          screen -wipe || true"
+          ssh root@202.181.188.48 "screen -ls | grep -q 'minebuild' && screen -S minebuild -X quit || true"
+          ssh root@202.181.188.48 "screen -wipe || true"
           
       - name: Start application
         run: |
-          ssh -v root@202.181.188.48 "cd /var/www/minebuild-site && \
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && \
+          source venv/bin/activate && \
           screen -dmS minebuild bash -c 'cd /var/www/minebuild-site && source venv/bin/activate && python main.py; exec bash'"
           
       - name: Clean up
