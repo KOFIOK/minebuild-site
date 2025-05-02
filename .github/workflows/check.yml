@@ -56,7 +56,8 @@ jobs:
           # Deploy to server
           ssh root@202.181.188.48 "cd /var/www/minebuild-site && \
           git config --global credential.helper store && \
-          echo 'https://${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials && \
+          echo 'https://KOFIOK:${{ secrets.GITHUB_TOKEN }}@github.com/KOFIOK/minebuild-site.git' > ~/.git-credentials && \
+          git remote set-url origin https://KOFIOK:${{ secrets.GITHUB_TOKEN }}@github.com/KOFIOK/minebuild-site.git && \
           git pull && \
           # Останавливаем существующий экземпляр, если он есть
           screen -S minebuild -X quit || true && \
