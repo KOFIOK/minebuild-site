@@ -52,7 +52,11 @@ jobs:
           ssh-keyscan -H 202.181.188.48 >> ~/.ssh/known_hosts
           
           # Deploy to server
-          ssh root@202.181.188.48 "cd /var/www/minebuild-site && git pull && systemctl restart minebuild-site.service || true"
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && git pull && \
+          # Останавливаем существующий экземпляр, если он есть
+          screen -S minebuild -X quit || true && \
+          # Активируем виртуальное окружение и запускаем приложение в новом screen
+          screen -dmS minebuild bash -c 'cd /var/www/minebuild-site && source .venv/bin/activate && python main.py; exec bash'"
           
           # Clean up
           rm -rf ~/.ssh/id_rsa
