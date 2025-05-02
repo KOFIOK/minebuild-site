@@ -44,6 +44,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Deploy to server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Setup SSH
           mkdir -p ~/.ssh
@@ -52,11 +54,14 @@ jobs:
           ssh-keyscan -H 202.181.188.48 >> ~/.ssh/known_hosts
           
           # Deploy to server
-          ssh root@202.181.188.48 "cd /var/www/minebuild-site && git pull && \
+          ssh root@202.181.188.48 "cd /var/www/minebuild-site && \
+          git config --global credential.helper store && \
+          echo 'https://${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials && \
+          git pull && \
           # Останавливаем существующий экземпляр, если он есть
           screen -S minebuild -X quit || true && \
           # Активируем виртуальное окружение и запускаем приложение в новом screen
-          screen -dmS minebuild bash -c 'cd /var/www/minebuild-site && source .venv/bin/activate && python main.py; exec bash'"
+          screen -dmS minebuild bash -c 'cd /var/www/minebuild-site && source venv/bin/activate && python main.py; exec bash'"
           
           # Clean up
           rm -rf ~/.ssh/id_rsa
