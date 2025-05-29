@@ -13,6 +13,11 @@ import sys
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
+# Глобальная переменная для управления статусом приема заявок
+# Чтобы закрыть прием заявок - установите значение False
+# Чтобы открыть прием заявок - установите значение True
+APPLICATIONS_OPEN = False
+
 # Настройка логгера
 # Создаем форматтер для логов
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -65,7 +70,7 @@ def build():
 
 @app.route('/apply')
 def apply():
-    return render_template('apply.html')
+    return render_template('apply.html', applications_open=APPLICATIONS_OPEN)
 
 @app.route('/donate')
 def donate():
@@ -306,6 +311,8 @@ def submit_application():
     except Exception as e:
         logger.exception(f"Ошибка при обработке заявки: {str(e)}")
         return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
+
+
 
 # Функция для передачи заявки боту Discord
 def process_application_in_discord(application_data):
@@ -567,6 +574,8 @@ def verify_donation_token(token):
         return data
     except (SignatureExpired, BadSignature):
         return None
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

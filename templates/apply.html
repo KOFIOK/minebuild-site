@@ -8,6 +8,7 @@
 
 {% block content %}
 <div class="apply-form-container">
+    {% if applications_open %}
     <div class="form-progress-bar">
         <div class="progress-line" id="progressLine"></div>
         <div class="progress-steps" id="progressSteps">
@@ -32,6 +33,18 @@
             </button>
         </div>
     </form>
+    {% else %}
+    <div class="applications-closed">
+        <div class="applications-closed-message">
+            <i class="fas fa-pause-circle"></i>
+            <h2>Прием заявок временно приостановлен</h2>
+            <p>В настоящее время прием заявок на сервер временно приостановлен. Пожалуйста, загляните позже или следите за обновлениями в нашем Discord-сервере.</p>
+            <a href="https://discord.com/invite/yNz87pJZPh" class="btn btn-outline-light" target="_blank">
+                <i class="fab fa-discord"></i> Присоединиться к Discord
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 

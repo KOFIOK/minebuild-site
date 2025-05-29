@@ -68,6 +68,12 @@ const formQuestions = [
 
 class ApplicationForm {
     constructor() {
+        // Проверяем, доступна ли форма заявки
+        if (!document.getElementById('applicationForm')) {
+            console.log('Прием заявок закрыт');
+            return; // Выходим, если форма недоступна (заявки закрыты)
+        }
+        
         this.currentSlide = 0;
         this.answers = {};
         this.totalSlides = formQuestions.length;

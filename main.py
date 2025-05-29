@@ -5,7 +5,6 @@ import sys
 import traceback
 import logging
 import platform
-import io
 from dotenv import load_dotenv
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
