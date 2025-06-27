@@ -1,0 +1,368 @@
+/* Стили для страницы статуса заявки */
+.application-status-section {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--navbar-height) 20px 40px;
+    z-index: 1;
+    background-color: var(--bg-dark);
+    background-image: url('../images/background/steve_mountain.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.application-status-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.7) 40%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
+    z-index: -1;
+}
+
+.application-status-container {
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.status-card {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, #ffa500, #ff6b6b);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.status-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.status-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.applicant-info {
+    margin-bottom: 30px;
+    padding: 25px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-green);
+}
+
+.applicant-info h4 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+    padding: 12px 15px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.user-detail:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-detail:last-child {
+    margin-bottom: 0;
+}
+
+.user-detail strong {
+    color: var(--accent-green);
+    min-width: 140px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-detail-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: flex-end;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.applicant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 0;
+    vertical-align: middle;
+    border: 2px solid var(--accent-green);
+}
+
+.status-info {
+    margin: 30px 0;
+    padding: 25px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 10px;
+    text-align: left;
+}
+
+.status-info h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.status-info ul {
+    color: var(--text-secondary);
+    padding-left: 20px;
+}
+
+.status-info li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-home {
+    background: transparent;
+    border: 2px solid var(--accent-green);
+    color: var(--accent-green);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    background: var(--accent-green);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn-discord {
+    background: linear-gradient(135deg, #5865F2 0%, #404EED 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-discord:hover {
+    background: linear-gradient(135deg, #4752C4 0%, #3C46C4 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.timeline {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+}
+
+.timeline-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 0.8rem;
+    color: white;
+}
+
+.timeline-icon.pending {
+    background: #ffa500;
+    animation: pulse 2s infinite;
+}
+
+.timeline-icon.future {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary);
+}
+
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .application-status-section {
+        padding: calc(var(--navbar-height) + 20px) 15px 40px;
+    }
+    
+    .status-card {
+        padding: 30px 20px;
+    }
+    
+    .status-title {
+        font-size: 1.6rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-home, .btn-discord {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .user-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 15px;
+    }
+    
+    .user-detail strong {
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+    
+    .user-detail-value {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .application-status-section {
+        padding: calc(var(--navbar-height) + 10px) 10px 30px;
+    }
+    
+    .status-card {
+        padding: 25px 15px;
+    }
+    
+    .status-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .status-title {
+        font-size: 1.4rem;
+    }
+    
+    .user-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 12px;
+    }
+    
+    .user-detail strong {
+        min-width: auto;
+        margin-bottom: 4px;
+        font-size: 0.85rem;
+    }
+    
+    .user-detail-value {
+        justify-content: flex-start;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+    
+    .applicant-info {
+        padding: 20px 15px;
+    }
+}

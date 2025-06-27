@@ -1,8 +1,38 @@
+/* Основная секция для формы заявки */
+.apply-form-section {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--navbar-height) 20px 40px;
+    z-index: 1;
+    background-color: var(--bg-dark);
+}
+
+.apply-form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.8) 20%,
+        rgba(0, 0, 0, 0.6) 40%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    z-index: -1;
+}
+
 .apply-form-container {
     max-width: 800px;
-    margin: 80px auto;
-    padding: 20px;
-    min-height: calc(100vh - 200px);
+    width: 100%;
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
 }
@@ -387,9 +417,12 @@ textarea.form-control {
 }
 
 @media (max-width: 768px) {
+    .apply-form-section {
+        padding: calc(var(--navbar-height) + 20px) 15px 40px;
+    }
+    
     .apply-form-container {
-        margin: 40px auto;
-        padding: 15px;
+        padding: 0;
     }
     
     .application-form {
@@ -490,9 +523,12 @@ textarea.form-control {
 
 /* Улучшенная адаптивность для мобильных устройств */
 @media (max-width: 576px) {
+    .apply-form-section {
+        padding: calc(var(--navbar-height) + 15px) 10px 30px;
+    }
+    
     .apply-form-container {
-        margin: 20px 10px;
-        padding: 10px;
+        padding: 0;
     }
     
     .application-form {
