@@ -1,20 +1,16 @@
 // Конфигурация вопросов
 const formQuestions = [
     {
-        id: 'discord',
-        question: 'Ваш Discord ID пользователя',
-        placeholder: 'Например: 123456789012345678',
-        helpTexts: [
-            'Пожалуйста, введите именно ID пользователя (18-значное число), а не никнейм. ID можно найти в настройках Discord -> Дополнительно -> Режим разработчика -> Включить режим разработчика -> ПКМ по профилю -> Копировать ID',
-            'Вы должны быть участником дискорд-сервера MineBuild. <a href="https://discord.com/invite/yNz87pJZPh" target="_blank">Подключиться</a>.',
-            'Неверно указанный ID может привести к невозможности связаться с вами в Discord'
-        ],
-        type: 'number',
+        id: 'nickname',
+        question: 'Ваш игровой никнейм в Minecraft',
+        placeholder: 'Например: Steve',
+        type: 'text',
         required: true
     },
     {
-        id: 'nickname',
-        question: 'Ваш никнейм в Minecraft',
+        id: 'name',
+        question: 'Ваше имя (реальное)',
+        placeholder: 'Можете поставить прочерк, если не хотите указывать',
         type: 'text',
         required: true
     },
@@ -33,14 +29,14 @@ const formQuestions = [
     },
     {
         id: 'gameplay',
-        question: 'Опишите ваш стиль игры',
+        question: 'Ваш стиль игры',
         placeholder: 'Я люблю строить, но не люблю сражаться.',
         type: 'text',
         required: true
     },
     {
         id: 'important',
-        question: 'Что для вас самое важное на приватных серверах?',
+        question: 'Что самое важное в приватках?',
         type: 'text',
         placeholder: 'Адекватность, дружелюбность, отсутствие агрессии.',
         required: true
@@ -50,16 +46,6 @@ const formQuestions = [
         question: 'Расскажите о себе',
         helpTexts: [
             'Пишите не только о себе в рамках игры Minecraft, но и о себе в целом: какие у вас интересы, чем занимаетесь в свободное время, какие планы на жизнь и т.д.'
-        ],
-        type: 'textarea',
-        required: true
-    },
-    {
-        id: 'biography',
-        question: 'Напишите краткую биографию',
-        helpTexts: [
-            'Кратко опишите вашего персонажа в рамках игры Minecraft. Откуда он родом, какие у него планы, какие у него интересы и т.д. Не обязательно писать всю биографию, достаточно нескольких предложений.',
-            'Не стоит слишком сильно усложнять биографию, лучше сделать её простой и понятной. Не пишите про мультивселенные, параллельные миры, путешествия во времени и прочие подобные вещи.'
         ],
         type: 'textarea',
         required: true
@@ -419,7 +405,7 @@ class ApplicationForm {
                 <div class="success-message">
                     <i class="fas fa-check-circle"></i>
                     <h2>Заявка успешно отправлена!</h2>
-                    <p>Мы рассмотрим вашу заявку и свяжемся с вами в Discord.</p>
+                    <p>Ваша заявка отправлена на рассмотрение. Результат будет отправлен вам в личные сообщения Discord.</p>
                     <a href="/" class="btn btn-primary home-button">
                         <i class="fas fa-home"></i> На главную
                     </a>

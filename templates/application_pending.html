@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}MineBuild - Заявка на рассмотрении{% endblock %}
+
+{% block extra_css %}
+<style>
+.application-status-container {
+    max-width: 700px;
+    margin: 80px auto;
+    padding: 40px;
+    min-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.status-card {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.status-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, #ffa500, #ff6b6b);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.status-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.status-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.user-info {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-green);
+}
+
+.user-info h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.user-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.user-detail:last-child {
+    margin-bottom: 0;
+}
+
+.user-detail strong {
+    color: var(--text-primary);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.status-info {
+    margin: 30px 0;
+    padding: 25px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 10px;
+    text-align: left;
+}
+
+.status-info h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.status-info ul {
+    color: var(--text-secondary);
+    padding-left: 20px;
+}
+
+.status-info li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-home {
+    background: transparent;
+    border: 2px solid var(--accent-green);
+    color: var(--accent-green);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    background: var(--accent-green);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn-discord {
+    background: linear-gradient(135deg, #5865F2 0%, #404EED 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-discord:hover {
+    background: linear-gradient(135deg, #4752C4 0%, #3C46C4 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.timeline {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+}
+
+.timeline-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 0.8rem;
+    color: white;
+}
+
+.timeline-icon.pending {
+    background: #ffa500;
+    animation: pulse 2s infinite;
+}
+
+.timeline-icon.future {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .application-status-container {
+        margin: 60px auto;
+        padding: 20px;
+    }
+    
+    .status-card {
+        padding: 30px 20px;
+    }
+    
+    .status-title {
+        font-size: 1.6rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-home, .btn-discord {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .application-status-container {
+        margin: 40px auto;
+        padding: 15px;
+    }
+    
+    .status-card {
+        padding: 25px 15px;
+    }
+    
+    .status-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .status-title {
+        font-size: 1.4rem;
+    }
+    
+    .user-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="application-status-container">
+    <div class="status-card">
+        <div class="status-icon">
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+        
+        <h1 class="status-title">Заявка на рассмотрении</h1>
+        <p class="status-subtitle">
+            Ваша заявка успешно отправлена и ожидает рассмотрения модерацией
+        </p>
+        
+        {% if current_user %}
+        <div class="user-info">
+            <h4><i class="fas fa-user"></i> Информация о заявителе</h4>
+            <div class="user-detail">
+                <span><strong>Discord:</strong> 
+                    <img src="{{ current_user.avatar_url }}" alt="Avatar" class="user-avatar">
+                    {{ current_user.username }}
+                </span>
+            </div>
+            <div class="user-detail">
+                <span><strong>Время подачи:</strong></span>
+                <span>{{ current_user.login_time | format_datetime if current_user.login_time else 'Недавно' }}</span>
+            </div>
+            <div class="user-detail">
+                <span><strong>Статус:</strong></span>
+                <span style="color: #ffa500;">На рассмотрении</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="status-info">
+            <h4><i class="fas fa-info-circle"></i> Что происходит дальше?</h4>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>Заявка отправлена</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <span>Рассмотрение модерацией (текущий этап)</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon future">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <span>Уведомление о решении в Discord</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-info">
+            <h4><i class="fas fa-clock"></i> Важная информация</h4>
+            <ul>
+                <li>Рассмотрение заявки может занять от нескольких часов до нескольких дней</li>
+                <li>Результат рассмотрения будет отправлен вам в личные сообщения Discord</li>
+                <li>Убедитесь, что у вас открыты личные сообщения от участников сервера</li>
+                <li>В случае одобрения вы получите доступ к серверу и дальнейшие инструкции</li>
+                <li>Пока заявка на рассмотрении, подача новой заявки невозможна</li>
+            </ul>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ url_for('index') }}" class="btn-home">
+                <i class="fas fa-home"></i>
+                На главную
+            </a>
+            <a href="https://discord.com/invite/yNz87pJZPh" target="_blank" class="btn-discord">
+                <i class="fab fa-discord"></i>
+                Открыть Discord
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

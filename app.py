@@ -9,14 +9,64 @@ import uuid
 from datetime import datetime
 import os
 import sys
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
+
+# Импорт модуля аутентификации
+from auth import DiscordAuth, require_auth, require_guild_member, can_submit_application
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key_here'
+
+# Генерируем надежный SECRET_KEY
+# Используем из переменной окружения или генерируем только один раз
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    import secrets
+    SECRET_KEY = secrets.token_hex(32)
+    print(f"⚠️ ВНИМАНИЕ: SECRET_KEY не задан в .env, используется случайный: {SECRET_KEY}")
+    print("⚠️ Добавьте SECRET_KEY в файл .env для стабильной работы сессий!")
+
+app.config['SECRET_KEY'] = SECRET_KEY
+
+# Настройки сессий для разработки (для продакшена нужно изменить)
+app.config.update({
+    'SESSION_COOKIE_SECURE': False,  # True только для HTTPS
+    'SESSION_COOKIE_HTTPONLY': True,
+    'SESSION_COOKIE_SAMESITE': 'Lax',
+    'PERMANENT_SESSION_LIFETIME': 86400 * 30  # 30 дней в секундах
+})
+
+# Настройки Discord OAuth
+app.config.update({
+    'DISCORD_CLIENT_ID': os.environ.get('DISCORD_CLIENT_ID'),
+    'DISCORD_CLIENT_SECRET': os.environ.get('DISCORD_CLIENT_SECRET'),
+    'DISCORD_REDIRECT_URI': os.environ.get('DISCORD_REDIRECT_URI', 'http://127.0.0.1:5000/auth/discord/callback'),
+    'DISCORD_GUILD_ID': os.environ.get('DISCORD_GUILD_ID'),
+})
+
+# Проверяем, что все необходимые переменные загружены
+required_env_vars = ['DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_GUILD_ID']
+missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+if missing_vars:
+    print(f"❌ ОШИБКА: Отсутствуют переменные окружения: {', '.join(missing_vars)}")
+    print("Пожалуйста, настройте файл .env согласно инструкции в DISCORD_OAUTH_SETUP.md")
+else:
+    print(f"✅ Discord OAuth настроен:")
+    print(f"   Client ID: {os.environ.get('DISCORD_CLIENT_ID')}")
+    print(f"   Guild ID: {os.environ.get('DISCORD_GUILD_ID')}")
+    print(f"   Redirect URI: {os.environ.get('DISCORD_REDIRECT_URI', 'http://127.0.0.1:5000/auth/discord/callback')}")
+
+# Инициализация Discord Auth
+discord_auth = DiscordAuth()
+discord_auth.init_app(app)
+app.discord_auth = discord_auth
 
 # Глобальная переменная для управления статусом приема заявок
 # Чтобы закрыть прием заявок - установите значение False
 # Чтобы открыть прием заявок - установите значение True
-APPLICATIONS_OPEN = False
+APPLICATIONS_OPEN = True
 
 # Настройка логгера
 # Создаем форматтер для логов
@@ -42,6 +92,26 @@ root_logger.addHandler(console_handler)
 # Получаем логгер для приложения
 logger = logging.getLogger(__name__)
 logger.info("Логирование настроено - запись в файл и консоль")
+
+# Добавляем Jinja2 фильтры
+@app.template_filter('format_datetime')
+def format_datetime_filter(dt):
+    """Форматирует datetime объект в читаемый формат."""
+    if dt is None:
+        return 'Неизвестно'
+    
+    if isinstance(dt, str):
+        try:
+            # Пытаемся распарсить строку как ISO формат
+            dt = datetime.fromisoformat(dt.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            return dt  # Возвращаем как есть, если не удалось распарсить
+    
+    if isinstance(dt, datetime):
+        # Форматируем в удобочитаемый вид
+        return dt.strftime('%d.%m.%Y в %H:%M')
+    
+    return str(dt)
 
 # Конфигурация ЮMoney API
 YOOMONEY_CLIENT_ID = "F5301946C2DEFAA64BB2BE12EBDC4D7A0074754D58364B7E0A84BE12D5542134"
@@ -69,8 +139,15 @@ def build():
     return render_template('build.html')
 
 @app.route('/apply')
+@require_auth
+@require_guild_member
+@can_submit_application
 def apply():
-    return render_template('apply.html', applications_open=APPLICATIONS_OPEN)
+    """Страница подачи заявки (требует авторизации)"""
+    current_user = discord_auth.get_current_user()
+    return render_template('apply.html', 
+                         applications_open=APPLICATIONS_OPEN,
+                         current_user=current_user)
 
 @app.route('/donate')
 def donate():
@@ -266,9 +343,17 @@ def donation_fail():
 
 # API для обработки заявок
 @app.route('/api/submit-application', methods=['POST'])
+@require_auth
+@require_guild_member
+@can_submit_application
 def submit_application():
     try:
         logger.info(f"Получен запрос на отправку заявки")
+        
+        # Получаем данные авторизованного пользователя
+        current_user = discord_auth.get_current_user()
+        if not current_user:
+            return jsonify({'success': False, 'error': 'Пользователь не авторизован'}), 401
         
         # Проверяем, есть ли данные запроса
         if not request.is_json:
@@ -279,33 +364,33 @@ def submit_application():
         logger.debug(f"Получены данные заявки: {data}")
         
         # Проверка наличия всех необходимых полей
-        # Обратите внимание на имена полей - они должны соответствовать именам из формы
-        required_fields = ['discord', 'nickname']
+        # Поля соответствуют новой форме заявки
+        required_fields = ['nickname', 'name', 'age', 'experience', 'gameplay', 'important', 'about']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
             logger.error(f"Неверные параметры запроса: отсутствуют обязательные поля {', '.join(missing_fields)}")
             return jsonify({'success': False, 'error': 'Неверные параметры запроса'}), 400
         
-        # Создаем преобразованные данные с правильными ключами для бота
-        processed_data = {
-            'discord_id': data['discord'],
-            'minecraft_nickname': data['nickname']
-        }
-        
-        # Копируем остальные поля
-        for key, value in data.items():
-            if key not in ['discord', 'nickname']:
-                processed_data[key] = value
+        # Добавляем Discord данные из сессии к данным заявки
+        processed_data = data.copy()
+        processed_data.update({
+            'discord_id': current_user['user_id'],
+            'discord_username': current_user['username'],
+            'discord_avatar': current_user['avatar_url']
+        })
         
         # Отправляем заявку в Discord через бота
         success = process_application_in_discord(processed_data)
         
         if success:
-            logger.info(f"Заявка успешно отправлена в Discord для пользователя {data.get('discord')}")
+            # Обновляем статус заявки в сессии
+            discord_auth.update_application_status('pending')
+            
+            logger.info(f"Заявка успешно отправлена в Discord для пользователя {data.get('name')} (Discord: {current_user['username']})")
             return jsonify({'success': True, 'message': 'Заявка успешно отправлена'})
         else:
-            logger.error(f"Ошибка при отправке заявки в Discord для пользователя {data.get('discord')}")
+            logger.error(f"Ошибка при отправке заявки в Discord для пользователя {data.get('name')}")
             return jsonify({'success': False, 'error': 'Произошла ошибка при отправке заявки'}), 500
             
     except Exception as e:
@@ -326,7 +411,7 @@ def process_application_in_discord(application_data):
         bool: True если заявка успешно отправлена, иначе False
     """
     try:
-        logger.info(f"Обработка заявки для пользователя {application_data.get('discord_id')}")
+        logger.info(f"Обработка заявки для пользователя {application_data.get('name')}")
         logger.debug(f"Данные заявки: {application_data}")
         
         # Проверяем, есть ли доступ к экземпляру бота
@@ -334,7 +419,6 @@ def process_application_in_discord(application_data):
             import asyncio
             
             # Получаем ID канала для заявок и создаем embed-сообщение
-            discord_id = application_data.get('discord_id')
             import discord
             from bot import QUESTION_MAPPING
             
@@ -345,18 +429,15 @@ def process_application_in_discord(application_data):
                 timestamp=discord.utils.utcnow()
             )
             
-            # Список полей, которые должны быть inline в основной информации
-            inline_fields = ['minecraft_nickname', 'age', 'experience']
-            
-            # Явное добавление полей в определенном порядке
+            # Обновленный порядок полей согласно новой форме
             field_order = [
-                ('minecraft_nickname', 'Ваш никнейм в Minecraft', True),
-                ('age', 'Ваш возраст', True),
+                ('nickname', 'Игровой никнейм в Minecraft', True),
+                ('name', 'Имя (реальное)', True),
+                ('age', 'Возраст', True), 
                 ('experience', 'Опыт игры в Minecraft', True),
-                ('gameplay', 'Опишите ваш стиль игры', False),
-                ('important', 'Что для вас самое важное на приватных серверах?', False),
-                ('about', 'Расскажите о себе', False),
-                ('biography', 'Напишите краткую биографию', False)
+                ('gameplay', 'Стиль игры', False),
+                ('important', 'Что самое важное в приватках?', False),
+                ('about', 'Расскажите о себе', False)
             ]
             
             # Добавляем поля в правильном порядке
@@ -372,10 +453,11 @@ def process_application_in_discord(application_data):
             from bot import create_application_message
             
             # Создаем объект для будущего результата
+            # Поскольку Discord ID больше не требуется, передаем None или убираем этот параметр
             future = asyncio.run_coroutine_threadsafe(
                 create_application_message(
                     app.bot.channel_for_applications, 
-                    discord_id, 
+                    None,  # Discord ID больше не используется
                     embed
                 ),
                 app.bot.loop
@@ -575,6 +657,125 @@ def verify_donation_token(token):
     except (SignatureExpired, BadSignature):
         return None
 
+# ==========================================
+# МАРШРУТЫ АУТЕНТИФИКАЦИИ
+# ==========================================
+
+@app.route('/login')
+def login():
+    """Страница входа через Discord"""
+    if discord_auth.is_authenticated():
+        return redirect(url_for('apply'))
+    
+    auth_url = discord_auth.get_authorization_url()
+    return render_template('login.html', auth_url=auth_url)
+
+@app.route('/auth/discord/callback')
+def discord_callback():
+    """Обработка callback от Discord OAuth"""
+    logger.info("[DISCORD] Получен Discord OAuth callback")
+    
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
+    logger.info(f"[DISCORD] Параметры callback: code={code[:10] if code else None}..., state={state[:10] if state else None}..., error={error}")
+    
+    if error:
+        logger.error(f"[DISCORD] Discord OAuth ошибка: {error}")
+        return redirect(url_for('login'))
+    
+    if not code or not state:
+        logger.error("[DISCORD] Отсутствует код авторизации или state")
+        return redirect(url_for('login'))
+    
+    try:
+        logger.info("[DISCORD] Обмен кода на токен...")
+        # Обмениваем код на токен
+        token_data = discord_auth.exchange_code_for_token(code, state)
+        access_token = token_data['access_token']
+        
+        logger.info("[DISCORD] Получение информации о пользователе...")
+        # Получаем информацию о пользователе
+        user_data = discord_auth.get_user_info(access_token)
+        
+        logger.info("[DISCORD] Проверка членства в сервере...")
+        # Проверяем членство в сервере
+        is_guild_member = discord_auth.check_guild_membership(access_token, user_data['id'])
+        
+        logger.info("[DISCORD] Создание сессии пользователя...")
+        # Создаем сессию
+        discord_auth.create_user_session(user_data, is_guild_member, access_token)
+        
+        logger.info(f"[DISCORD] Успешная авторизация пользователя: {user_data['username']}")
+        
+        # Проверим сессию после создания
+        logger.info(f"[DISCORD] Session сразу после создания: {dict(session)}")
+        
+        # Перенаправляем в зависимости от членства в сервере
+        if is_guild_member:
+            logger.info("[DISCORD] Пользователь - участник сервера, перенаправление на /apply")
+            return redirect(url_for('apply'))
+        else:
+            logger.info("[DISCORD] Пользователь не участник сервера, перенаправление на /join-server")
+            return redirect(url_for('join_server'))
+            
+    except Exception as e:
+        logger.error(f"[DISCORD] Ошибка в Discord callback: {e}")
+        import traceback
+        logger.error(f"[DISCORD] Трейс: {traceback.format_exc()}")
+        return redirect(url_for('login'))
+
+@app.route('/join-server')
+@require_auth
+def join_server():
+    """Страница для присоединения к Discord серверу"""
+    current_user = discord_auth.get_current_user()
+    
+    # Если уже участник, перенаправляем к заявке
+    if current_user and current_user['guild_member']:
+        return redirect(url_for('apply'))
+    
+    discord_invite_url = "https://discord.com/invite/yNz87pJZPh"  # Обновите на вашу ссылку
+    return render_template('join_server.html', 
+                         current_user=current_user,
+                         discord_invite_url=discord_invite_url)
+
+@app.route('/check-membership')
+@require_auth
+def check_membership():
+    """Проверка членства в Discord сервере"""
+    if discord_auth.refresh_guild_membership():
+        return redirect(url_for('apply'))
+    else:
+        return redirect(url_for('join_server'))
+
+@app.route('/application-pending')
+@require_auth
+def application_pending():
+    """Страница ожидающей заявки"""
+    current_user = discord_auth.get_current_user()
+    return render_template('application_pending.html', current_user=current_user)
+
+@app.route('/logout')
+def logout():
+    """Выход из системы"""
+    discord_auth.logout()
+    return redirect(url_for('index'))
+
+# Context processor для передачи информации о пользователе во все шаблоны
+@app.context_processor
+def inject_user():
+    """Добавляет информацию о текущем пользователе во все шаблоны"""
+    logger.debug(f"[CONTEXT] Context processor: session = {dict(session)}")
+    logger.debug(f"[CONTEXT] Context processor: is_authenticated = {discord_auth.is_authenticated()}")
+    
+    current_user = None
+    if discord_auth.is_authenticated():
+        current_user = discord_auth.get_current_user()
+        logger.debug(f"[CONTEXT] Context processor: current_user = {current_user}")
+    
+    return {'current_user': current_user}
 
 
 if __name__ == '__main__':

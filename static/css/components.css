@@ -409,6 +409,86 @@ footer {
     margin: 0;
 }
 
+/* Стили для информации о пользователе в navbar */
+.user-nav {
+    margin-left: auto;
+    margin-right: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-green);
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dropdown-menu {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-header {
+    color: var(--accent-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.dropdown-item.text-danger {
+    color: #ff4444;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+.dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
 /* Адаптивность компонентов */
 @media (max-width: 1200px) {
     .navbar {
@@ -575,5 +655,31 @@ footer {
     .footer-brand h5 {
         font-size: 1.2rem;
         justify-content: center;
+    }
+}
+
+@media (max-width: 991px) {
+    .user-nav {
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-info {
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .dropdown-menu {
+        position: static !important;
+        float: none;
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        box-shadow: none;
+        background: rgba(0, 0, 0, 0.3);
     }
 }

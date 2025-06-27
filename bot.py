@@ -804,47 +804,64 @@ def create_embed_with_fields(title: str, fields_data: List[Dict[str, Any]], time
 
 async def create_application_message(
     channel: discord.TextChannel, 
-    discord_id: str, 
+    user_identifier: str, 
     embed: discord.Embed
 ) -> bool:
     """
-    Создает сообщение с заявкой в указанном канале и отправляет копию пользователю.
+    Создает сообщение с заявкой в указанном канале.
     
     Args:
         channel: Канал Discord для отправки заявки
-        discord_id: ID пользователя Discord
+        user_identifier: Идентификатор пользователя (может быть None для новой формы)
         embed: Embed с данными заявки
         
     Returns:
         bool: True если сообщение успешно отправлено, иначе False
     """
     try:
-        # Проверяем на дубликаты
-        current_time = time.time()
-        recent_apps = recent_applications[discord_id]
-        
-        # Очищаем старые записи
-        recent_apps = [t for t in recent_apps if current_time - t < DEDUP_WINDOW]
-        
-        # Если есть недавние заявки, пропускаем
-        if recent_apps:
-            logger.warning(f"Обнаружен дубликат заявки для пользователя {discord_id}. Пропускаем.")
-            return False
+        # Если user_identifier не передан (новая форма), используем имя из embed
+        if user_identifier is None:
+            # Ищем поле с именем пользователя для создания уникального идентификатора
+            name_field = None
+            for field in embed.fields:
+                if 'имя' in field.name.lower():
+                    name_field = field.value
+                    break
             
-        # Добавляем текущую заявку в список
-        recent_apps.append(current_time)
-        recent_applications[discord_id] = recent_apps
+            if name_field:
+                user_identifier = f"web_user_{name_field}_{int(time.time())}"
+            else:
+                user_identifier = f"web_user_{int(time.time())}"
+        
+        # Проверяем на дубликаты (упрощенная проверка для веб-заявок)
+        current_time = time.time()
+        if user_identifier in recent_applications:
+            recent_apps = recent_applications[user_identifier]
+            
+            # Очищаем старые записи
+            recent_apps = [t for t in recent_apps if current_time - t < DEDUP_WINDOW]
+            
+            # Если есть недавние заявки, пропускаем
+            if recent_apps:
+                logger.warning(f"Обнаружен дубликат заявки для пользователя {user_identifier}. Пропускаем.")
+                return False
+                
+            # Добавляем текущую заявку в список
+            recent_apps.append(current_time)
+            recent_applications[user_identifier] = recent_apps
+        else:
+            recent_applications[user_identifier] = [current_time]
 
         # Разделяем поля на основную и подробную информацию
         main_fields = []
         details_fields = []
         
-        # Определяем поля для основной информации
-        inline_field_names = ['Ваш никнейм в Minecraft', 'Ваш возраст', 'Опыт игры в Minecraft']
+        # Определяем поля для основной информации (должны соответствовать новым полям)
+        inline_field_names = ['Игровой никнейм в Minecraft', 'Имя (реальное)', 'Возраст', 'Опыт игры в Minecraft']
         
         # Сохраняем все поля из embeds в отладочных целях
         all_field_names = [field.name for field in embed.fields]
-        logger.info(f"Заявка от {discord_id} содержит поля: {all_field_names}")
+        logger.info(f"Заявка от {user_identifier} содержит поля: {all_field_names}")
         
         for field in embed.fields:
             # Пропускаем поля с Discord ID
@@ -884,62 +901,72 @@ async def create_application_message(
                 embed.timestamp
             ))
         else:
-            logger.warning(f"Отсутствуют поля для подробной информации в заявке пользователя {discord_id}")
+            logger.warning(f"Отсутствуют поля для подробной информации в заявке пользователя {user_identifier}")
 
         # Проверяем, есть ли хоть один embed для отправки
         if not embeds:
-            logger.error(f"Отсутствуют поля для отображения в заявке пользователя {discord_id}")
+            logger.error(f"Отсутствуют поля для отображения в заявке пользователя {user_identifier}")
             return False
 
         # Отправляем заявку в канал
         view = discord.ui.View(timeout=None)
-        view.add_item(ApproveButton(discord_id))
-        view.add_item(RejectButton(discord_id))
-        view.add_item(CandidateButton(discord_id))
+        # Для веб-заявок (без Discord ID) кнопки не работают корректно
+        # Добавляем проверку на наличие Discord ID
+        if not user_identifier.startswith('web_user_'):
+            view.add_item(ApproveButton(user_identifier))
+            view.add_item(RejectButton(user_identifier))
+            view.add_item(CandidateButton(user_identifier))
+        
+        # Определяем контент сообщения в зависимости от типа заявки
+        if user_identifier.startswith('web_user_'):
+            content = f"-# <@&{MODERATOR_ROLE_ID}>\n## Получена заявка с сайта!"
+        else:
+            content = f"-# <@&{MODERATOR_ROLE_ID}>\n## <@{user_identifier}> отправил заявку на сервер!"
         
         message = await channel.send(
-            content=f"-# <@&{MODERATOR_ROLE_ID}>\n## <@{discord_id}> отправил заявку на сервер!",
+            content=content,
             embeds=embeds,
-            view=view
+            view=view if not user_identifier.startswith('web_user_') else None
         )
         
         # Записываем в лог ID сообщения для отладки
         logger.info(f"Отправлена заявка с ID сообщения: {message.id}")
 
-        # Отправляем копию заявки пользователю
-        try:
-            user = await channel.guild.fetch_member(int(discord_id))
-            if user:
-                user_embeds = []
-                
-                # Копируем основную информацию для пользователя
-                if main_fields:
-                    user_main_embed = create_embed_with_fields(
-                        "📝 Ваша заявка (основная информация)",
-                        main_fields,
-                        embed.timestamp
-                    )
-                    user_main_embed.description = "Ваша заявка успешно отправлена на рассмотрение!"
-                    user_embeds.append(user_main_embed)
-                
-                # Копируем подробную информацию для пользователя
-                if details_fields:
-                    user_details_embed = create_embed_with_fields(
-                        "📋 Ваша заявка (подробная информация)",
-                        details_fields,
-                        embed.timestamp
-                    )
-                    user_embeds.append(user_details_embed)
+        # Отправляем копию заявки пользователю (только если это Discord заявка)
+        if not user_identifier.startswith('web_user_'):
+            try:
+                user = await channel.guild.fetch_member(int(user_identifier))
+                if user:
+                    user_embeds = []
+                    
+                    # Копируем основную информацию для пользователя
+                    if main_fields:
+                        user_main_embed = create_embed_with_fields(
+                            "📝 Ваша заявка (основная информация)",
+                            main_fields,
+                            embed.timestamp
+                        )
+                        user_main_embed.description = "Ваша заявка успешно отправлена на рассмотрение!"
+                        user_embeds.append(user_main_embed)
+                    
+                    # Копируем подробную информацию для пользователя
+                    if details_fields:
+                        user_details_embed = create_embed_with_fields(
+                            "📋 Ваша заявка (подробная информация)",
+                            details_fields,
+                            embed.timestamp
+                        )
+                        user_embeds.append(user_details_embed)
 
-                # Отправляем пользователю копию заявки
-                await user.send(
-                    content="# ✅ Ваша заявка успешно отправлена!\nОжидайте решения кураторов набора. Вы получите уведомление, когда заявка будет рассмотрена.",
-                    embeds=user_embeds
-                )
-        except discord.Forbidden:
-            logger.warning(f"Не удалось отправить личное сообщение пользователю {discord_id}")
-        except Exception as e:
-            logger.error(f"Ошибка при отправке копии заявки пользователю: {e}", exc_info=True)
+                    # Отправляем пользователю копию заявки
+                    await user.send(
+                        content="# ✅ Ваша заявка успешно отправлена!\nОжидайте решения кураторов набора. Вы получите уведомление, когда заявка будет рассмотрена.",
+                        embeds=user_embeds
+                    )
+            except discord.Forbidden:
+                logger.warning(f"Не удалось отправить личное сообщение пользователю {user_identifier}")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке копии заявки пользователю: {e}", exc_info=True)
 
         return True
     except Exception as e:

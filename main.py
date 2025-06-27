@@ -6,12 +6,14 @@ import traceback
 import logging
 import platform
 from dotenv import load_dotenv
+
+# Загружаем переменные окружения ПЕРЕД импортом других модулей
+load_dotenv()
+
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 from app import app
 from bot import MineBuildBot, logger
-
-load_dotenv()
 
 # Настройка кодировки вывода для Windows
 if platform.system() == 'Windows':

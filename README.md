@@ -24,7 +24,7 @@
 
 ### Установка
 ```bash
-git clone https://github.com/your-username/minebuild-site.git
+git clone https://github.com/KOFIOK/minebuild-site.git
 cd minebuild-site
 pip install -r requirements.txt
 ```
