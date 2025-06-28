@@ -387,6 +387,9 @@ def submit_application():
             # Обновляем статус заявки в сессии
             discord_auth.update_application_status('pending')
             
+            # Сохраняем статус в файл статусов - это теперь источник истины
+            save_application_status(current_user['user_id'], 'pending')
+            
             logger.info(f"Заявка успешно отправлена в Discord для пользователя {data.get('name')} (Discord: {current_user['username']})")
             return jsonify({'success': True, 'message': 'Заявка успешно отправлена'})
         else:
@@ -397,7 +400,124 @@ def submit_application():
         logger.exception(f"Ошибка при обработке заявки: {str(e)}")
         return jsonify({'success': False, 'error': 'Произошла ошибка при обработке запроса'}), 500
 
+# API endpoint для обновления статуса заявки из Discord-бота
+@app.route('/api/update-application-status', methods=['POST'])
+def update_application_status_api():
+    """API для обновления статуса заявки из Discord-бота"""
+    try:
+        # Проверяем API ключ для безопасности
+        api_key = request.headers.get('X-API-Key')
+        expected_api_key = os.getenv('INTERNAL_API_KEY', 'your-secret-api-key')
+        
+        if api_key != expected_api_key:
+            logger.warning(f"Неверный API ключ при обновлении статуса заявки: {api_key}")
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+            
+        discord_id = data.get('discord_id')
+        status = data.get('status')  # 'approved', 'rejected', 'candidate'
+        reason = data.get('reason', '')  # Причина отказа (если есть)
+        
+        if not discord_id or not status:
+            return jsonify({'error': 'discord_id and status are required'}), 400
+            
+        if status not in ['approved', 'rejected', 'candidate']:
+            return jsonify({'error': 'Invalid status'}), 400
+        
+        # Сохраняем статус заявки в файл/базу данных
+        # Для простоты используем JSON файл
+        status_file_path = os.path.join(os.path.dirname(__file__), 'application_statuses.json')
+        
+        # Загружаем существующие статусы
+        statuses = {}
+        if os.path.exists(status_file_path):
+            try:
+                with open(status_file_path, 'r', encoding='utf-8') as f:
+                    statuses = json.load(f)
+            except Exception as e:
+                logger.error(f"Ошибка при загрузке статусов заявок: {e}")
+        
+        # Обновляем статус
+        statuses[discord_id] = {
+            'status': status,
+            'timestamp': time.time(),
+            'reason': reason
+        }
+        
+        # Сохраняем обновленные статусы
+        try:
+            with open(status_file_path, 'w', encoding='utf-8') as f:
+                json.dump(statuses, f, ensure_ascii=False, indent=2)
+                
+            logger.info(f"Обновлен статус заявки для Discord ID {discord_id}: {status}")
+            return jsonify({'success': True, 'message': 'Status updated successfully'})
+            
+        except Exception as e:
+            logger.error(f"Ошибка при сохранении статуса заявки: {e}")
+            return jsonify({'error': 'Failed to save status'}), 500
+            
+    except Exception as e:
+        logger.error(f"Ошибка в API обновления статуса заявки: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
+# API endpoint для очистки статуса заявки (позволяет подать заявку заново)
+@app.route('/api/clear-application-status', methods=['POST'])
+def clear_application_status_api():
+    """API для очистки статуса заявки из Discord-бота"""
+    try:
+        # Проверяем API ключ для безопасности
+        api_key = request.headers.get('X-API-Key')
+        expected_api_key = os.getenv('INTERNAL_API_KEY', 'your-secret-api-key')
+        
+        if api_key != expected_api_key:
+            logger.warning(f"Неверный API ключ при очистке статуса заявки: {api_key}")
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+            
+        discord_id = data.get('discord_id')
+        
+        if not discord_id:
+            return jsonify({'error': 'discord_id is required'}), 400
+        
+        # Удаляем статус заявки из файла
+        status_file_path = os.path.join(os.path.dirname(__file__), 'application_statuses.json')
+        
+        statuses = {}
+        if os.path.exists(status_file_path):
+            try:
+                with open(status_file_path, 'r', encoding='utf-8') as f:
+                    statuses = json.load(f)
+            except Exception as e:
+                logger.error(f"Ошибка при загрузке статусов заявок: {e}")
+        
+        # Удаляем статус для данного пользователя
+        if str(discord_id) in statuses:
+            del statuses[str(discord_id)]
+            
+            # Сохраняем обновленные статусы
+            try:
+                with open(status_file_path, 'w', encoding='utf-8') as f:
+                    json.dump(statuses, f, ensure_ascii=False, indent=2)
+                    
+                logger.info(f"Очищен статус заявки для Discord ID {discord_id}")
+                return jsonify({'success': True, 'message': 'Status cleared successfully'})
+                
+            except Exception as e:
+                logger.error(f"Ошибка при сохранении статусов заявок: {e}")
+                return jsonify({'error': 'Failed to save status'}), 500
+        else:
+            # Статус уже отсутствует
+            return jsonify({'success': True, 'message': 'Status already cleared'})
+            
+    except Exception as e:
+        logger.error(f"Ошибка в API очистки статуса заявки: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # Функция для передачи заявки боту Discord
 def process_application_in_discord(application_data):
@@ -420,7 +540,7 @@ def process_application_in_discord(application_data):
             
             # Получаем ID канала для заявок и создаем embed-сообщение
             import discord
-            from bot import QUESTION_MAPPING
+            from bot.config import QUESTION_MAPPING
             
             # Создаем embed-сообщение
             embed = discord.Embed(
@@ -450,14 +570,16 @@ def process_application_in_discord(application_data):
                     )
             
             # Используем функцию create_application_message из модуля bot
-            from bot import create_application_message
+            from bot.utils.applications import create_application_message
+            
+            # Получаем Discord ID из данных заявки
+            discord_id = application_data.get('discord_id')
             
             # Создаем объект для будущего результата
-            # Поскольку Discord ID больше не требуется, передаем None или убираем этот параметр
             future = asyncio.run_coroutine_threadsafe(
                 create_application_message(
                     app.bot.channel_for_applications, 
-                    None,  # Discord ID больше не используется
+                    discord_id,  # Передаем Discord ID пользователя
                     embed
                 ),
                 app.bot.loop
@@ -755,6 +877,21 @@ def check_membership():
 def application_pending():
     """Страница ожидающей заявки"""
     current_user = discord_auth.get_current_user()
+    
+    # Получаем актуальный статус заявки из файла
+    if current_user:
+        application_status_data = get_application_status(current_user['user_id'])
+        if application_status_data:
+            current_user['application_status'] = application_status_data['status']
+            current_user['application_reason'] = application_status_data.get('reason', '')
+            current_user['application_timestamp'] = application_status_data.get('timestamp')
+        else:
+            # Если статуса нет в файле, очищаем сессию и перенаправляем на подачу заявки
+            if 'application_status' in session:
+                session.pop('application_status', None)
+                logger.info(f"Очищен устаревший статус заявки из сессии для пользователя {current_user['user_id']}")
+            return redirect(url_for('apply'))
+    
     return render_template('application_pending.html', current_user=current_user)
 
 @app.route('/logout')
@@ -776,6 +913,89 @@ def inject_user():
         logger.debug(f"[CONTEXT] Context processor: current_user = {current_user}")
     
     return {'current_user': current_user}
+
+def get_application_status(discord_id):
+    """Получает статус заявки для указанного Discord ID"""
+    try:
+        status_file_path = os.path.join(os.path.dirname(__file__), 'application_statuses.json')
+        
+        if not os.path.exists(status_file_path):
+            return None
+            
+        with open(status_file_path, 'r', encoding='utf-8') as f:
+            statuses = json.load(f)
+            
+        return statuses.get(str(discord_id))
+        
+    except Exception as e:
+        logger.error(f"Ошибка при получении статуса заявки для {discord_id}: {e}")
+        return None
+
+
+def save_application_status(discord_id, status, reason=""):
+    """Сохраняет статус заявки для указанного Discord ID"""
+    try:
+        status_file_path = os.path.join(os.path.dirname(__file__), 'application_statuses.json')
+        
+        # Читаем существующие статусы или создаем пустой словарь
+        if os.path.exists(status_file_path):
+            with open(status_file_path, 'r', encoding='utf-8') as f:
+                statuses = json.load(f)
+        else:
+            statuses = {}
+        
+        # Добавляем/обновляем статус
+        statuses[str(discord_id)] = {
+            'status': status,
+            'timestamp': time.time(),
+            'reason': reason
+        }
+        
+        # Сохраняем обратно в файл
+        with open(status_file_path, 'w', encoding='utf-8') as f:
+            json.dump(statuses, f, ensure_ascii=False, indent=2)
+            
+        logger.info(f"Сохранен статус заявки для Discord ID {discord_id}: {status}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка при сохранении статуса заявки для {discord_id}: {e}")
+        return False
+
+
+@app.route('/api/application-status', methods=['POST'])
+def api_get_application_status():
+    """API endpoint для получения статуса заявки"""
+    try:
+        # Проверка авторизации
+        api_key = request.headers.get('X-API-Key')
+        expected_api_key = os.getenv('INTERNAL_API_KEY', 'your-secret-api-key')
+        if api_key != expected_api_key:
+            return jsonify({'error': 'Invalid API key'}), 401
+        
+        # Получение данных из запроса
+        data = request.get_json()
+        if not data or 'discord_id' not in data:
+            return jsonify({'error': 'Missing discord_id'}), 400
+        
+        discord_id = str(data['discord_id'])
+        
+        # Получение статуса заявки
+        status_data = get_application_status(discord_id)
+        
+        if status_data is None:
+            return jsonify({'status': None, 'has_application': False}), 200
+        
+        return jsonify({
+            'status': status_data.get('status'),
+            'has_application': True,
+            'timestamp': status_data.get('timestamp'),
+            'reason': status_data.get('reason', '')
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Ошибка в API получения статуса заявки: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 if __name__ == '__main__':

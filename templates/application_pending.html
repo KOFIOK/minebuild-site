@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}MineBuild - Заявка на рассмотрении{% endblock %}
+{% block title %}
+{% if current_user and current_user.get('application_status') == 'approved' %}MineBuild - Заявка одобрена
+{% elif current_user and current_user.get('application_status') == 'rejected' %}MineBuild - Заявка отклонена
+{% elif current_user and current_user.get('application_status') == 'candidate' %}MineBuild - Заявка на рассмотрении
+{% else %}MineBuild - Заявка на рассмотрении
+{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/application_pending.css') }}">
@@ -9,15 +15,41 @@
 {% block content %}
 <div class="application-status-section">
     <div class="application-status-container">
-        <div class="status-card">
-        <div class="status-icon">
-            <i class="fas fa-hourglass-half"></i>
-        </div>
+        <div class="status-card {% if current_user and current_user.get('application_status') == 'approved' %}approved{% elif current_user and current_user.get('application_status') == 'rejected' %}rejected{% elif current_user and current_user.get('application_status') == 'candidate' %}candidate{% endif %}">
         
-        <h1 class="status-title">Заявка на рассмотрении</h1>
-        <p class="status-subtitle">
-            Ваша заявка успешно отправлена и ожидает рассмотрения кураторами
-        </p>
+        {% if current_user and current_user.get('application_status') == 'approved' %}
+            <div class="status-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1 class="status-title">Заявка одобрена!</h1>
+            <p class="status-subtitle">
+                Поздравляем! Ваша заявка была одобрена кураторами
+            </p>
+        {% elif current_user and current_user.get('application_status') == 'rejected' %}
+            <div class="status-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h1 class="status-title">Заявка отклонена</h1>
+            <p class="status-subtitle">
+                К сожалению, ваша заявка была отклонена
+            </p>
+        {% elif current_user and current_user.get('application_status') == 'candidate' %}
+            <div class="status-icon">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <h1 class="status-title">Заявка на рассмотрении</h1>
+            <p class="status-subtitle">
+                Вы переведены в кандидаты. Ожидайте дальнейших инструкций
+            </p>
+        {% else %}
+            <div class="status-icon">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h1 class="status-title">Заявка на рассмотрении</h1>
+            <p class="status-subtitle">
+                Ваша заявка успешно отправлена и ожидает рассмотрения кураторами
+            </p>
+        {% endif %}
         
         {% if current_user %}
         <div class="applicant-info">
@@ -37,11 +69,33 @@
             <div class="user-detail">
                 <strong><i class="fas fa-clock"></i> Статус</strong>
                 <div class="user-detail-value">
-                    <span style="color: #ffa500; font-weight: 600;">
-                        На рассмотрении
-                    </span>
+                    {% if current_user and current_user.get('application_status') == 'approved' %}
+                        <span style="color: #00e5a1; font-weight: 600;">
+                            <i class="fas fa-check"></i> Одобрена
+                        </span>
+                    {% elif current_user and current_user.get('application_status') == 'rejected' %}
+                        <span style="color: #ff4444; font-weight: 600;">
+                            <i class="fas fa-times"></i> Отклонена
+                        </span>
+                    {% elif current_user and current_user.get('application_status') == 'candidate' %}
+                        <span style="color: #7289da; font-weight: 600;">
+                            <i class="fas fa-user-clock"></i> Кандидат
+                        </span>
+                    {% else %}
+                        <span style="color: #ffa500; font-weight: 600;">
+                            <i class="fas fa-hourglass-half"></i> На рассмотрении
+                        </span>
+                    {% endif %}
                 </div>
             </div>
+            {% if current_user and current_user.get('application_status') == 'rejected' and current_user.get('application_reason') %}
+            <div class="user-detail">
+                <strong><i class="fas fa-info-circle"></i> Причина отказа</strong>
+                <div class="user-detail-value">
+                    <span style="color: #ff4444;">{{ current_user.application_reason }}</span>
+                </div>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
         
@@ -58,7 +112,7 @@
                     <div class="timeline-icon pending">
                         <i class="fas fa-eye"></i>
                     </div>
-                    <span>Рассмотрение модерацией (текущий этап)</span>
+                    <span>Рассмотрение кураторами (текущий этап)</span>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-icon future">

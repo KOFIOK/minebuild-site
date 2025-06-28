@@ -372,11 +372,22 @@ def can_submit_application(f):
         if not current_user:
             return redirect(url_for('login'))
         
-        # Проверяем статус заявки
-        app_status = current_user.get('application_status')
-        if app_status == 'pending':
-            logger.info(f"Пользователь {current_user['user_id']} пытается подать заявку повторно (статус: pending)")
-            return redirect(url_for('application_pending'))
+        # Проверяем актуальный статус заявки из файла
+        from app import get_application_status
+        application_status_data = get_application_status(current_user['user_id'])
+        
+        if application_status_data:
+            app_status = application_status_data['status']
+            # Блокируем подачу заявки если статус: pending или candidate
+            # Разрешаем только если: approved, rejected, или нет статуса
+            if app_status in ['pending', 'candidate']:
+                logger.info(f"Пользователь {current_user['user_id']} пытается подать заявку повторно (статус: {app_status})")
+                return redirect(url_for('application_pending'))
+        else:
+            # Если статуса нет в файле, очищаем сессию
+            if 'application_status' in session:
+                session.pop('application_status', None)
+                logger.info(f"Очищен устаревший статус заявки из сессии для пользователя {current_user['user_id']}")
         
         return f(*args, **kwargs)
     return decorated_function
