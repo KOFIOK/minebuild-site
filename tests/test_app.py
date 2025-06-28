@@ -35,6 +35,8 @@ def test_build_route(client):
     assert response.status_code == 200
 
 def test_apply_route(client):
-    """Тест страницы apply."""
+    """Тест страницы apply - проверяем редирект на авторизацию."""
     response = client.get('/apply')
-    assert response.status_code == 200
+    # Страница подачи заявки требует авторизации, поэтому ожидаем редирект
+    assert response.status_code == 302
+    assert '/login' in response.location or '/auth/discord' in response.location

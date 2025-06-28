@@ -997,6 +997,25 @@ def api_get_application_status():
         logger.error(f"Ошибка в API получения статуса заявки: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
+@app.route('/debug/dropdown')
+def debug_dropdown():
+    """Debug page for dropdown functionality"""
+    return render_template('debug_dropdown.html')
+
+@app.route('/debug/dropdown-with-user')
+def debug_dropdown_with_user():
+    """Debug page for dropdown functionality with a fake user"""
+    # Create fake user data for testing
+    fake_user = {
+        'user_id': '123456789',
+        'username': 'testuser#1234',
+        'display_name': 'Test User',
+        'avatar_url': 'https://cdn.discordapp.com/avatars/123456789/abc123.png',
+        'guild_member': True,
+        'application_status': None,
+        'login_time': '2025-06-28T16:48:00'
+    }
+    return render_template('debug_dropdown.html', current_user=fake_user)
 
 if __name__ == '__main__':
     app.run(debug=True)

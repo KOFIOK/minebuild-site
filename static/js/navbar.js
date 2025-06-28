@@ -5,12 +5,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let mousedOverTopArea = false;
     let ticking = false;
     let isScrollingUp = false;
+    let dropdownOpen = false; // Добавляем отслеживание состояния dropdown
     const navbarHeight = navbar ? navbar.offsetHeight : 80;
     const topAreaSensitivity = 50; // Верхние 50px экрана
 
     // Добавляем класс для начального состояния
     if (navbar) {
         navbar.classList.add('nav-visible');
+    }
+
+    // Отслеживание состояния dropdown меню
+    function setupDropdownTracking() {
+        const dropdownElements = navbar.querySelectorAll('.dropdown');
+        
+        dropdownElements.forEach(dropdown => {
+            // Отслеживаем открытие dropdown
+            dropdown.addEventListener('show.bs.dropdown', function() {
+                dropdownOpen = true;
+                // Принудительно показываем навбар когда открывается dropdown
+                navbar.classList.remove('nav-hidden');
+                navbar.classList.add('nav-visible');
+            });
+            
+            // Отслеживаем закрытие dropdown
+            dropdown.addEventListener('hide.bs.dropdown', function() {
+                dropdownOpen = false;
+            });
+        });
     }
 
     // Функция для обработки скролла
@@ -20,8 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Определяем направление скролла
         isScrollingUp = currentScrollY < lastScrollY;
 
-        // Логика показа/скрытия навбара
-        if (!mousedOverTopArea) {
+        // Логика показа/скрытия навбара (не скрываем если dropdown открыт)
+        if (!mousedOverTopArea && !dropdownOpen) {
             if (currentScrollY > navbarHeight) {
                 // Скроллинг вниз и не наверху - скрываем навбар
                 if (currentScrollY > lastScrollY + 5) { // Добавлен порог для предотвращения нежелательной реакции
@@ -83,4 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navbar.classList.remove('nav-hidden');
         navbar.classList.add('nav-visible');
     });
+
+    // Инициализируем отслеживание dropdown меню
+    setupDropdownTracking();
 });

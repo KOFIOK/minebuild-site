@@ -73,7 +73,7 @@
     height: var(--navbar-height);
     max-height: var(--navbar-height);
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible; /* Позволяем dropdown выходить за пределы navbar */
 }
 
 /* Классы для анимации скрытия/появления навбара */
@@ -474,6 +474,9 @@ footer {
     border-radius: 10px;
     padding: 10px 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1050; /* Выше чем z-index навбара */
+    position: absolute; /* Обеспечиваем правильное позиционирование */
+    min-width: 200px; /* Минимальная ширина для читаемости */
 }
 
 .dropdown-header {
@@ -716,4 +719,6 @@ footer {
     height: 40px;
     display: flex;
     align-items: center;
+    position: relative; /* Обеспечиваем правильное позиционирование dropdown */
+    overflow: visible; /* Позволяем dropdown выходить за пределы контейнера */
 }

@@ -74,6 +74,7 @@ class ApplicationForm {
 
         this.initializeForm();
         this.bindEvents();
+        this.createFloatingParticles();
     }
 
     initializeForm() {
@@ -433,6 +434,118 @@ class ApplicationForm {
         errorDiv.className = 'error-message global';
         errorDiv.textContent = message;
         this.form.insertBefore(errorDiv, this.form.firstChild);
+    }
+
+    createFloatingParticles() {
+        const particlesContainer = document.querySelector('.floating-particles');
+        if (!particlesContainer) return;
+
+        // Создаем несколько партиклов
+        const particleCount = 12; // Увеличиваем количество партиклов
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'dynamic-particle';
+            
+            // Случайные позиции
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            const size = Math.random() * 3 + 2; // Размер от 2 до 5px
+            
+            // Случайные цвета
+            const colors = [
+                'rgba(0, 229, 161, 0.4)',
+                'rgba(138, 43, 226, 0.4)',
+                'rgba(255, 99, 71, 0.3)',
+                'rgba(0, 191, 255, 0.35)',
+                'rgba(255, 215, 0, 0.3)',
+                'rgba(255, 20, 147, 0.25)',
+                'rgba(50, 205, 50, 0.3)',
+                'rgba(255, 165, 0, 0.3)'
+            ];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Случайная продолжительность анимации
+            const duration = Math.random() * 8 + 12; // От 12 до 20 секунд
+            const delay = Math.random() * 8; // Задержка до 8 секунд
+            
+            // Выбираем случайную анимацию
+            const animationType = Math.floor(Math.random() * 3) + 1;
+            
+            particle.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${color};
+                border-radius: 50%;
+                left: ${startX}%;
+                top: ${startY}%;
+                pointer-events: none;
+                animation: floatParticle${animationType} ${duration}s ease-in-out infinite;
+                animation-delay: -${delay}s;
+                box-shadow: 0 0 10px ${color}, 0 0 20px ${color};
+                filter: blur(0.5px);
+            `;
+            
+            particlesContainer.appendChild(particle);
+        }
+
+        // Добавляем периодическое создание новых партиклов
+        setInterval(() => {
+            this.addRandomParticle();
+        }, 5000); // Каждые 5 секунд
+    }
+
+    addRandomParticle() {
+        const particlesContainer = document.querySelector('.floating-particles');
+        if (!particlesContainer) return;
+
+        // Удаляем старые партиклы, если их слишком много
+        const existingParticles = particlesContainer.querySelectorAll('.dynamic-particle');
+        if (existingParticles.length > 15) {
+            existingParticles[0].remove();
+        }
+
+        const particle = document.createElement('div');
+        particle.className = 'dynamic-particle';
+        
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const size = Math.random() * 3 + 2;
+        
+        const colors = [
+            'rgba(0, 229, 161, 0.4)',
+            'rgba(138, 43, 226, 0.4)',
+            'rgba(255, 99, 71, 0.3)',
+            'rgba(0, 191, 255, 0.35)',
+            'rgba(255, 215, 0, 0.3)'
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const duration = Math.random() * 8 + 12;
+        const animationType = Math.floor(Math.random() * 3) + 1;
+        
+        particle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            left: ${startX}%;
+            top: ${startY}%;
+            pointer-events: none;
+            animation: floatParticle${animationType} ${duration}s ease-in-out infinite;
+            box-shadow: 0 0 10px ${color}, 0 0 20px ${color};
+            filter: blur(0.5px);
+        `;
+        
+        particlesContainer.appendChild(particle);
+
+        // Удаляем партикл через время анимации
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        }, duration * 1000);
     }
 }
 
