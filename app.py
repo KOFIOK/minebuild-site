@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response, current_app
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 import requests
 import json
@@ -6,7 +6,7 @@ import logging
 import hashlib
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import sys
 from dotenv import load_dotenv
@@ -900,6 +900,16 @@ def logout():
     discord_auth.logout()
     return redirect(url_for('index'))
 
+@app.route('/admin')
+@require_auth
+def admin_panel():
+    """Панель администратора"""
+    # Проверяем и обновляем права доступа (только для доступа к админ-панели)
+    if not check_and_update_admin_permissions():
+        return redirect(url_for('index'))
+    
+    return render_template('admin_panel.html')
+
 # Context processor для передачи информации о пользователе во все шаблоны
 @app.context_processor
 def inject_user():
@@ -1016,6 +1026,169 @@ def debug_dropdown_with_user():
         'login_time': '2025-06-28T16:48:00'
     }
     return render_template('debug_dropdown.html', current_user=fake_user)
+
+
+# === API ДЛЯ АДМИН-ПАНЕЛИ ===
+
+from bot.config_manager import get_config, reload_config
+
+def check_and_update_admin_permissions():
+    """Проверяет и обновляет права администратора текущего пользователя"""
+    if 'access_token' not in session or 'user_id' not in session:
+        return False
+    
+    # Используем кэшированное значение, если оно есть и не устарело
+    is_admin_cached = session.get('is_admin', False)
+    last_check = session.get('admin_check_time')
+    
+    if is_admin_cached and last_check:
+        try:
+            last_check_time = datetime.fromisoformat(last_check)
+            # Если последняя проверка была менее 10 минут назад, используем кэшированное значение
+            if datetime.now() - last_check_time < timedelta(minutes=10):
+                app.logger.debug("Используем кэшированное значение прав администратора")
+                return is_admin_cached
+        except (ValueError, TypeError):
+            pass  # Если время некорректное, делаем новую проверку
+    
+    # Только если кэш устарел, делаем новую проверку
+    try:
+        discord_auth = current_app.discord_auth
+        is_admin = discord_auth.check_admin_permissions(session['access_token'], session['user_id'])
+        
+        # Сохраняем в сессии с временной меткой
+        session['is_admin'] = is_admin
+        session['admin_check_time'] = datetime.now().isoformat()
+        session.modified = True
+        
+        return is_admin
+    except Exception as e:
+        app.logger.error(f"Ошибка при проверке прав администратора: {e}")
+        # Если произошла ошибка, используем кэшированное значение
+        return is_admin_cached
+
+def is_admin_cached():
+    """Проверяет права администратора только из кэша сессии, без обращения к Discord API"""
+    return session.get('is_admin', False)
+
+@app.route('/api/config', methods=['GET'])
+@require_auth
+def get_bot_config():
+    """Получение конфигурации бота для админ-панели"""
+    try:
+        # Проверяем права доступа только из кэша
+        if not is_admin_cached():
+            return jsonify({'error': 'Insufficient permissions'}), 403
+        
+        config = get_config()
+        admin_config = config.get_admin_panel_config()
+        
+        # Добавляем информацию о валидности ID
+        validation_results = config.validate_discord_ids()
+        admin_config['validation'] = validation_results
+        
+        return jsonify({
+            'success': True,
+            'config': admin_config,
+            'metadata': {
+                'updated_at': config.get('_metadata.updated_at'),
+                'version': config.get('_metadata.version')
+            }
+        })
+    except Exception as e:
+        app.logger.error(f"Ошибка при получении конфигурации: {e}")
+        return jsonify({'error': 'Failed to retrieve configuration'}), 500
+
+
+@app.route('/api/config', methods=['POST'])
+@require_auth
+def update_bot_config():
+    """Обновление конфигурации бота через админ-панель"""
+    try:
+        # Проверяем права доступа только из кэша
+        if not is_admin_cached():
+            return jsonify({'error': 'Insufficient permissions'}), 403
+        
+        data = request.get_json()
+        if not data or 'updates' not in data:
+            return jsonify({'error': 'Invalid request data'}), 400
+        
+        config = get_config()
+        updates = data['updates']
+        
+        # Обновляем настройки
+        success = config.update_multiple(updates, save=True)
+        
+        if success:
+            # Перезагружаем конфигурацию для применения изменений
+            reload_config()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Configuration updated successfully',
+                'updated_count': len(updates)
+            })
+        else:
+            return jsonify({'error': 'Failed to update configuration'}), 500
+            
+    except Exception as e:
+        app.logger.error(f"Ошибка при обновлении конфигурации: {e}")
+        return jsonify({'error': 'Failed to update configuration'}), 500
+
+
+@app.route('/api/config/reload', methods=['POST'])
+@require_auth
+def reload_bot_config():
+    """Перезагрузка конфигурации бота из файла"""
+    try:
+        # Проверяем права доступа только из кэша
+        if not is_admin_cached():
+            return jsonify({'error': 'Insufficient permissions'}), 403
+        
+        # Перезагружаем конфигурацию
+        config = reload_config()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Configuration reloaded successfully',
+            'updated_at': config.get('_metadata.updated_at')
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Ошибка при перезагрузке конфигурации: {e}")
+        return jsonify({'error': 'Failed to reload configuration'}), 500
+
+
+@app.route('/api/config/validate', methods=['GET'])
+@require_auth
+def validate_bot_config():
+    """Валидация конфигурации бота"""
+    try:
+        # Проверяем права доступа только из кэша
+        if not is_admin_cached():
+            return jsonify({'error': 'Insufficient permissions'}), 403
+        
+        config = get_config()
+        validation_results = config.validate_discord_ids()
+        
+        # Подсчитываем результаты
+        valid_count = sum(1 for v in validation_results.values() if v)
+        total_count = len(validation_results)
+        
+        return jsonify({
+            'success': True,
+            'validation': validation_results,
+            'summary': {
+                'valid_count': valid_count,
+                'total_count': total_count,
+                'is_valid': valid_count == total_count
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Ошибка при валидации конфигурации: {e}")
+        return jsonify({'error': 'Failed to validate configuration'}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

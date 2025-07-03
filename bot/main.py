@@ -12,11 +12,13 @@ from discord.ext import commands
 from .config import (
     setup_logging,
     DISCORD_TOKEN,
-    GUILD_ID,
-    WHITELIST_ROLE_ID,
-    LOG_CHANNEL_ID,
-    DONATION_CHANNEL_ID,
-    DONATOR_ROLE_ID
+    GUILD_ID
+)
+from .config_manager import (
+    get_whitelist_role_id,
+    get_log_channel_id,
+    get_donation_channel_id,
+    get_donator_role_id
 )
 from .ui.views import (
     PersistentApplicationView, 
@@ -164,19 +166,19 @@ class MineBuildBot(commands.Bot):
         """Вызывается когда пользователь покидает сервер."""
         try:
             # Проверяем, есть ли у пользователя роль вайтлиста
-            has_whitelist = any(role.id == WHITELIST_ROLE_ID for role in member.roles)
+            has_whitelist = any(role.id == get_whitelist_role_id() for role in member.roles)
             
             if has_whitelist:
                 # Получаем никнейм пользователя
                 nickname = member.nick or member.name
                 
                 # Отправляем уведомление в лог-канал
-                log_channel = self.get_channel(LOG_CHANNEL_ID)
+                log_channel = self.get_channel(get_log_channel_id())
                 if log_channel:
                     await send_member_leave_notification(log_channel, member.id, nickname)
                     logger.info(f"Отправлено уведомление о выходе пользователя {member.id} с ролью вайтлиста")
                 else:
-                    logger.error(f"Не удалось найти канал логов {LOG_CHANNEL_ID}")
+                    logger.error(f"Не удалось найти канал логов {get_log_channel_id()}")
             
         except Exception as e:
             logger.error(f"Ошибка при обработке выхода пользователя: {e}", exc_info=True)
@@ -197,9 +199,9 @@ class MineBuildBot(commands.Bot):
         """
         try:
             # Получаем канал для отправки сообщений о донатах
-            donation_channel = self.get_channel(DONATION_CHANNEL_ID)
+            donation_channel = self.get_channel(get_donation_channel_id())
             if not donation_channel:
-                logger.error(f"Не удалось найти канал для донатов с ID {DONATION_CHANNEL_ID}")
+                logger.error(f"Не удалось найти канал для донатов с ID {get_donation_channel_id()}")
                 return False
 
             logger.info(f"Обработка доната: игрок={nickname}, сумма={amount}₽")
@@ -250,12 +252,12 @@ class MineBuildBot(commands.Bot):
                 
                 if member:
                     # Выдаем роль Благодеятеля
-                    donator_role = guild.get_role(DONATOR_ROLE_ID)
+                    donator_role = guild.get_role(get_donator_role_id())
                     if donator_role:
                         await member.add_roles(donator_role)
                         logger.info(f"Выдана роль Благодеятеля пользователю {nickname}")
                     else:
-                        logger.error(f"Не удалось найти роль Благодеятеля с ID {DONATOR_ROLE_ID}")
+                        logger.error(f"Не удалось найти роль Благодеятеля с ID {get_donator_role_id()}")
                 else:
                     logger.warning(f"Не удалось найти пользователя с ником {nickname} для выдачи роли Благодеятеля")
 

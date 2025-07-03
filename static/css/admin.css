@@ -1,0 +1,353 @@
+/* === АДМИН-ПАНЕЛЬ === */
+/* Переопределяем стили с высокой специфичностью */
+
+/* Базовые стили для админ-страницы */
+html.admin-page,
+body.admin-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background-image: none !important;
+    background-attachment: initial !important;
+    background-size: initial !important;
+    background-position: initial !important;
+    background-repeat: initial !important;
+    min-height: 100vh !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color: #2c3e50 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* Переопределяем любые глобальные стили */
+body.admin-page * {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* Главный контейнер админ-панели */
+.admin-panel {
+    min-height: 100vh !important;
+    padding: 2rem 0 !important;
+    color: #2c3e50 !important;
+}
+
+.admin-panel .container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+}
+
+/* Заголовок */
+.admin-panel h1 {
+    color: #fff !important;
+    text-align: center !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 2.5rem !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.admin-panel .subtitle {
+    color: #e8f4f8 !important;
+    text-align: center !important;
+    margin-bottom: 2.5rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    opacity: 0.9 !important;
+}
+
+/* Сетка секций */
+.admin-sections {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)) !important;
+    gap: 2rem !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Секции админ-панели */
+.admin-section {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 16px !important;
+    padding: 2rem !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.3s ease !important;
+    color: #2c3e50 !important;
+}
+
+.admin-section:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15) !important;
+}
+
+/* Заголовки секций */
+.admin-section h2 {
+    color: #2c3e50 !important;
+    margin-bottom: 1.5rem !important;
+    font-size: 1.6rem !important;
+    border-bottom: 3px solid #667eea !important;
+    padding-bottom: 0.75rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* Группы конфигурации */
+.config-group {
+    margin-bottom: 2rem !important;
+}
+
+.config-group h3 {
+    color: #34495e !important;
+    margin-bottom: 1rem !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    padding-left: 0.5rem !important;
+    border-left: 4px solid #667eea !important;
+}
+
+.config-items {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+/* Элементы конфигурации */
+.config-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    padding: 1.25rem !important;
+    background: #f8f9fa !important;
+    border-radius: 12px !important;
+    border: 1px solid #e9ecef !important;
+    transition: all 0.2s ease !important;
+}
+
+.config-item:hover {
+    background: #e9ecef !important;
+    border-color: #667eea !important;
+    transform: translateY(-1px) !important;
+}
+
+.config-label {
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.config-input {
+    padding: 0.75rem !important;
+    border: 2px solid #ced4da !important;
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+    background: #fff !important;
+    color: #495057 !important;
+    transition: all 0.2s ease !important;
+}
+
+.config-input:focus {
+    outline: none !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    background: #fff !important;
+}
+
+.config-input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 0.5rem !important;
+    cursor: pointer !important;
+}
+
+.config-description {
+    color: #6c757d !important;
+    font-size: 0.85rem !important;
+    font-style: italic !important;
+    margin-top: 0.25rem !important;
+    line-height: 1.4 !important;
+}
+
+.validation-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.validation-item.valid {
+    background: #d4edda !important;
+    color: #155724 !important;
+    border: 1px solid #c3e6cb !important;
+}
+
+.validation-item.invalid {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    border: 1px solid #f5c6cb !important;
+}
+
+.validation-icon {
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+}
+
+.validation-text {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+}
+
+.admin-actions {
+    display: flex !important;
+    gap: 1rem !important;
+    justify-content: center !important;
+    margin-bottom: 2rem !important;
+    flex-wrap: wrap !important;
+}
+
+.admin-panel .btn {
+    padding: 0.875rem 1.75rem !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.admin-panel .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+}
+
+.admin-panel .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.admin-panel .btn-primary:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%) !important;
+    color: white !important;
+}
+
+.admin-panel .btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+    color: white !important;
+}
+
+.admin-panel .btn-secondary:hover {
+    background: linear-gradient(135deg, #839496 0%, #95a5a6 100%) !important;
+    color: white !important;
+}
+
+.admin-panel .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+}
+
+.admin-panel .btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #17a2b8 100%) !important;
+    color: white !important;
+}
+
+/* Статусы */
+.admin-status {
+    text-align: center !important;
+    min-height: 3rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.status-message {
+    padding: 1rem 1.5rem !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+.status-success {
+    background: #d4edda !important;
+    color: #155724 !important;
+    border: 1px solid #c3e6cb !important;
+}
+
+.status-error {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    border: 1px solid #f5c6cb !important;
+}
+
+.status-warning {
+    background: #fff3cd !important;
+    color: #856404 !important;
+    border: 1px solid #ffeaa7 !important;
+}
+
+.status-info {
+    background: #d1ecf1 !important;
+    color: #0c5460 !important;
+    border: 1px solid #bee5eb !important;
+}
+
+/* === АДАПТИВНОСТЬ === */
+
+@media (max-width: 768px) {
+    .admin-sections {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .admin-panel h1 {
+        font-size: 2rem !important;
+    }
+    
+    .admin-actions {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .admin-panel .btn {
+        width: 100% !important;
+        max-width: 300px !important;
+        justify-content: center !important;
+    }
+    
+    .admin-section {
+        padding: 1.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-panel .container {
+        padding: 0 0.5rem !important;
+    }
+    
+    .admin-section {
+        padding: 1rem !important;
+    }
+    
+    .admin-panel h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .admin-panel .subtitle {
+        font-size: 1rem !important;
+    }
+}

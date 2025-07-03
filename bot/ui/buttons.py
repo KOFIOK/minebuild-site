@@ -9,11 +9,11 @@ from typing import Optional
 
 from .base import BaseActionButton
 from .modals import RejectModal
-from ..config import (
-    WHITELIST_ROLE_ID, 
-    CANDIDATE_ROLE_ID, 
-    LOG_CHANNEL_ID, 
-    CANDIDATE_CHAT_ID
+from ..config_manager import (
+    get_whitelist_role_id,
+    get_candidate_role_id,
+    get_log_channel_id,
+    get_candidate_chat_id
 )
 from ..utils.helpers import (
     has_moderation_permissions,
@@ -62,8 +62,8 @@ class ApproveButton(BaseActionButton):
             return
             
         # Получаем роли
-        whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
-        candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+        whitelist_role = interaction.guild.get_role(get_whitelist_role_id())
+        candidate_role = interaction.guild.get_role(get_candidate_role_id())
         
         if not whitelist_role:
             await interaction.response.send_message("Роль для вайтлиста не найдена.", ephemeral=True)
@@ -80,7 +80,7 @@ class ApproveButton(BaseActionButton):
             await interaction.response.defer(ephemeral=True)
 
             # Отправляем сообщение в лог-канал
-            log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+            log_channel = interaction.guild.get_channel(get_log_channel_id())
             if log_channel:
                 await log_channel.send(
                     f"## Куратор <@{interaction.user.id}> одобрил [заявку]({original_message.jump_url})."
@@ -246,7 +246,7 @@ class CandidateButton(BaseActionButton):
             return
 
         # Получаем роль кандидата
-        candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+        candidate_role = interaction.guild.get_role(get_candidate_role_id())
         
         if not candidate_role:
             await interaction.response.send_message("Роль кандидата не найдена.", ephemeral=True)
@@ -291,7 +291,7 @@ class CandidateButton(BaseActionButton):
             await update_web_application_status(self.discord_id, 'candidate')
             
             # Отправляем сообщение в канал кандидатов
-            candidate_channel = interaction.guild.get_channel(CANDIDATE_CHAT_ID)
+            candidate_channel = interaction.guild.get_channel(get_candidate_chat_id())
             if candidate_channel:
                 await candidate_channel.send(
                     f"# Привет, <@{self.discord_id}>!\n"
@@ -301,7 +301,7 @@ class CandidateButton(BaseActionButton):
                 )
             
             # Отправляем сообщение в лог
-            log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+            log_channel = interaction.guild.get_channel(get_log_channel_id())
             if log_channel:
                 await log_channel.send(
                     f"## Куратор <@{interaction.user.id}> перевел игрока <@{self.discord_id}> в кандидаты. "
@@ -377,7 +377,7 @@ class RemoveFromWhitelistButton(BaseActionButton):
         )
         
         # Отправляем сообщение в лог-канал
-        log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+        log_channel = interaction.guild.get_channel(get_log_channel_id())
         if log_channel:
             await log_channel.send(
                 f"# Куратор <@{interaction.user.id}> исключил игрока {self.nickname} из белого списка после его выхода из сервера."

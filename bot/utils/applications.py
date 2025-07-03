@@ -9,9 +9,9 @@ from typing import List, Dict, Any
 
 from ..config import (
     recent_applications,
-    DEDUP_WINDOW,
-    MODERATOR_ROLE_ID
+    DEDUP_WINDOW
 )
+from ..config_manager import get_moderator_role_id
 
 logger = logging.getLogger("MineBuildBot.Applications")
 
@@ -148,7 +148,7 @@ async def create_application_message(
             
             # Обычная заявка через Discord
             view = PersistentApplicationView.create_for_application(user_identifier, is_candidate=False)
-            content_prefix = f"-# <@&{MODERATOR_ROLE_ID}>\n"
+            content_prefix = f"-# <@&{get_moderator_role_id()}>\n"
             content = f"{content_prefix}## Заявка игрока <@{user_identifier}>"
         elif user_identifier and user_identifier.isdigit():
             # Импортируем View локально, чтобы избежать циклических импортов
@@ -156,11 +156,11 @@ async def create_application_message(
             
             # Заявка с сайта с валидным Discord ID
             view = PersistentApplicationView.create_for_application(user_identifier, is_candidate=False)
-            content_prefix = f"-# <@&{MODERATOR_ROLE_ID}>\n"
+            content_prefix = f"-# <@&{get_moderator_role_id()}>\n"
             content = f"{content_prefix}## Заявка игрока <@{user_identifier}>"
         else:
             # Заявка без Discord ID или с неверным форматом
-            content_prefix = f"-# <@&{MODERATOR_ROLE_ID}>\n"
+            content_prefix = f"-# <@&{get_moderator_role_id()}>\n"
             content = f"{content_prefix}## Получена заявка с сайта!"
             view = None  # Не добавляем кнопки если нет валидного Discord ID
         

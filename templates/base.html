@@ -63,6 +63,12 @@
                             <li><a class="dropdown-item" href="https://discord.com/invite/yNz87pJZPh" target="_blank">
                                 <i class="fab fa-discord"></i> Открыть Discord
                             </a></li>
+                            {% if current_user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-warning" href="/admin">
+                                <i class="fas fa-cogs"></i> Админ-панель
+                            </a></li>
+                            {% endif %}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="/logout">
                                 <i class="fas fa-sign-out-alt"></i> Выйти

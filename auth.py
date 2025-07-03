@@ -12,6 +12,9 @@ from urllib.parse import urlencode
 from flask import session, request, redirect, url_for, current_app
 from functools import wraps
 
+# Импортируем функцию для получения ID роли модератора
+from bot.config_manager import get_moderator_role_id
+
 # Настройка логгера
 logger = logging.getLogger(__name__)
 
@@ -219,6 +222,8 @@ class DiscordAuth:
             'display_name': user_data['username'],
             'avatar_url': avatar_url,
             'guild_member': guild_member,
+            'is_admin': self.check_admin_permissions(access_token, user_data['id']) if guild_member else False,
+            'admin_check_time': datetime.now().isoformat(),  # Время последней проверки прав
             'last_check': datetime.now().isoformat(),
             'login_time': datetime.now().isoformat(),
             'application_status': self.get_application_status(user_data['id']),
@@ -296,6 +301,48 @@ class DiscordAuth:
         """Проверяет, является ли пользователь участником сервера"""
         return session.get('guild_member', False)
     
+    def check_admin_permissions(self, access_token, user_id):
+        """Проверяет, имеет ли пользователь права администратора"""
+        try:
+            headers = {
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json'
+            }
+            
+            # Получаем информацию о пользователе на сервере
+            response = requests.get(
+                f"{self.DISCORD_API_BASE}/users/@me/guilds/{self.GUILD_ID}/member",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                member_data = response.json()
+                user_roles = member_data.get('roles', [])
+                
+                # Получаем ID роли модератора из конфигурации
+                moderator_role_id = str(get_moderator_role_id())
+                
+                # Проверяем, есть ли у пользователя роль модератора
+                is_admin = moderator_role_id in user_roles
+                
+                logger.info(f"[ADMIN_CHECK] Пользователь {user_id}: роли {user_roles}")
+                logger.info(f"[ADMIN_CHECK] Роль модератора: {moderator_role_id}")
+                logger.info(f"[ADMIN_CHECK] Права администратора: {'ДА' if is_admin else 'НЕТ'}")
+                
+                return is_admin
+            else:
+                logger.warning(f"[ADMIN_CHECK] Не удалось получить информацию о пользователе: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[ADMIN_CHECK] Ошибка при проверке прав администратора: {e}")
+            return False
+    
+    def is_admin(self):
+        """Проверяет, имеет ли текущий пользователь права администратора"""
+        return session.get('is_admin', False)
+    
     def get_current_user(self):
         """Возвращает данные текущего пользователя"""
         if not self.is_authenticated():
@@ -307,6 +354,7 @@ class DiscordAuth:
             'display_name': session.get('display_name'),
             'avatar_url': session.get('avatar_url'),
             'guild_member': session.get('guild_member', False),
+            'is_admin': session.get('is_admin', False),
             'application_status': session.get('application_status'),
             'login_time': session.get('login_time')
         }

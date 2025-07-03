@@ -509,6 +509,15 @@ footer {
     color: #ff4444;
 }
 
+.dropdown-item.text-warning {
+    color: #ffb84d;
+}
+
+.dropdown-item.text-warning:hover {
+    background: rgba(255, 184, 77, 0.1);
+    color: #ffb84d;
+}
+
 .dropdown-divider {
     border-color: rgba(255, 255, 255, 0.1);
     margin: 8px 0;

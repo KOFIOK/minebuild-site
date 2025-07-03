@@ -10,6 +10,8 @@ import re
 from mcrcon import MCRcon
 import discord
 
+from ..config_manager import get_rcon_timeout, get_rcon_general_timeout
+
 logger = logging.getLogger("MineBuildBot.Minecraft")
 
 
@@ -74,7 +76,7 @@ async def execute_minecraft_command(command: str) -> bool:
                     os.getenv('RCON_HOST'),
                     os.getenv('RCON_PASSWORD'),
                     int(os.getenv('RCON_PORT')),
-                    timeout=10  # 10 секунд таймаут для команды
+                    timeout=get_rcon_timeout()  # Таймаут для команды из конфигурации
                 ) as mcr:
                     response = mcr.command(command)
                     
@@ -420,3 +422,5 @@ async def get_whitelist() -> list:
     except Exception as e:
         logger.error(f"Ошибка RCON при получении списка whitelist: {e}", exc_info=True)
         return []
+
+

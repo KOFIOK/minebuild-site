@@ -6,7 +6,8 @@ import logging
 import discord
 from typing import List, Dict, Any, Optional
 
-from ..config import MODERATOR_ROLE_ID, QUESTION_MAPPING
+from ..config import QUESTION_MAPPING
+from ..config_manager import get_moderator_role_id
 
 logger = logging.getLogger("MineBuildBot.Utils")
 
@@ -23,7 +24,7 @@ def has_moderation_permissions(user: discord.Member) -> bool:
     """
     return (
         user.guild_permissions.administrator or
-        any(role.id == MODERATOR_ROLE_ID for role in user.roles)
+        any(role.id == get_moderator_role_id() for role in user.roles)
     )
 
 

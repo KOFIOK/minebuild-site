@@ -7,11 +7,11 @@ import discord
 from discord.ext import commands
 from typing import Union
 
-from ..config import (
-    MODERATOR_ROLE_ID,
-    WHITELIST_ROLE_ID,
-    CANDIDATE_ROLE_ID,
-    LOG_CHANNEL_ID
+from ..config_manager import (
+    get_moderator_role_id,
+    get_whitelist_role_id,
+    get_candidate_role_id,
+    get_log_channel_id
 )
 from ..utils.helpers import has_moderation_permissions, send_welcome_message
 from ..utils.minecraft import add_to_whitelist_wrapper, remove_from_whitelist, get_whitelist
@@ -68,7 +68,7 @@ class AdminCommands(commands.Cog):
             await interaction.response.defer(ephemeral=True)
 
             # Проверяем наличие роли whitelist
-            whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
+            whitelist_role = interaction.guild.get_role(get_whitelist_role_id())
             if not whitelist_role:
                 await interaction.followup.send(
                     "Роль для whitelist не найдена.",
@@ -77,7 +77,7 @@ class AdminCommands(commands.Cog):
                 return
 
             # Если у пользователя есть роль кандидата, снимаем её
-            candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
+            candidate_role = interaction.guild.get_role(get_candidate_role_id())
             if candidate_role and candidate_role in user.roles:
                 await user.remove_roles(candidate_role)
                 logger.info(f"Снята роль кандидата с пользователя {user.id}")
@@ -102,7 +102,7 @@ class AdminCommands(commands.Cog):
             await send_welcome_message(user)
 
             # Логируем в канал
-            log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+            log_channel = interaction.guild.get_channel(get_log_channel_id())
             if log_channel:
                 await log_channel.send(
                     f"## <@{interaction.user.id}> добавил <@{user.id}> (`{nickname}`) в whitelist"
@@ -164,7 +164,7 @@ class AdminCommands(commands.Cog):
             await interaction.response.defer(ephemeral=True)
 
             # Проверяем наличие роли whitelist
-            whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
+            whitelist_role = interaction.guild.get_role(get_whitelist_role_id())
             if not whitelist_role:
                 await interaction.followup.send(
                     "Роль для whitelist не найдена.",
@@ -181,7 +181,7 @@ class AdminCommands(commands.Cog):
             
             if success:
                 # Логируем в канал
-                log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+                log_channel = interaction.guild.get_channel(get_log_channel_id())
                 if log_channel:
                     await log_channel.send(
                         f"## <@{interaction.user.id}> удалил <@{user.id}> (`{nickname}`) из whitelist"

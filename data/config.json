@@ -1,0 +1,85 @@
+{
+  "discord": {
+    "guild_id": 0,
+    "roles": {
+      "moderator": 1277399739561672845,
+      "whitelist": 1150073275184074803,
+      "candidate": 1187064873847365752,
+      "donator": 1153006749218000918,
+      "minebuild_member": 1150073275184074804
+    },
+    "channels": {
+      "log": 1277415977549566024,
+      "candidate_chat": 1362437237513519279,
+      "donation": 1152974439311487089,
+      "application": 1360709668770418789
+    }
+  },
+  "donations": {
+    "enabled": true,
+    "thresholds": {
+      "thank_message": 100,
+      "role": 300,
+      "suffix": 500,
+      "individual_suffix": 1000
+    },
+    "rewards": {
+      "thank_message_enabled": true,
+      "role_enabled": true,
+      "suffix_enabled": true,
+      "individual_suffix_enabled": true
+    },
+    "minecraft_commands": {
+      "suffix_command": "lp user {nickname} permission set title.u.donate",
+      "whitelist_add_command": "whitelist add {nickname}",
+      "whitelist_remove_command": "whitelist remove {nickname}"
+    }
+  },
+  "minecraft": {
+    "rcon": {
+      "timeout": 10,
+      "general_timeout": 15
+    }
+  },
+  "system": {
+    "timeouts": {
+      "shutdown_normal_tasks": 5,
+      "shutdown_system_tasks": 2,
+      "api_request": 10
+    },
+    "application": {
+      "deduplication_window": 60
+    }
+  },
+  "messages": {
+    "welcome": {
+      "title": "Добро пожаловать на MineBuild!",
+      "description": "Поздравляем! Вы были приняты на наш сервер.",
+      "color": 58785
+    },
+    "donation": {
+      "title": "Новый донат!",
+      "color": 6867711,
+      "footer": "MineBuild Donations"
+    },
+    "errors": {
+      "minecraft_unavailable": "Сервер Minecraft недоступен. Пожалуйста, проверьте его состояние.",
+      "insufficient_permissions": "У вас нет прав для выполнения этой команды.",
+      "user_not_found": "Пользователь не найден.",
+      "nickname_invalid": "Некорректный никнейм Minecraft."
+    }
+  },
+  "validation": {
+    "minecraft_nickname": {
+      "min_length": 3,
+      "max_length": 16,
+      "pattern": "^[a-zA-Z0-9_]+$"
+    }
+  },
+  "_metadata": {
+    "version": "1.0.0",
+    "created_at": null,
+    "updated_at": "2025-07-03T14:26:51.392276",
+    "updated_by": null
+  }
+}
