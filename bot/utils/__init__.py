@@ -6,7 +6,8 @@ from .minecraft import (
     execute_minecraft_command,
     add_to_whitelist,
     add_to_whitelist_wrapper,
-    remove_from_whitelist
+    remove_from_whitelist,
+    get_whitelist
 )
 from .helpers import (
     has_moderation_permissions,
@@ -27,6 +28,7 @@ __all__ = [
     "add_to_whitelist",
     "add_to_whitelist_wrapper",
     "remove_from_whitelist",
+    "get_whitelist",
     "has_moderation_permissions",
     "extract_minecraft_nickname",
     "process_approval",

@@ -14,7 +14,7 @@ from ..config import (
     LOG_CHANNEL_ID
 )
 from ..utils.helpers import has_moderation_permissions, send_welcome_message
-from ..utils.minecraft import add_to_whitelist_wrapper
+from ..utils.minecraft import add_to_whitelist_wrapper, remove_from_whitelist, get_whitelist
 
 logger = logging.getLogger("MineBuildBot.Commands")
 
@@ -25,131 +25,225 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(
-        name="add",
-        description="Добавить игрока на сервер (выдать роль, добавить в вайтлист)"
+    @discord.app_commands.command(
+        name="whitelist-add",
+        description="Добавить игрока в whitelist (выдать роль, добавить в Minecraft whitelist)"
     )
-    @commands.guild_only()
-    @commands.has_any_role(MODERATOR_ROLE_ID)
     @discord.app_commands.describe(
         user="Пользователь Discord, которого нужно добавить",
-        minecraft_nickname="Никнейм игрока в Minecraft"
+        nickname="Никнейм игрока в Minecraft"
     )
-    async def add_player(
+    async def whitelist_add(
         self,
-        ctx: Union[commands.Context, discord.Interaction],
+        interaction: discord.Interaction,
         user: discord.Member,
-        minecraft_nickname: str
+        nickname: str
     ):
-        """
-        Добавляет игрока на сервер: выдаёт роль, добавляет в вайтлист и отправляет приветственное сообщение.
-        Работает как с /add, так и с !add
-        """
+        """Добавляет игрока в whitelist."""
+        # Проверяем права модератора
+        if not has_moderation_permissions(interaction.user):
+            await interaction.response.send_message(
+                "У вас нет прав для управления whitelist. Необходимо быть администратором или модератором.",
+                ephemeral=True
+            )
+            return
+
+        # Валидация никнейма Minecraft
+        if not nickname or len(nickname) < 3 or len(nickname) > 16:
+            await interaction.response.send_message(
+                "Никнейм Minecraft должен содержать от 3 до 16 символов.",
+                ephemeral=True
+            )
+            return
+        
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', nickname):
+            await interaction.response.send_message(
+                "Никнейм Minecraft может содержать только буквы, цифры и символ подчеркивания.",
+                ephemeral=True
+            )
+            return
+
         try:
-            # Проверяем права пользователя
-            if not has_moderation_permissions(ctx.author):
-                await ctx.response.send_message(
-                    "У вас нет прав для добавления игроков. Необходимо быть администратором или модератором.",
-                    ephemeral=True
-                ) if isinstance(ctx, discord.Interaction) else await ctx.reply(
-                    "У вас нет прав для добавления игроков. Необходимо быть администратором или модератором."
-                )
-                return
+            await interaction.response.defer(ephemeral=True)
 
-            # Проверяем наличие роли вайтлиста
-            whitelist_role = ctx.guild.get_role(WHITELIST_ROLE_ID)
+            # Проверяем наличие роли whitelist
+            whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
             if not whitelist_role:
-                await ctx.response.send_message(
-                    "Роль для вайтлиста не найдена.", 
+                await interaction.followup.send(
+                    "Роль для whitelist не найдена.",
                     ephemeral=True
-                ) if isinstance(ctx, discord.Interaction) else await ctx.reply(
-                    "Роль для вайтлиста не найдена."
                 )
                 return
-
-            # Отвечаем на взаимодействие в зависимости от типа контекста
-            if isinstance(ctx, discord.Interaction):
-                await ctx.response.defer(ephemeral=True)
-                response_channel = ctx.followup
-            else:
-                response_channel = ctx
 
             # Если у пользователя есть роль кандидата, снимаем её
-            candidate_role = ctx.guild.get_role(CANDIDATE_ROLE_ID)
+            candidate_role = interaction.guild.get_role(CANDIDATE_ROLE_ID)
             if candidate_role and candidate_role in user.roles:
                 await user.remove_roles(candidate_role)
                 logger.info(f"Снята роль кандидата с пользователя {user.id}")
 
-            # Добавляем роль вайтлиста
+            # Добавляем роль whitelist
             await user.add_roles(whitelist_role)
             
+            # Пробуем изменить никнейм
             try:
-                # Пробуем изменить никнейм
-                await user.edit(nick=minecraft_nickname)
+                await user.edit(nick=nickname)
             except discord.Forbidden:
                 logger.warning(f"Не удалось изменить никнейм пользователю {user.id}")
-                await response_channel.send(
+                await interaction.followup.send(
                     "Не удалось изменить никнейм пользователя. Пожалуйста, сделайте это вручную.",
                     ephemeral=True
                 )
             
-            # Добавляем в вайтлист
-            await add_to_whitelist_wrapper(response_channel, minecraft_nickname)
+            # Добавляем в Minecraft whitelist
+            await add_to_whitelist_wrapper(interaction.followup, nickname)
             
-            # Отправляем личное сообщение пользователю
+            # Отправляем приветственное сообщение
             await send_welcome_message(user)
 
-            # Отправляем сообщение в лог-канал
-            log_channel = ctx.guild.get_channel(LOG_CHANNEL_ID)
+            # Логируем в канал
+            log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
             if log_channel:
                 await log_channel.send(
-                    f"## Куратор <@{ctx.author.id}> добавил игрока <@{user.id}> через команду."
+                    f"## <@{interaction.user.id}> добавил <@{user.id}> (`{nickname}`) в whitelist"
                 )
 
             # Успешное добавление
-            await response_channel.send(
-                f"✅ Игрок <@{user.id}> успешно добавлен!",
+            await interaction.followup.send(
+                f"✅ Игрок <@{user.id}> (`{nickname}`) успешно добавлен в whitelist!",
                 ephemeral=True
             )
 
         except Exception as e:
-            error_message = f"Произошла ошибка при добавлении игрока: {str(e)}"
-            logger.error(error_message, exc_info=True)
-            
-            if isinstance(ctx, discord.Interaction):
-                if not ctx.response.is_done():
-                    await ctx.response.send_message(error_message, ephemeral=True)
-                else:
-                    await ctx.followup.send(error_message, ephemeral=True)
-            else:
-                await ctx.reply(error_message)
+            logger.error(f"Ошибка в whitelist add: {e}", exc_info=True)
+            await interaction.followup.send(
+                f"Произошла ошибка при добавлении игрока: {str(e)}",
+                ephemeral=True
+            )
 
-    @add_player.error
-    async def add_player_error(self, ctx: Union[commands.Context, discord.Interaction], error: Exception):
-        """Обработчик ошибок для команды add_player."""
-        if isinstance(error, commands.MissingRequiredArgument):
-            syntax = "`!add @пользователь никнейм`" if isinstance(ctx, commands.Context) else "`/add @пользователь никнейм`"
-            response = f"Недостаточно аргументов. Используйте: {syntax}"
+    @discord.app_commands.command(
+        name="whitelist-remove",
+        description="Удалить игрока из whitelist (убрать роль, удалить из Minecraft whitelist)"
+    )
+    @discord.app_commands.describe(
+        user="Пользователь Discord, которого нужно удалить",
+        nickname="Никнейм игрока в Minecraft"
+    )
+    async def whitelist_remove(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        nickname: str
+    ):
+        """Удаляет игрока из whitelist."""
+        # Проверяем права модератора
+        if not has_moderation_permissions(interaction.user):
+            await interaction.response.send_message(
+                "У вас нет прав для управления whitelist. Необходимо быть администратором или модератором.",
+                ephemeral=True
+            )
+            return
+
+        # Валидация никнейма Minecraft
+        if not nickname or len(nickname) < 3 or len(nickname) > 16:
+            await interaction.response.send_message(
+                "Никнейм Minecraft должен содержать от 3 до 16 символов.",
+                ephemeral=True
+            )
+            return
+        
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', nickname):
+            await interaction.response.send_message(
+                "Никнейм Minecraft может содержать только буквы, цифры и символ подчеркивания.",
+                ephemeral=True
+            )
+            return
+
+        try:
+            await interaction.response.defer(ephemeral=True)
+
+            # Проверяем наличие роли whitelist
+            whitelist_role = interaction.guild.get_role(WHITELIST_ROLE_ID)
+            if not whitelist_role:
+                await interaction.followup.send(
+                    "Роль для whitelist не найдена.",
+                    ephemeral=True
+                )
+                return
+
+            # Убираем роль whitelist
+            if whitelist_role in user.roles:
+                await user.remove_roles(whitelist_role)
             
-            if isinstance(ctx, discord.Interaction):
-                if not ctx.response.is_done():
-                    await ctx.response.send_message(response, ephemeral=True)
-                else:
-                    await ctx.followup.send(response, ephemeral=True)
+            # Удаляем из Minecraft whitelist
+            success = await remove_from_whitelist(nickname)
+            
+            if success:
+                # Логируем в канал
+                log_channel = interaction.guild.get_channel(LOG_CHANNEL_ID)
+                if log_channel:
+                    await log_channel.send(
+                        f"## <@{interaction.user.id}> удалил <@{user.id}> (`{nickname}`) из whitelist"
+                    )
+
+                await interaction.followup.send(
+                    f"✅ Игрок <@{user.id}> (`{nickname}`) успешно удален из whitelist!",
+                    ephemeral=True
+                )
             else:
-                await ctx.reply(response)
-                
-        elif isinstance(error, commands.MissingAnyRole):
-            response = "У вас нет необходимых прав для использования этой команды."
-            if isinstance(ctx, discord.Interaction):
-                if not ctx.response.is_done():
-                    await ctx.response.send_message(response, ephemeral=True)
-                else:
-                    await ctx.followup.send(response, ephemeral=True)
-            else:
-                await ctx.reply(response)
-        else:
-            logger.error(f"Необработанная ошибка в команде add_player: {error}", exc_info=True)
+                await interaction.followup.send(
+                    f"⚠️ Роль удалена, но произошла ошибка при удалении `{nickname}` из Minecraft whitelist. Проверьте сервер.",
+                    ephemeral=True
+                )
+
+        except Exception as e:
+            logger.error(f"Ошибка в whitelist remove: {e}", exc_info=True)
+            await interaction.followup.send(
+                f"Произошла ошибка при удалении игрока: {str(e)}",
+                ephemeral=True
+            )
+
+    @discord.app_commands.command(
+        name="whitelist-list",
+        description="Показать список игроков в whitelist"
+    )
+    async def whitelist_list(self, interaction: discord.Interaction):
+        """Показывает список игроков в whitelist."""
+        try:
+            await interaction.response.defer(ephemeral=True)
+
+            # Получаем список из Minecraft
+            minecraft_whitelist = await get_whitelist()
+            
+            if not minecraft_whitelist:
+                await interaction.followup.send(
+                    "📋 **Whitelist пуст**\n\nВ whitelist сервера нет ни одного игрока.",
+                    ephemeral=True
+                )
+                return
+
+            # Форматируем список в красивом виде
+            players_text = "\n".join([f"• `{player}`" for player in sorted(minecraft_whitelist)])
+            
+            embed = discord.Embed(
+                title="📋 Список игроков в Whitelist",
+                description=f"**Всего игроков:** {len(minecraft_whitelist)}\n\n{players_text}",
+                color=0x00E5A1  # Зеленый цвет
+            )
+            embed.set_footer(text="Данные получены с сервера Minecraft")
+            
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+        except Exception as e:
+            logger.error(f"Ошибка в whitelist list: {e}", exc_info=True)
+            try:
+                await interaction.followup.send(
+                    f"Произошла ошибка при получении списка whitelist: {str(e)}",
+                    ephemeral=True
+                )
+            except Exception as followup_error:
+                logger.error(f"Ошибка при отправке followup сообщения: {followup_error}", exc_info=True)
 
 
 async def setup(bot):
