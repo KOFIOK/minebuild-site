@@ -6,66 +6,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-<style>
-/* Критические переопределения глобальных стилей */
-body.admin-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    background-image: none !important;
-    background-attachment: initial !important;
-    background-size: initial !important;
-    background-position: initial !important;
-    background-repeat: initial !important;
-    min-height: 100vh !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-}
-
-/* Отключаем стили навбара для админ-панели */
-body.admin-page .navbar {
-    background: rgba(0, 0, 0, 0.85) !important;
-    backdrop-filter: blur(10px) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Убираем отступы от навбара */
-body.admin-page .content-wrapper {
-    padding-top: 0 !important;
-}
-
-/* Переопределяем все Bootstrap стили */
-body.admin-page .container {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-}
-
-/* Усиливаем стили админ-панели */
-body.admin-page .admin-panel {
-    background: none !important;
-    min-height: 100vh !important;
-    padding: 2rem 0 !important;
-}
-
-body.admin-page .admin-section {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
-    backdrop-filter: blur(10px) !important;
-}
-
-body.admin-page .admin-panel h1 {
-    color: #fff !important;
-    font-size: 2.5rem !important;
-    font-weight: 700 !important;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
-}
-
-body.admin-page .admin-panel .subtitle {
-    color: #e8f4f8 !important;
-    font-size: 1.1rem !important;
-    opacity: 0.9 !important;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -81,13 +21,13 @@ body.admin-page .admin-panel .subtitle {
                 <div class="config-group">
                     <h3>Роли</h3>
                     <div class="config-items" id="discord-roles">
-                        <!-- Роли будут загружены через JavaScript -->
+                        <p>Роли загружаются...</p>
                     </div>
                 </div>
                 <div class="config-group">
                     <h3>Каналы</h3>
                     <div class="config-items" id="discord-channels">
-                        <!-- Каналы будут загружены через JavaScript -->
+                        <p>Каналы загружаются...</p>
                     </div>
                 </div>
             </div>
@@ -98,25 +38,25 @@ body.admin-page .admin-panel .subtitle {
                 <div class="config-group">
                     <h3>Включение системы</h3>
                     <div class="config-items" id="donations-enabled">
-                        <!-- Настройки будут загружены через JavaScript -->
+                        <p>Настройки загружаются...</p>
                     </div>
                 </div>
                 <div class="config-group">
                     <h3>Пороги</h3>
                     <div class="config-items" id="donations-thresholds">
-                        <!-- Пороги будут загружены через JavaScript -->
+                        <p>Пороги загружаются...</p>
                     </div>
                 </div>
                 <div class="config-group">
                     <h3>Награды</h3>
                     <div class="config-items" id="donations-rewards">
-                        <!-- Награды будут загружены через JavaScript -->
+                        <p>Награды загружаются...</p>
                     </div>
                 </div>
                 <div class="config-group">
                     <h3>Команды Minecraft</h3>
                     <div class="config-items" id="donations-commands">
-                        <!-- Команды будут загружены через JavaScript -->
+                        <p>Команды загружаются...</p>
                     </div>
                 </div>
             </div>
@@ -126,8 +66,8 @@ body.admin-page .admin-panel .subtitle {
                 <h2>⚙️ Системные настройки</h2>
                 <div class="config-group">
                     <h3>Таймауты</h3>
-                    <div class="config-items" id="system-timeouts">
-                        <!-- Таймауты будут загружены через JavaScript -->
+                    <div class="config-items" id="system-settings">
+                        <p>Системные настройки загружаются...</p>
                     </div>
                 </div>
             </div>
@@ -137,25 +77,25 @@ body.admin-page .admin-panel .subtitle {
                 <h2>✅ Валидация</h2>
                 <div class="config-group">
                     <div class="config-items" id="validation-results">
-                        <!-- Результаты валидации будут загружены через JavaScript -->
+                        <p>Нажмите "Проверить конфигурацию" для валидации</p>
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="admin-actions">
-            <button class="btn btn-primary" onclick="saveConfiguration()">💾 Сохранить изменения</button>
-            <button class="btn btn-secondary" onclick="reloadConfiguration()">🔄 Перезагрузить конфигурацию</button>
-            <button class="btn btn-info" onclick="validateConfiguration()">🔍 Проверить конфигурацию</button>
+            <button class="btn btn-primary" id="save-config">💾 Сохранить изменения</button>
+            <button class="btn btn-secondary" id="reload-config">🔄 Перезагрузить конфигурацию</button>
+            <button class="btn btn-info" id="validate-config">🔍 Проверить конфигурацию</button>
         </div>
         
         <div class="admin-status" id="admin-status">
-            <!-- Статус операций будет отображаться здесь -->
+            <p>Готов к работе</p>
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/admin_panel.js') }}"></script>
-{% endblock %}
 {% endblock %}

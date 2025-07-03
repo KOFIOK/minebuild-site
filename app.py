@@ -910,6 +910,26 @@ def admin_panel():
     
     return render_template('admin_panel.html')
 
+# Тестовый маршрут для админ-панели (без авторизации)
+@app.route('/admin-test')
+def admin_panel_test():
+    """Тестовая панель администратора без авторизации"""
+    return render_template('admin_panel.html')
+
+# Тестовый API для админ-панели (без авторизации)
+@app.route('/api/config-test')
+def get_bot_config_test():
+    """Тестовый API для конфигурации бота без авторизации"""
+    try:
+        from bot.config_manager import get_config
+        config = get_config()
+        # Используем метод get_admin_panel_config для получения структурированной конфигурации
+        config_dict = config.get_admin_panel_config()
+        return jsonify(config_dict)
+    except Exception as e:
+        logger.error(f"Ошибка при получении конфигурации: {e}")
+        return jsonify({"error": str(e)}), 500
+
 # Context processor для передачи информации о пользователе во все шаблоны
 @app.context_processor
 def inject_user():
@@ -1071,6 +1091,32 @@ def is_admin_cached():
     """Проверяет права администратора только из кэша сессии, без обращения к Discord API"""
     return session.get('is_admin', False)
 
+@app.route('/api/user', methods=['GET'])
+def get_current_user():
+    """Получение информации о текущем пользователе"""
+    try:
+        # Проверяем, есть ли авторизованный пользователь
+        if not discord_auth.is_authenticated():
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'No user ID in session'}), 401
+        
+        # Возвращаем информацию о пользователе из сессии
+        return jsonify({
+            'id': user_id,
+            'username': session.get('username', 'Unknown'),
+            'display_name': session.get('display_name', 'Unknown'),
+            'avatar_url': session.get('avatar_url', ''),
+            'is_admin': is_admin_cached(),
+            'authenticated': True
+        })
+    
+    except Exception as e:
+        app.logger.error(f"Ошибка при получении информации о пользователе: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @app.route('/api/config', methods=['GET'])
 @require_auth
 def get_bot_config():
@@ -1081,20 +1127,10 @@ def get_bot_config():
             return jsonify({'error': 'Insufficient permissions'}), 403
         
         config = get_config()
-        admin_config = config.get_admin_panel_config()
+        # Используем упрощенную структуру для совместимости с JavaScript
+        simple_config = config.get_simple_config()
         
-        # Добавляем информацию о валидности ID
-        validation_results = config.validate_discord_ids()
-        admin_config['validation'] = validation_results
-        
-        return jsonify({
-            'success': True,
-            'config': admin_config,
-            'metadata': {
-                'updated_at': config.get('_metadata.updated_at'),
-                'version': config.get('_metadata.version')
-            }
-        })
+        return jsonify(simple_config)
     except Exception as e:
         app.logger.error(f"Ошибка при получении конфигурации: {e}")
         return jsonify({'error': 'Failed to retrieve configuration'}), 500
@@ -1110,26 +1146,71 @@ def update_bot_config():
             return jsonify({'error': 'Insufficient permissions'}), 403
         
         data = request.get_json()
-        if not data or 'updates' not in data:
+        if not data:
             return jsonify({'error': 'Invalid request data'}), 400
         
         config = get_config()
-        updates = data['updates']
+        
+        # Обновляем конфигурацию целиком
+        # Преобразуем flat structure в updates для update_multiple
+        updates = {}
+        
+        # Discord роли
+        if 'discord' in data and 'roles' in data['discord']:
+            for role_name, role_id in data['discord']['roles'].items():
+                updates[f'discord.roles.{role_name}'] = role_id
+        
+        # Discord каналы
+        if 'discord' in data and 'channels' in data['discord']:
+            for channel_name, channel_id in data['discord']['channels'].items():
+                updates[f'discord.channels.{channel_name}'] = channel_id
+        
+        # Настройки донатов
+        if 'donations' in data:
+            donations = data['donations']
+            if 'enabled' in donations:
+                updates['donations.enabled'] = donations['enabled']
+            
+            if 'thresholds' in donations:
+                for threshold_name, threshold_value in donations['thresholds'].items():
+                    updates[f'donations.thresholds.{threshold_name}'] = threshold_value
+            
+            if 'rewards' in donations:
+                for reward_name, reward_value in donations['rewards'].items():
+                    updates[f'donations.rewards.{reward_name}'] = reward_value
+            
+            if 'minecraft_commands' in donations:
+                for command_name, command_value in donations['minecraft_commands'].items():
+                    updates[f'donations.minecraft_commands.{command_name}'] = command_value
+        
+        # Системные настройки
+        if 'system' in data:
+            system = data['system']
+            if 'timeouts' in system:
+                for timeout_name, timeout_value in system['timeouts'].items():
+                    updates[f'system.timeouts.{timeout_name}'] = timeout_value
+            
+            if 'application' in system:
+                for app_name, app_value in system['application'].items():
+                    updates[f'system.application.{app_name}'] = app_value
         
         # Обновляем настройки
-        success = config.update_multiple(updates, save=True)
-        
-        if success:
-            # Перезагружаем конфигурацию для применения изменений
-            reload_config()
+        if updates:
+            success = config.update_multiple(updates, save=True)
             
-            return jsonify({
-                'success': True,
-                'message': 'Configuration updated successfully',
-                'updated_count': len(updates)
-            })
+            if success:
+                # Перезагружаем конфигурацию для применения изменений
+                reload_config()
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Configuration updated successfully',
+                    'updated_count': len(updates)
+                })
+            else:
+                return jsonify({'error': 'Failed to update configuration'}), 500
         else:
-            return jsonify({'error': 'Failed to update configuration'}), 500
+            return jsonify({'error': 'No valid updates provided'}), 400
             
     except Exception as e:
         app.logger.error(f"Ошибка при обновлении конфигурации: {e}")

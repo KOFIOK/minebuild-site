@@ -1,353 +1,593 @@
 /* === АДМИН-ПАНЕЛЬ === */
-/* Переопределяем стили с высокой специфичностью */
+/* Стили, совместимые с общей системой сайта */
 
-/* Базовые стили для админ-страницы */
-html.admin-page,
-body.admin-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    background-image: none !important;
-    background-attachment: initial !important;
-    background-size: initial !important;
-    background-position: initial !important;
-    background-repeat: initial !important;
-    min-height: 100vh !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    color: #2c3e50 !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-}
-
-/* Переопределяем любые глобальные стили */
-body.admin-page * {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-}
-
-/* Главный контейнер админ-панели */
+/* Основной контейнер админ-панели */
 .admin-panel {
-    min-height: 100vh !important;
-    padding: 2rem 0 !important;
-    color: #2c3e50 !important;
+    min-height: calc(100vh - var(--navbar-height));
+    padding: calc(var(--navbar-height) + 2rem) 0 2rem 0;
+    position: relative;
+    z-index: 1;
 }
 
+/* Полупрозрачный фон для админ-панели */
+.admin-panel::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(10, 10, 10, 0.85) 0%, 
+        rgba(75, 0, 130, 0.25) 50%, 
+        rgba(10, 10, 10, 0.85) 100%
+    );
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Контейнер */
 .admin-panel .container {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    padding: 0 1rem !important;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 2;
 }
 
-/* Заголовок */
+/* Заголовок админ-панели */
 .admin-panel h1 {
-    color: #fff !important;
-    text-align: center !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 2.5rem !important;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+    font-family: 'Rimma Sans', sans-serif;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    animation: fadeIn 0.8s ease-out;
 }
 
 .admin-panel .subtitle {
-    color: #e8f4f8 !important;
-    text-align: center !important;
-    margin-bottom: 2.5rem !important;
-    font-size: 1.1rem !important;
-    font-weight: 400 !important;
-    opacity: 0.9 !important;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+    font-family: 'Montserrat', sans-serif;
+    animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
 /* Сетка секций */
 .admin-sections {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)) !important;
-    gap: 2rem !important;
-    margin-bottom: 2rem !important;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+    animation: slideUp 0.8s ease-out 0.4s both;
 }
 
 /* Секции админ-панели */
 .admin-section {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border-radius: 16px !important;
-    padding: 2rem !important;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    transition: all 0.3s ease !important;
-    color: #2c3e50 !important;
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.admin-section:hover::before {
+    opacity: 1;
 }
 
 .admin-section:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.15) !important;
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border-color: var(--accent-green);
 }
 
 /* Заголовки секций */
 .admin-section h2 {
-    color: #2c3e50 !important;
-    margin-bottom: 1.5rem !important;
-    font-size: 1.6rem !important;
-    border-bottom: 3px solid #667eea !important;
-    padding-bottom: 0.75rem !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+    font-family: 'Evolventa', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--accent-green);
+    padding-bottom: 0.5rem;
+}
+
+.admin-section h3 {
+    color: var(--accent-green);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1.5rem;
 }
 
 /* Группы конфигурации */
 .config-group {
-    margin-bottom: 2rem !important;
-}
-
-.config-group h3 {
-    color: #34495e !important;
-    margin-bottom: 1rem !important;
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-    padding-left: 0.5rem !important;
-    border-left: 4px solid #667eea !important;
+    margin-bottom: 2rem;
 }
 
 .config-items {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1rem !important;
+    display: grid;
+    gap: 1rem;
 }
 
 /* Элементы конфигурации */
 .config-item {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    padding: 1.25rem !important;
-    background: #f8f9fa !important;
-    border-radius: 12px !important;
-    border: 1px solid #e9ecef !important;
-    transition: all 0.2s ease !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
 .config-item:hover {
-    background: #e9ecef !important;
-    border-color: #667eea !important;
-    transform: translateY(-1px) !important;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-green);
+    transform: translateX(5px);
+}
+
+.config-item label {
+    cursor: pointer;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.config-item input[type="text"],
+.config-item input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.config-item input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+    cursor: pointer;
+}
+
+.config-item small {
+    display: block;
+    margin-top: 0.25rem;
+    opacity: 0.7;
 }
 
 .config-label {
-    font-weight: 600 !important;
-    color: #2c3e50 !important;
-    font-size: 0.95rem !important;
-    margin-bottom: 0.25rem !important;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .config-input {
-    padding: 0.75rem !important;
-    border: 2px solid #ced4da !important;
-    border-radius: 8px !important;
-    font-size: 0.9rem !important;
-    background: #fff !important;
-    color: #495057 !important;
-    transition: all 0.2s ease !important;
+    padding: 0.75rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
 }
 
 .config-input:focus {
-    outline: none !important;
-    border-color: #667eea !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-    background: #fff !important;
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(0, 229, 161, 0.1);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .config-input[type="checkbox"] {
-    width: 20px !important;
-    height: 20px !important;
-    margin-right: 0.5rem !important;
-    cursor: pointer !important;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent-green);
 }
 
 .config-description {
-    color: #6c757d !important;
-    font-size: 0.85rem !important;
-    font-style: italic !important;
-    margin-top: 0.25rem !important;
-    line-height: 1.4 !important;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-style: italic;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.validation-item {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    padding: 0.75rem !important;
-    border-radius: 8px !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 0.9rem !important;
-    transition: all 0.2s ease !important;
-}
-
-.validation-item.valid {
-    background: #d4edda !important;
-    color: #155724 !important;
-    border: 1px solid #c3e6cb !important;
-}
-
-.validation-item.invalid {
-    background: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #f5c6cb !important;
-}
-
-.validation-icon {
-    font-size: 1.2rem !important;
-    font-weight: bold !important;
-}
-
-.validation-text {
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    line-height: 1.4 !important;
-}
-
+/* Кнопки действий */
 .admin-actions {
-    display: flex !important;
-    gap: 1rem !important;
-    justify-content: center !important;
-    margin-bottom: 2rem !important;
-    flex-wrap: wrap !important;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    animation: slideUp 0.8s ease-out 0.6s both;
 }
 
 .admin-panel .btn {
-    padding: 0.875rem 1.75rem !important;
-    border: none !important;
-    border-radius: 10px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
 }
 
 .admin-panel .btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    filter: brightness(1.1);
+}
+
+.admin-panel .btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .admin-panel .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-dark-green));
 }
 
 .admin-panel .btn-primary:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-green));
+    transform: translateY(-3px) scale(1.05);
 }
 
 .admin-panel .btn-secondary {
-    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, #6c757d, #495057);
 }
 
 .admin-panel .btn-secondary:hover {
-    background: linear-gradient(135deg, #839496 0%, #95a5a6 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, #495057, #6c757d);
+    transform: translateY(-3px) scale(1.05);
 }
 
 .admin-panel .btn-info {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-dark-purple));
 }
 
 .admin-panel .btn-info:hover {
-    background: linear-gradient(135deg, #138496 0%, #17a2b8 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, var(--accent-dark-purple), var(--accent-purple));
+    transform: translateY(-3px) scale(1.05);
 }
 
 /* Статусы */
 .admin-status {
-    text-align: center !important;
-    min-height: 3rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    text-align: center;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slideUp 0.8s ease-out 0.8s both;
 }
 
 .status-message {
-    padding: 1rem 1.5rem !important;
-    border-radius: 10px !important;
-    font-weight: 500 !important;
-    max-width: 600px !important;
-    margin: 0 auto !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    max-width: 600px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-family: 'Montserrat', sans-serif;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .status-success {
-    background: #d4edda !important;
-    color: #155724 !important;
-    border: 1px solid #c3e6cb !important;
+    background: linear-gradient(135deg, rgba(0, 229, 161, 0.2), rgba(0, 179, 127, 0.2));
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
 }
 
 .status-error {
-    background: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #f5c6cb !important;
-}
-
-.status-warning {
-    background: #fff3cd !important;
-    color: #856404 !important;
-    border: 1px solid #ffeaa7 !important;
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(200, 35, 51, 0.2));
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
 }
 
 .status-info {
-    background: #d1ecf1 !important;
-    color: #0c5460 !important;
-    border: 1px solid #bee5eb !important;
+    background: linear-gradient(135deg, rgba(147, 112, 219, 0.2), rgba(75, 0, 130, 0.2));
+    color: var(--accent-purple);
+    border: 1px solid var(--accent-purple);
 }
 
-/* === АДАПТИВНОСТЬ === */
+/* Валидация */
+.validation-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
+    animation: fadeIn 0.5s ease-out;
+}
 
+.validation-item.valid {
+    background: rgba(0, 229, 161, 0.1);
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+}
+
+.validation-item.invalid {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+}
+
+.validation-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
-    .admin-sections {
-        grid-template-columns: 1fr !important;
+    .admin-panel {
+        padding: calc(var(--navbar-height) + 1rem) 0 1rem 0;
     }
     
-    .admin-panel h1 {
-        font-size: 2rem !important;
+    .admin-sections {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .admin-actions {
-        flex-direction: column !important;
-        align-items: center !important;
+        flex-direction: column;
+        align-items: center;
     }
     
     .admin-panel .btn {
-        width: 100% !important;
-        max-width: 300px !important;
-        justify-content: center !important;
-    }
-    
-    .admin-section {
-        padding: 1.5rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .admin-panel .container {
-        padding: 0 0.5rem !important;
-    }
-    
-    .admin-section {
-        padding: 1rem !important;
+        width: 100%;
+        max-width: 300px;
+        font-size: 0.9rem;
+        padding: 0.75rem 1.5rem;
     }
     
     .admin-panel h1 {
-        font-size: 1.8rem !important;
+        font-size: 2rem;
     }
     
-    .admin-panel .subtitle {
-        font-size: 1rem !important;
+    .admin-section {
+        padding: 1.5rem;
+    }
+    
+    .admin-section h2 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Дополнительные анимации */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+/* Улучшенная прокрутка для админ-панели */
+.admin-panel {
+    scroll-behavior: smooth;
+}
+
+/* Фокус для доступности */
+.admin-panel *:focus {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+/* Состояние загрузки */
+.admin-panel.loading .admin-section {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.admin-panel.loading .admin-section::after {
+    content: '⏳ Загрузка...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-bg);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* Дополнительные стили для элементов конфигурации */
+.config-items p {
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Анимации для появления элементов */
+.config-item {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Улучшенные стили для чекбоксов */
+.config-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent-green);
+    cursor: pointer;
+    margin-right: 0.5rem;
+    border-radius: 3px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.config-item input[type="checkbox"]:checked {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.config-item input[type="checkbox"]:hover {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(0, 229, 161, 0.2);
+}
+
+/* Улучшенные стили для текстовых полей */
+.config-input[type="text"],
+.config-input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.config-input[type="text"]:focus,
+.config-input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(0, 229, 161, 0.1);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.config-input[type="text"]:hover,
+.config-input[type="number"]:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Стили для валидации конфигурации */
+.validation-results {
+    margin-top: 1rem;
+}
+
+.validation-summary {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.validation-summary.valid {
+    background: rgba(0, 229, 161, 0.1);
+    border-color: var(--accent-green);
+}
+
+.validation-summary.invalid {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+}
+
+/* Стили для групп первого уровня */
+.config-group:first-child h3 {
+    margin-top: 0;
+}
+
+/* Улучшенные стили для описаний */
+.config-description {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-style: italic;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 0.25rem;
+    opacity: 0.7;
+    line-height: 1.3;
+}
+
+/* Стили для пустых состояний */
+.config-items:empty::after {
+    content: 'Нет доступных настроек';
+    display: block;
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Переходы для плавности */
+.config-item * {
+    transition: all 0.3s ease;
+}
+
+/* Улучшенные стили для адаптивности */
+@media (max-width: 768px) {
+    .config-item {
+        padding: 0.75rem;
+    }
+    
+    .config-input {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .config-label {
+        font-size: 0.9rem;
+    }
+    
+    .config-description {
+        font-size: 0.8rem;
+    }
+    
+    .config-items p {
+        padding: 1.5rem;
+        font-size: 0.9rem;
     }
 }

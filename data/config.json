@@ -2,17 +2,17 @@
   "discord": {
     "guild_id": 0,
     "roles": {
-      "moderator": 1277399739561672845,
-      "whitelist": 1150073275184074803,
-      "candidate": 1187064873847365752,
-      "donator": 1153006749218000918,
-      "minebuild_member": 1150073275184074804
+      "moderator": "1277399739561673000",
+      "whitelist": "1150073275184074800",
+      "candidate": "1187064873847365600",
+      "donator": "1153006749218001000",
+      "minebuild_member": "1150073275184074800"
     },
     "channels": {
-      "log": 1277415977549566024,
-      "candidate_chat": 1362437237513519279,
-      "donation": 1152974439311487089,
-      "application": 1360709668770418789
+      "log": "1277415977549566000",
+      "candidate_chat": "1362437237513519400",
+      "donation": "1152974439311487000",
+      "application": "1360709668770418700"
     }
   },
   "donations": {
@@ -26,8 +26,8 @@
     "rewards": {
       "thank_message_enabled": true,
       "role_enabled": true,
-      "suffix_enabled": true,
-      "individual_suffix_enabled": true
+      "suffix_enabled": false,
+      "individual_suffix_enabled": false
     },
     "minecraft_commands": {
       "suffix_command": "lp user {nickname} permission set title.u.donate",
@@ -79,7 +79,7 @@
   "_metadata": {
     "version": "1.0.0",
     "created_at": null,
-    "updated_at": "2025-07-03T14:26:51.392276",
+    "updated_at": "2025-07-04T02:04:17.592996",
     "updated_by": null
   }
 }

@@ -430,6 +430,62 @@ class BotConfig:
                 }
             }
         }
+    
+    def get_simple_config(self) -> Dict[str, Any]:
+        """
+        Возвращает упрощенную структуру конфигурации для совместимости с JavaScript админ-панели.
+        
+        Returns:
+            Простая структура конфигурации аналогичная config.json
+        """
+        return {
+            "discord": {
+                "guild_id": self.get("discord.guild_id"),
+                "roles": {
+                    "moderator": self.get("discord.roles.moderator"),
+                    "whitelist": self.get("discord.roles.whitelist"),
+                    "candidate": self.get("discord.roles.candidate"),
+                    "donator": self.get("discord.roles.donator"),
+                    "minebuild_member": self.get("discord.roles.minebuild_member")
+                },
+                "channels": {
+                    "log": self.get("discord.channels.log"),
+                    "candidate_chat": self.get("discord.channels.candidate_chat"),
+                    "donation": self.get("discord.channels.donation"),
+                    "application": self.get("discord.channels.application")
+                }
+            },
+            "donations": {
+                "enabled": self.get("donations.enabled"),
+                "thresholds": {
+                    "thank_message": self.get("donations.thresholds.thank_message"),
+                    "role": self.get("donations.thresholds.role"),
+                    "suffix": self.get("donations.thresholds.suffix"),
+                    "individual_suffix": self.get("donations.thresholds.individual_suffix")
+                },
+                "rewards": {
+                    "thank_message_enabled": self.get("donations.rewards.thank_message_enabled"),
+                    "role_enabled": self.get("donations.rewards.role_enabled"),
+                    "suffix_enabled": self.get("donations.rewards.suffix_enabled"),
+                    "individual_suffix_enabled": self.get("donations.rewards.individual_suffix_enabled")
+                },
+                "minecraft_commands": {
+                    "suffix_command": self.get("donations.minecraft_commands.suffix_command"),
+                    "whitelist_add_command": self.get("donations.minecraft_commands.whitelist_add_command"),
+                    "whitelist_remove_command": self.get("donations.minecraft_commands.whitelist_remove_command")
+                }
+            },
+            "system": {
+                "timeouts": {
+                    "shutdown_normal_tasks": self.get("system.timeouts.shutdown_normal_tasks"),
+                    "shutdown_system_tasks": self.get("system.timeouts.shutdown_system_tasks"),
+                    "api_request": self.get("system.timeouts.api_request")
+                },
+                "application": {
+                    "deduplication_window": self.get("system.application.deduplication_window")
+                }
+            }
+        }
 
 
 # Глобальный экземпляр конфигурации
