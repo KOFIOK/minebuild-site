@@ -12,8 +12,8 @@ from urllib.parse import urlencode
 from flask import session, request, redirect, url_for, current_app
 from functools import wraps
 
-# Импортируем функцию для получения ID роли модератора
-from bot.config_manager import get_moderator_role_id
+# Импорты для работы с Discord API
+# from bot.config_manager import get_moderator_role_id  # Больше не нужен
 
 # Настройка логгера
 logger = logging.getLogger(__name__)
@@ -73,7 +73,8 @@ class DiscordAuth:
             'redirect_uri': self.REDIRECT_URI,
             'response_type': 'code',
             'scope': 'identify guilds guilds.members.read',
-            'state': state
+            'state': state,
+            'permissions': '0'  # Не запрашиваем дополнительных разрешений для бота
         }
         
         auth_url = f"{self.OAUTH_URL}?{urlencode(params)}"
@@ -302,43 +303,58 @@ class DiscordAuth:
         return session.get('guild_member', False)
     
     def check_admin_permissions(self, access_token, user_id):
-        """Проверяет, имеет ли пользователь права администратора"""
+        """Проверяет, имеет ли пользователь права администратора на сервере Discord."""
         try:
             headers = {
                 'Authorization': f'Bearer {access_token}',
                 'Content-Type': 'application/json'
             }
             
-            # Получаем информацию о пользователе на сервере
+            # Получаем список серверов пользователя с его правами
             response = requests.get(
-                f"{self.DISCORD_API_BASE}/users/@me/guilds/{self.GUILD_ID}/member",
+                f"{self.DISCORD_API_BASE}/users/@me/guilds",
                 headers=headers,
                 timeout=10
             )
             
             if response.status_code == 200:
-                member_data = response.json()
-                user_roles = member_data.get('roles', [])
+                guilds = response.json()
                 
-                # Получаем ID роли модератора из конфигурации
-                moderator_role_id_raw = get_moderator_role_id()
-                moderator_role_id = str(moderator_role_id_raw)
+                # Ищем наш сервер в списке
+                target_guild_id = str(self.GUILD_ID)
+                target_guild = None
                 
-                logger.info(f"[ADMIN_CHECK] Пользователь {user_id}: роли {user_roles}")
-                logger.info(f"[ADMIN_CHECK] Роль модератора (сырая): {moderator_role_id_raw} (тип: {type(moderator_role_id_raw)})")
-                logger.info(f"[ADMIN_CHECK] Роль модератора (строка): {moderator_role_id}")
+                for guild in guilds:
+                    if guild['id'] == target_guild_id:
+                        target_guild = guild
+                        break
                 
-                # Проверяем, есть ли у пользователя роль модератора
-                is_admin = moderator_role_id in user_roles
-                logger.info(f"[ADMIN_CHECK] Права администратора: {'ДА' if is_admin else 'НЕТ'}")
+                if target_guild is None:
+                    logger.warning(f"[ADMIN_CHECK] Пользователь {user_id} не найден на сервере {target_guild_id}")
+                    return False
                 
-                return is_admin
+                # Проверяем права пользователя на сервере
+                # В Discord API permissions возвращается как строка с десятичным числом
+                permissions = int(target_guild.get('permissions', '0'))
+                
+                # ADMINISTRATOR permission имеет значение 0x8 (8 в десятичной)
+                # Проверяем битовую маску
+                has_admin = (permissions & 0x8) == 0x8
+                
+                logger.info(f"[ADMIN_CHECK] Пользователь {user_id} на сервере {target_guild['name']}")
+                logger.info(f"[ADMIN_CHECK] Права пользователя (битовая маска): {permissions}")
+                logger.info(f"[ADMIN_CHECK] Права администратора: {'ДА' if has_admin else 'НЕТ'}")
+                
+                return has_admin
             else:
-                logger.warning(f"[ADMIN_CHECK] Не удалось получить информацию о пользователе: {response.status_code}")
+                logger.warning(f"[ADMIN_CHECK] Не удалось получить список серверов: {response.status_code}")
+                if hasattr(response, 'text'):
+                    logger.warning(f"[ADMIN_CHECK] Ответ: {response.text}")
                 return False
                 
         except Exception as e:
             logger.error(f"[ADMIN_CHECK] Ошибка при проверке прав администратора: {e}")
+            logger.exception(e)
             return False
     
     def is_admin(self):
