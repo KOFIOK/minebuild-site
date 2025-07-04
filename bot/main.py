@@ -27,8 +27,15 @@ from .ui.views import (
 )
 from .utils.minecraft import execute_minecraft_command
 
-# Настройка логирования
-logger = setup_logging()
+# Настройка логирования (только если не в тестовом режиме)
+import sys
+import os
+if not (os.environ.get('TESTING') == 'true' or 'pytest' in sys.modules):
+    logger = setup_logging()
+else:
+    import logging
+    logger = logging.getLogger("MineBuildBot")
+    logger.setLevel(logging.INFO)
 
 
 async def send_member_leave_notification(channel: discord.TextChannel, member_id: int, nickname: str) -> None:
