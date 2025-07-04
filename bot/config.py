@@ -22,18 +22,35 @@ load_dotenv()
 def setup_logging():
     """Настройка системы логирования для бота"""
     
+    # Создаем директорию для логов если она не существует
+    logs_dir = "bot/logs"
+    try:
+        os.makedirs(logs_dir, exist_ok=True)
+        use_file_logging = True
+    except (PermissionError, OSError):
+        # Если не можем создать директорию (например, в CI/CD), используем только консоль
+        use_file_logging = False
+        print(f"⚠️ Не удалось создать директорию {logs_dir}, логи будут выводиться только в консоль")
+    
     # Отключаем существующие обработчики корневого логгера
     for handler in logging.root.handlers:
         logging.root.removeHandler(handler)
+
+    # Создаем список обработчиков
+    handlers = [logging.StreamHandler(sys.stdout)]
+    
+    # Добавляем файловый обработчик только если возможно
+    if use_file_logging:
+        try:
+            handlers.append(logging.FileHandler("bot/logs/bot.log", encoding='utf-8'))
+        except (PermissionError, OSError):
+            print("⚠️ Не удалось создать файл лога, используется только консольный вывод")
 
     # Настройка основного логирования
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler("bot/logs/bot.log", encoding='utf-8')
-        ]
+        handlers=handlers
     )
     
     # Создаем основной логгер бота
@@ -44,11 +61,16 @@ def setup_logging():
     discord_logger.setLevel(logging.INFO)
     if not discord_logger.handlers:
         discord_logger.addHandler(logging.StreamHandler(sys.stdout))
-        discord_file_handler = logging.FileHandler("bot/logs/discord.log", encoding='utf-8')
-        discord_file_handler.setFormatter(
-            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        )
-        discord_logger.addHandler(discord_file_handler)
+        # Добавляем файловый обработчик для Discord логов только если возможно
+        if use_file_logging:
+            try:
+                discord_file_handler = logging.FileHandler("bot/logs/discord.log", encoding='utf-8')
+                discord_file_handler.setFormatter(
+                    logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                )
+                discord_logger.addHandler(discord_file_handler)
+            except (PermissionError, OSError):
+                pass  # Игнорируем ошибку, используем только консольный вывод
     
     return logger
 

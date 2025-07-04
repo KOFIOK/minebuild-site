@@ -20,7 +20,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Setup test environment
+        run: |
+          # Копируем тестовые переменные окружения
+          cp .env.test .env
+          # Создаем директорию для логов
+          mkdir -p bot/logs
+
       - name: Run tests
+        env:
+          TESTING: true
         run: |
           python -W ignore::DeprecationWarning:discord.player -m pytest --cov=. --cov-report=xml --cov-report=term
 

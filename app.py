@@ -46,17 +46,22 @@ app.config.update({
     'DISCORD_GUILD_ID': os.environ.get('DISCORD_GUILD_ID'),
 })
 
-# Проверяем, что все необходимые переменные загружены
-required_env_vars = ['DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_GUILD_ID']
-missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
-if missing_vars:
-    print(f"❌ ОШИБКА: Отсутствуют переменные окружения: {', '.join(missing_vars)}")
-    print("Пожалуйста, настройте файл .env согласно инструкции в DISCORD_OAUTH_SETUP.md")
+# Проверяем, что все необходимые переменные загружены (только в production)
+# В тестовом окружении пропускаем эту проверку
+is_testing = os.environ.get('TESTING') == 'true' or 'pytest' in sys.modules
+if not is_testing:
+    required_env_vars = ['DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_GUILD_ID']
+    missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+    if missing_vars:
+        print(f"❌ ОШИБКА: Отсутствуют переменные окружения: {', '.join(missing_vars)}")
+        print("Пожалуйста, настройте файл .env согласно инструкции в DISCORD_OAUTH_SETUP.md")
+    else:
+        print(f"✅ Discord OAuth настроен:")
+        print(f"   Client ID: {os.environ.get('DISCORD_CLIENT_ID')}")
+        print(f"   Guild ID: {os.environ.get('DISCORD_GUILD_ID')}")
+        print(f"   Redirect URI: {os.environ.get('DISCORD_REDIRECT_URI', 'http://127.0.0.1:5000/auth/discord/callback')}")
 else:
-    print(f"✅ Discord OAuth настроен:")
-    print(f"   Client ID: {os.environ.get('DISCORD_CLIENT_ID')}")
-    print(f"   Guild ID: {os.environ.get('DISCORD_GUILD_ID')}")
-    print(f"   Redirect URI: {os.environ.get('DISCORD_REDIRECT_URI', 'http://127.0.0.1:5000/auth/discord/callback')}")
+    print("🧪 Тестовое окружение: пропускаем проверку переменных окружения")
 
 # Инициализация Discord Auth
 discord_auth = DiscordAuth()
