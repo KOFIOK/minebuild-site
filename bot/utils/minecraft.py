@@ -1,5 +1,9 @@
 """
 Модуль для работы с Minecraft сервером через RCON
+
+Реализация использует нативный asyncio для RCON соединения 
+вместо библиотеки mcrcon, чтобы избежать ошибки 
+"signal only works in main thread of the main interpreter"
 """
 
 import os
@@ -7,7 +11,6 @@ import asyncio
 import logging
 import socket
 import re
-from mcrcon import MCRcon
 import discord
 
 from ..config_manager import get_rcon_timeout, get_rcon_general_timeout, get_minecraft_commands
@@ -48,6 +51,107 @@ async def check_minecraft_server_availability() -> bool:
     return await loop.run_in_executor(None, _check_minecraft_server_availability_sync)
 
 
+async def _execute_rcon_command(command: str, timeout: int = None) -> str:
+    """
+    Выполняет RCON команду используя чистый asyncio без использования mcrcon.
+    Это позволяет избежать проблем с signal.signal в дочерних потоках.
+    
+    Args:
+        command: Команда для выполнения
+        timeout: Таймаут в секундах (по умолчанию из конфигурации)
+        
+    Returns:
+        str: Ответ от сервера (очищенный от форматирования)
+        
+    Raises:
+        Exception: При ошибке подключения или выполнения команды
+    """
+    if timeout is None:
+        timeout = get_rcon_timeout()
+    
+    host = os.getenv('RCON_HOST')
+    password = os.getenv('RCON_PASSWORD')
+    port = int(os.getenv('RCON_PORT'))
+    
+    reader = None
+    writer = None
+    
+    try:
+        # Устанавливаем TCP соединение с таймаутом
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(host, port),
+            timeout=timeout
+        )
+        
+        # Функция для создания RCON пакета
+        def create_packet(request_id: int, packet_type: int, body: str) -> bytes:
+            body_encoded = body.encode('utf-8') + b'\x00\x00'
+            length = 4 + 4 + len(body_encoded)
+            packet = length.to_bytes(4, 'little')
+            packet += request_id.to_bytes(4, 'little')
+            packet += packet_type.to_bytes(4, 'little')
+            packet += body_encoded
+            return packet
+        
+        # Функция для чтения RCON ответа
+        async def read_packet():
+            length_data = await asyncio.wait_for(reader.read(4), timeout=timeout)
+            if len(length_data) != 4:
+                raise ConnectionError("Неполные данные длины пакета")
+            
+            length = int.from_bytes(length_data, 'little')
+            packet_data = await asyncio.wait_for(reader.read(length), timeout=timeout)
+            
+            if len(packet_data) != length:
+                raise ConnectionError("Неполные данные пакета")
+            
+            request_id = int.from_bytes(packet_data[0:4], 'little')
+            packet_type = int.from_bytes(packet_data[4:8], 'little')
+            body = packet_data[8:-2].decode('utf-8', errors='ignore')
+            
+            return request_id, packet_type, body
+        
+        # Отправляем аутентификацию (тип 3)
+        auth_packet = create_packet(1, 3, password)
+        writer.write(auth_packet)
+        await writer.drain()
+        
+        # Читаем ответ аутентификации
+        auth_id, auth_type, auth_body = await read_packet()
+        
+        if auth_id != 1:
+            raise ConnectionError("Ошибка аутентификации RCON")
+        
+        # Отправляем команду (тип 2)
+        command_packet = create_packet(2, 2, command)
+        writer.write(command_packet)
+        await writer.drain()
+        
+        # Читаем ответ команды
+        cmd_id, cmd_type, cmd_body = await read_packet()
+        
+        if cmd_id != 2:
+            raise ConnectionError("Неверный ID ответа команды")
+        
+        # Очищаем ответ от форматирования Minecraft
+        clean_response = re.sub(r'§[0-9a-fk-or]', '', cmd_body).strip()
+        
+        return clean_response
+        
+    except asyncio.TimeoutError:
+        raise asyncio.TimeoutError(f"RCON операция превысила таймаут {timeout} секунд")
+    except Exception as e:
+        logger.error(f"Ошибка при выполнении RCON команды: {e}")
+        raise
+    finally:
+        if writer:
+            writer.close()
+            try:
+                await writer.wait_closed()
+            except Exception as e:
+                logger.debug(f"Ошибка при закрытии соединения: {e}")
+
+
 async def execute_minecraft_command(command: str) -> bool:
     """
     Выполняет команду на сервере Minecraft через RCON.
@@ -65,43 +169,24 @@ async def execute_minecraft_command(command: str) -> bool:
         logger.error(f"Сервер Minecraft недоступен. Не удалось выполнить команду {command}")
         return False
         
-    # Пробуем подключиться к RCON в отдельном потоке
     try:
-        import asyncio
+        # Выполняем команду с асинхронным таймаутом
+        clean_response = await _execute_rcon_command(command)
         
-        def sync_execute_command():
-            """Синхронная версия выполнения команды для выполнения в executor"""
-            try:
-                with MCRcon(
-                    os.getenv('RCON_HOST'),
-                    os.getenv('RCON_PASSWORD'),
-                    int(os.getenv('RCON_PORT')),
-                    timeout=get_rcon_timeout()  # Таймаут для команды из конфигурации
-                ) as mcr:
-                    response = mcr.command(command)
-                    
-                    # Очищаем ответ от форматирования Minecraft
-                    clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-                    
-                    # Проверяем наличие ошибок
-                    if "error" in clean_response.lower() or "ошибка" in clean_response.lower():
-                        logger.error(f"Ошибка при выполнении команды {command}: {clean_response}")
-                        return False
-                        
-                    return True
-                    
-            except Exception as e:
-                logger.error(f"Ошибка в sync_execute_command: {e}", exc_info=True)
-                return False
-        
-        # Выполняем синхронную функцию в executor
-        loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(None, sync_execute_command)
-        return result
+        # Проверяем наличие ошибок в ответе
+        if "error" in clean_response.lower() or "ошибка" in clean_response.lower():
+            logger.error(f"Ошибка при выполнении команды {command}: {clean_response}")
+            return False
+            
+        logger.info(f"Команда {command} успешно выполнена")
+        return True
             
     except (socket.timeout, ConnectionRefusedError) as e:
         error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
         logger.error(f"{error_message}: {e}")
+        return False
+    except asyncio.TimeoutError as e:
+        logger.error(f"Таймаут при выполнении команды {command}: {e}")
         return False
     except Exception as e:
         logger.error(f"Ошибка RCON: {e}", exc_info=True)
@@ -126,35 +211,13 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
         )
         return
         
-    # Пробуем подключиться к RCON в отдельном потоке, чтобы не блокировать event loop
     try:
-        def sync_add_to_whitelist():
-            """Синхронная версия добавления в whitelist для выполнения в executor"""
-            try:
-                with MCRcon(
-                    os.getenv('RCON_HOST'),
-                    os.getenv('RCON_PASSWORD'),
-                    int(os.getenv('RCON_PORT')),
-                    timeout=10  # 10 секунд таймаут для команды
-                ) as mcr:
-                    # Получаем команду из конфигурации
-                    commands = get_minecraft_commands()
-                    command = commands["whitelist_add"].format(nickname=minecraft_nickname)
-                    
-                    response = mcr.command(command)
-                    
-                    # Очищаем ответ от форматирования Minecraft
-                    clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-                    
-                    return clean_response
-                    
-            except Exception as e:
-                logger.error(f"Ошибка в sync_add_to_whitelist: {e}", exc_info=True)
-                raise
+        # Получаем команду из конфигурации
+        commands = get_minecraft_commands()
+        command = commands["whitelist_add"].format(nickname=minecraft_nickname)
         
-        # Выполняем синхронную функцию в executor
-        loop = asyncio.get_event_loop()
-        clean_response = await loop.run_in_executor(None, sync_add_to_whitelist)
+        # Выполняем команду с асинхронным таймаутом
+        clean_response = await _execute_rcon_command(command)
         
         # Проверяем различные возможные ответы от стандартной команды whitelist
         if any(phrase in clean_response.lower() for phrase in [
@@ -183,6 +246,12 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
         logger.error(f"{error_message}: {e}")
         await interaction.followup.send(
             f"{error_message}. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=True
+        )
+    except asyncio.TimeoutError as e:
+        logger.error(f"Таймаут при добавлении в whitelist: {e}")
+        await interaction.followup.send(
+            "Таймаут при добавлении в белый список. Пожалуйста, добавьте игрока вручную.",
             ephemeral=True
         )
     except Exception as e:
@@ -211,35 +280,13 @@ async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) ->
         )
         return
         
-    # Пробуем подключиться к RCON в отдельном потоке, чтобы не блокировать event loop
     try:
-        def sync_add_to_whitelist():
-            """Синхронная версия добавления в whitelist для выполнения в executor"""
-            try:
-                with MCRcon(
-                    os.getenv('RCON_HOST'),
-                    os.getenv('RCON_PASSWORD'),
-                    int(os.getenv('RCON_PORT')),
-                    timeout=10  # 10 секунд таймаут для команды
-                ) as mcr:
-                    # Получаем команду из конфигурации
-                    commands = get_minecraft_commands()
-                    command = commands["whitelist_add"].format(nickname=minecraft_nickname)
-                    
-                    response = mcr.command(command)
-                    
-                    # Очищаем ответ от форматирования Minecraft
-                    clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-                    
-                    return clean_response
-                    
-            except Exception as e:
-                logger.error(f"Ошибка в sync_add_to_whitelist: {e}", exc_info=True)
-                raise
+        # Получаем команду из конфигурации
+        commands = get_minecraft_commands()
+        command = commands["whitelist_add"].format(nickname=minecraft_nickname)
         
-        # Выполняем синхронную функцию в executor
-        loop = asyncio.get_event_loop()
-        clean_response = await loop.run_in_executor(None, sync_add_to_whitelist)
+        # Выполняем команду с асинхронным таймаутом
+        clean_response = await _execute_rcon_command(command)
         
         # Проверяем различные возможные ответы от стандартной команды whitelist
         if any(phrase in clean_response.lower() for phrase in [
@@ -270,6 +317,12 @@ async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) ->
             f"{error_message}. Пожалуйста, добавьте игрока вручную.",
             ephemeral=hasattr(response_channel, 'followup')
         )
+    except asyncio.TimeoutError as e:
+        logger.error(f"Таймаут при добавлении в whitelist: {e}")
+        await response_channel.send(
+            "Таймаут при добавлении в белый список. Пожалуйста, добавьте игрока вручную.",
+            ephemeral=hasattr(response_channel, 'followup')
+        )
     except Exception as e:
         logger.error(f"Ошибка RCON: {e}", exc_info=True)
         await response_channel.send(
@@ -295,35 +348,13 @@ async def remove_from_whitelist(minecraft_nickname: str) -> bool:
         logger.error(f"Сервер Minecraft недоступен. Не удалось удалить игрока {minecraft_nickname} из белого списка")
         return False
         
-    # Пробуем подключиться к RCON в отдельном потоке, чтобы не блокировать event loop
     try:
-        def sync_remove_from_whitelist():
-            """Синхронная версия удаления из whitelist для выполнения в executor"""
-            try:
-                with MCRcon(
-                    os.getenv('RCON_HOST'),
-                    os.getenv('RCON_PASSWORD'),
-                    int(os.getenv('RCON_PORT')),
-                    timeout=10  # 10 секунд таймаут для команды
-                ) as mcr:
-                    # Получаем команду из конфигурации
-                    commands = get_minecraft_commands()
-                    command = commands["whitelist_remove"].format(nickname=minecraft_nickname)
-                    
-                    response = mcr.command(command)
-                    
-                    # Очищаем ответ от форматирования Minecraft
-                    clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-                    
-                    return clean_response
-                    
-            except Exception as e:
-                logger.error(f"Ошибка в sync_remove_from_whitelist: {e}", exc_info=True)
-                raise
+        # Получаем команду из конфигурации
+        commands = get_minecraft_commands()
+        command = commands["whitelist_remove"].format(nickname=minecraft_nickname)
         
-        # Выполняем синхронную функцию в executor
-        loop = asyncio.get_event_loop()
-        clean_response = await loop.run_in_executor(None, sync_remove_from_whitelist)
+        # Выполняем команду с асинхронным таймаутом
+        clean_response = await _execute_rcon_command(command)
         
         # Проверяем успешность удаления с различными возможными ответами
         if any(phrase in clean_response.lower() for phrase in [
@@ -352,6 +383,9 @@ async def remove_from_whitelist(minecraft_nickname: str) -> bool:
         error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
         logger.error(f"{error_message}: {e}")
         return False
+    except asyncio.TimeoutError as e:
+        logger.error(f"Таймаут при удалении из whitelist: {e}")
+        return False
     except Exception as e:
         logger.error(f"Ошибка RCON при удалении из белого списка: {e}", exc_info=True)
         return False
@@ -371,69 +405,39 @@ async def get_whitelist() -> list:
         logger.error("Сервер Minecraft недоступен. Не удалось получить список whitelist")
         return []
         
-    # Пробуем подключиться к RCON в отдельном потоке, чтобы не блокировать event loop
     try:
-        import asyncio
+        # Получаем команду из конфигурации
+        commands = get_minecraft_commands()
+        command = commands["whitelist_list"]
         
-        def sync_get_whitelist():
-            """Синхронная версия получения whitelist для выполнения в executor"""
-            try:
-                # Используем контекстный менеджер с явным таймаутом
-                with MCRcon(
-                    os.getenv('RCON_HOST'),
-                    os.getenv('RCON_PASSWORD'),
-                    int(os.getenv('RCON_PORT')),
-                    timeout=10  # 10 секунд таймаут для команды
-                ) as mcr:
-                    # Получаем команду из конфигурации
-                    commands = get_minecraft_commands()
-                    command = commands["whitelist_list"]
-                    
-                    response = mcr.command(command)
-                    
-                    # Очищаем ответ от форматирования Minecraft
-                    clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
-                    
-                    # Парсим ответ
-                    if "there are no whitelisted players" in clean_response.lower() or "нет игроков в белом списке" in clean_response.lower():
-                        return []
-                    elif "whitelisted players:" in clean_response.lower() or "игроки в белом списке:" in clean_response.lower():
-                        # Извлекаем список игроков после двоеточия
-                        players_part = clean_response.split(":", 1)
-                        if len(players_part) > 1:
-                            players_str = players_part[1].strip()
-                            # Разделяем по запятым и очищаем от пробелов
-                            players = [player.strip() for player in players_str.split(",") if player.strip()]
-                            return players
-                    
-                    # Если формат ответа неожиданный, пытаемся извлечь никнеймы
-                    # Ищем паттерны, похожие на никнеймы Minecraft
-                    minecraft_nicknames = re.findall(r'\b[a-zA-Z0-9_]{3,16}\b', clean_response)
-                    # Фильтруем общие слова
-                    filtered_nicknames = [nick for nick in minecraft_nicknames if nick.lower() not in ['there', 'are', 'whitelisted', 'players', 'player']]
-                    return filtered_nicknames
-                    
-            except Exception as e:
-                logger.error(f"Ошибка в sync_get_whitelist: {e}", exc_info=True)
-                return []
+        # Выполняем команду с асинхронным таймаутом
+        clean_response = await _execute_rcon_command(command)
         
-        # Выполняем синхронную функцию в executor с таймаутом
-        loop = asyncio.get_event_loop()
-        
-        try:
-            # Используем wait_for для добавления таймаута на выполнение в executor
-            result = await asyncio.wait_for(
-                loop.run_in_executor(None, sync_get_whitelist),
-                timeout=15.0  # 15 секунд общий таймаут
-            )
-            return result
-        except asyncio.TimeoutError:
-            logger.error("Таймаут при получении whitelist - операция заняла более 15 секунд")
+        # Парсим ответ
+        if "there are no whitelisted players" in clean_response.lower() or "нет игроков в белом списке" in clean_response.lower():
             return []
+        elif "whitelisted players:" in clean_response.lower() or "игроки в белом списке:" in clean_response.lower():
+            # Извлекаем список игроков после двоеточия
+            players_part = clean_response.split(":", 1)
+            if len(players_part) > 1:
+                players_str = players_part[1].strip()
+                # Разделяем по запятым и очищаем от пробелов
+                players = [player.strip() for player in players_str.split(",") if player.strip()]
+                return players
+        
+        # Если формат ответа неожиданный, пытаемся извлечь никнеймы
+        # Ищем паттерны, похожие на никнеймы Minecraft
+        minecraft_nicknames = re.findall(r'\b[a-zA-Z0-9_]{3,16}\b', clean_response)
+        # Фильтруем общие слова
+        filtered_nicknames = [nick for nick in minecraft_nicknames if nick.lower() not in ['there', 'are', 'whitelisted', 'players', 'player']]
+        return filtered_nicknames
                 
     except (socket.timeout, ConnectionRefusedError) as e:
         error_message = "Таймаут при подключении к серверу" if isinstance(e, socket.timeout) else "Соединение отклонено сервером"
         logger.error(f"{error_message}: {e}")
+        return []
+    except asyncio.TimeoutError as e:
+        logger.error(f"Таймаут при получении whitelist: {e}")
         return []
     except Exception as e:
         logger.error(f"Ошибка RCON при получении списка whitelist: {e}", exc_info=True)
