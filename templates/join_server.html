@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}MineBuild - Присоединиться к серверу{% endblock %}
+
+{% block extra_css %}
+<style>
+.join-server-container {
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 40px;
+    min-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.join-server-card {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.warning-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.join-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.join-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.discord-invite-btn {
+    background: linear-gradient(135deg, #5865F2 0%, #404EED 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.discord-invite-btn:hover {
+    background: linear-gradient(135deg, #4752C4 0%, #3C46C4 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.refresh-btn {
+    background: transparent;
+    border: 2px solid var(--accent-green);
+    color: var(--accent-green);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+}
+
+.refresh-btn:hover {
+    background: var(--accent-green);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.instructions {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-green);
+    text-align: left;
+}
+
+.instructions h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.instruction-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    background: var(--accent-green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-right: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-text {
+    line-height: 1.5;
+}
+
+.help-note {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(0, 229, 161, 0.1);
+    border: 1px solid rgba(0, 229, 161, 0.3);
+    border-radius: 8px;
+    color: var(--text-secondary);
+}
+
+.help-note i {
+    color: var(--accent-green);
+    margin-right: 8px;
+}
+
+.user-info {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    color: var(--text-secondary);
+}
+
+.user-info strong {
+    color: var(--text-primary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .join-server-container {
+        margin: 60px auto;
+        padding: 20px;
+    }
+    
+    .join-server-card {
+        padding: 30px 20px;
+    }
+    
+    .join-title {
+        font-size: 1.6rem;
+    }
+    
+    .discord-invite-btn, .refresh-btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .refresh-btn {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .join-server-container {
+        margin: 40px auto;
+        padding: 15px;
+    }
+    
+    .join-server-card {
+        padding: 25px 15px;
+    }
+    
+    .warning-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .join-title {
+        font-size: 1.4rem;
+    }
+    
+    .instructions {
+        padding: 20px 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="join-server-container">
+    <div class="join-server-card">
+        <div class="warning-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h1 class="join-title">Необходимо присоединиться к серверу</h1>
+        <p class="join-subtitle">
+            Для подачи заявки вы должны быть участником нашего Discord сервера
+        </p>
+        
+        {% if current_user %}
+        <div class="user-info">
+            <strong>Вы вошли как:</strong> {{ current_user.username }}
+        </div>
+        {% endif %}
+        
+        <div>
+            <a href="{{ discord_invite_url }}" target="_blank" class="discord-invite-btn">
+                <i class="fab fa-discord"></i>
+                Присоединиться к серверу
+            </a>
+            <a href="{{ url_for('check_membership') }}" class="refresh-btn">
+                <i class="fas fa-sync-alt"></i>
+                Проверить статус
+            </a>
+        </div>
+        
+        <div class="instructions">
+            <h4><i class="fas fa-list-ol"></i> Инструкция:</h4>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    Нажмите кнопку "Присоединиться к серверу" выше
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    В новой вкладке откроется приглашение Discord. Нажмите "Принять приглашение"
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    После присоединения вернитесь сюда и нажмите "Проверить статус"
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    Если все прошло успешно, вы будете перенаправлены к форме заявки
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-note">
+            <i class="fas fa-question-circle"></i>
+            <strong>Нужна помощь?</strong> Если у вас возникли проблемы с присоединением к серверу, обратитесь к администрации через другие каналы связи.
+        </div>
+    </div>
+</div>
+{% endblock %}

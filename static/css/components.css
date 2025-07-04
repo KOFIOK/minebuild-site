@@ -63,12 +63,17 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-    padding: 0.75rem 0;
+    padding: 0;
     background-color: rgba(10, 10, 10, 0.85);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease, transform 0.4s ease-in-out;
+    min-height: var(--navbar-height);
+    height: var(--navbar-height);
+    max-height: var(--navbar-height);
+    box-sizing: border-box;
+    overflow: visible; /* Позволяем dropdown выходить за пределы navbar */
 }
 
 /* Классы для анимации скрытия/появления навбара */
@@ -91,6 +96,8 @@
     padding: 0 2rem;
     max-width: 1920px;
     margin: 0 auto;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .navbar-brand {
@@ -125,6 +132,7 @@
     align-items: center;
     margin: 0;
     padding: 0;
+    height: 100%;
 }
 
 .main-nav {
@@ -141,6 +149,9 @@
 .nav-item {
     margin: 0;
     padding: 0;
+    height: auto;
+    display: flex;
+    align-items: center;
 }
 
 .nav-link {
@@ -409,6 +420,109 @@ footer {
     margin: 0;
 }
 
+/* Стили для информации о пользователе в navbar */
+.user-nav {
+    margin-left: auto;
+    margin-right: 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-primary);
+    height: 40px; /* Фиксированная высота для консистентности */
+    min-height: 40px;
+    max-height: 40px;
+}
+
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-green);
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.dropdown-menu {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1050; /* Выше чем z-index навбара */
+    position: absolute; /* Обеспечиваем правильное позиционирование */
+    min-width: 200px; /* Минимальная ширина для читаемости */
+}
+
+.dropdown-header {
+    color: var(--accent-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.dropdown-item.text-danger {
+    color: #ff4444;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+.dropdown-item.text-warning {
+    color: #ffb84d;
+}
+
+.dropdown-item.text-warning:hover {
+    background: rgba(255, 184, 77, 0.1);
+    color: #ffb84d;
+}
+
+.dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
 /* Адаптивность компонентов */
 @media (max-width: 1200px) {
     .navbar {
@@ -576,4 +690,44 @@ footer {
         font-size: 1.2rem;
         justify-content: center;
     }
+}
+
+@media (max-width: 991px) {
+    .user-nav {
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-info {
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .dropdown-menu {
+        position: static !important;
+        float: none;
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        box-shadow: none;
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Специфичные стили для пользовательского nav-item */
+.user-nav .nav-item {
+    height: 40px;
+    max-height: 40px;
+}
+
+.user-nav .dropdown {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative; /* Обеспечиваем правильное позиционирование dropdown */
+    overflow: visible; /* Позволяем dropdown выходить за пределы контейнера */
 }

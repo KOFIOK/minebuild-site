@@ -45,6 +45,45 @@
                         <a class="nav-link btn btn-primary" href="/apply">ПОДАТЬ ЗАЯВКУ</a>
                     </li>
                 </ul>
+                
+                <!-- Информация о пользователе -->
+                <ul class="navbar-nav user-nav">
+                    {% if current_user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle user-info" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ current_user.avatar_url }}" alt="Avatar" class="user-avatar">
+                            <span class="user-name">{{ current_user.display_name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">{{ current_user.username }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/apply">
+                                <i class="fas fa-paper-plane"></i> Подать заявку
+                            </a></li>
+                            <li><a class="dropdown-item" href="https://discord.com/invite/yNz87pJZPh" target="_blank">
+                                <i class="fab fa-discord"></i> Открыть Discord
+                            </a></li>
+                            {% if current_user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-warning" href="/admin">
+                                <i class="fas fa-cogs"></i> Админ-панель
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/logout">
+                                <i class="fas fa-sign-out-alt"></i> Выйти
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light" href="/login">
+                            <i class="fab fa-discord"></i> Войти
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
                 <ul class="navbar-nav social-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="https://discord.com/invite/yNz87pJZPh" target="_blank">

@@ -7,7 +7,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="apply-form-container">
+<div class="apply-form-section">
+    <div class="floating-particles"></div>
+    <div class="apply-form-container">
     {% if applications_open %}
     <div class="form-progress-bar">
         <div class="progress-line" id="progressLine"></div>
@@ -45,6 +47,7 @@
         </div>
     </div>
     {% endif %}
+    </div>
 </div>
 {% endblock %}
 

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}MineBuild - Вход{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-container {
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 40px;
+    min-height: calc(100vh - 300px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-card {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+    border-color: var(--accent-green);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.auth-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-purple));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.auth-title {
+    font-family: 'Intro Demo', sans-serif;
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.discord-login-btn {
+    background: linear-gradient(135deg, #5865F2 0%, #404EED 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.discord-login-btn:hover {
+    background: linear-gradient(135deg, #4752C4 0%, #3C46C4 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.discord-login-btn:active {
+    transform: translateY(0);
+}
+
+.discord-login-btn i {
+    font-size: 1.3rem;
+}
+
+.auth-info {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent-green);
+}
+
+.auth-info h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.auth-info ul {
+    text-align: left;
+    color: var(--text-secondary);
+    padding-left: 20px;
+}
+
+.auth-info li {
+    margin-bottom: 8px;
+}
+
+.auth-steps {
+    margin-top: 25px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.step-number {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.security-note {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.security-note i {
+    color: #ffc107;
+    margin-right: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .auth-container {
+        margin: 60px auto;
+        padding: 20px;
+    }
+    
+    .auth-card {
+        padding: 30px 20px;
+    }
+    
+    .auth-title {
+        font-size: 1.6rem;
+    }
+    
+    .auth-subtitle {
+        font-size: 1rem;
+    }
+    
+    .discord-login-btn {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 40px auto;
+        padding: 15px;
+    }
+    
+    .auth-card {
+        padding: 25px 15px;
+    }
+    
+    .auth-logo {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .auth-title {
+        font-size: 1.4rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        
+        <h1 class="auth-title">Вход в систему</h1>
+        <p class="auth-subtitle">
+            Для подачи заявки на сервер необходимо войти через Discord
+        </p>
+        
+        <a href="{{ auth_url }}" class="discord-login-btn">
+            <i class="fab fa-discord"></i>
+            Войти через Discord
+        </a>
+        
+        <div class="auth-info">
+            <h4><i class="fas fa-info-circle"></i> Что произойдет:</h4>
+            <div class="auth-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <span>Вы будете перенаправлены на Discord для авторизации</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>Мы проверим, что вы участник нашего Discord сервера</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>После успешной проверки вы сможете подать заявку</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="security-note">
+            <i class="fas fa-lock"></i>
+            Мы получаем только базовую информацию: ваш никнейм, аватар и участие в сервере. Пароли и личные данные не передаются.
+        </div>
+    </div>
+</div>
+{% endblock %}

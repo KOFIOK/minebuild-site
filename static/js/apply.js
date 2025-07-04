@@ -1,20 +1,16 @@
 // Конфигурация вопросов
 const formQuestions = [
     {
-        id: 'discord',
-        question: 'Ваш Discord ID пользователя',
-        placeholder: 'Например: 123456789012345678',
-        helpTexts: [
-            'Пожалуйста, введите именно ID пользователя (18-значное число), а не никнейм. ID можно найти в настройках Discord -> Дополнительно -> Режим разработчика -> Включить режим разработчика -> ПКМ по профилю -> Копировать ID',
-            'Вы должны быть участником дискорд-сервера MineBuild. <a href="https://discord.com/invite/yNz87pJZPh" target="_blank">Подключиться</a>.',
-            'Неверно указанный ID может привести к невозможности связаться с вами в Discord'
-        ],
-        type: 'number',
+        id: 'nickname',
+        question: 'Ваш игровой никнейм в Minecraft',
+        placeholder: 'Например: Steve',
+        type: 'text',
         required: true
     },
     {
-        id: 'nickname',
-        question: 'Ваш никнейм в Minecraft',
+        id: 'name',
+        question: 'Ваше имя (реальное)',
+        placeholder: 'Можете поставить прочерк, если не хотите указывать',
         type: 'text',
         required: true
     },
@@ -33,14 +29,14 @@ const formQuestions = [
     },
     {
         id: 'gameplay',
-        question: 'Опишите ваш стиль игры',
+        question: 'Ваш стиль игры',
         placeholder: 'Я люблю строить, но не люблю сражаться.',
         type: 'text',
         required: true
     },
     {
         id: 'important',
-        question: 'Что для вас самое важное на приватных серверах?',
+        question: 'Что самое важное в приватках?',
         type: 'text',
         placeholder: 'Адекватность, дружелюбность, отсутствие агрессии.',
         required: true
@@ -50,16 +46,6 @@ const formQuestions = [
         question: 'Расскажите о себе',
         helpTexts: [
             'Пишите не только о себе в рамках игры Minecraft, но и о себе в целом: какие у вас интересы, чем занимаетесь в свободное время, какие планы на жизнь и т.д.'
-        ],
-        type: 'textarea',
-        required: true
-    },
-    {
-        id: 'biography',
-        question: 'Напишите краткую биографию',
-        helpTexts: [
-            'Кратко опишите вашего персонажа в рамках игры Minecraft. Откуда он родом, какие у него планы, какие у него интересы и т.д. Не обязательно писать всю биографию, достаточно нескольких предложений.',
-            'Не стоит слишком сильно усложнять биографию, лучше сделать её простой и понятной. Не пишите про мультивселенные, параллельные миры, путешествия во времени и прочие подобные вещи.'
         ],
         type: 'textarea',
         required: true
@@ -88,6 +74,7 @@ class ApplicationForm {
 
         this.initializeForm();
         this.bindEvents();
+        this.createFloatingParticles();
     }
 
     initializeForm() {
@@ -419,7 +406,7 @@ class ApplicationForm {
                 <div class="success-message">
                     <i class="fas fa-check-circle"></i>
                     <h2>Заявка успешно отправлена!</h2>
-                    <p>Мы рассмотрим вашу заявку и свяжемся с вами в Discord.</p>
+                    <p>Ваша заявка отправлена на рассмотрение. Результат будет отправлен вам в личные сообщения Discord.</p>
                     <a href="/" class="btn btn-primary home-button">
                         <i class="fas fa-home"></i> На главную
                     </a>
@@ -447,6 +434,118 @@ class ApplicationForm {
         errorDiv.className = 'error-message global';
         errorDiv.textContent = message;
         this.form.insertBefore(errorDiv, this.form.firstChild);
+    }
+
+    createFloatingParticles() {
+        const particlesContainer = document.querySelector('.floating-particles');
+        if (!particlesContainer) return;
+
+        // Создаем несколько партиклов
+        const particleCount = 12; // Увеличиваем количество партиклов
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'dynamic-particle';
+            
+            // Случайные позиции
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            const size = Math.random() * 3 + 2; // Размер от 2 до 5px
+            
+            // Случайные цвета
+            const colors = [
+                'rgba(0, 229, 161, 0.4)',
+                'rgba(138, 43, 226, 0.4)',
+                'rgba(255, 99, 71, 0.3)',
+                'rgba(0, 191, 255, 0.35)',
+                'rgba(255, 215, 0, 0.3)',
+                'rgba(255, 20, 147, 0.25)',
+                'rgba(50, 205, 50, 0.3)',
+                'rgba(255, 165, 0, 0.3)'
+            ];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Случайная продолжительность анимации
+            const duration = Math.random() * 8 + 12; // От 12 до 20 секунд
+            const delay = Math.random() * 8; // Задержка до 8 секунд
+            
+            // Выбираем случайную анимацию
+            const animationType = Math.floor(Math.random() * 3) + 1;
+            
+            particle.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${color};
+                border-radius: 50%;
+                left: ${startX}%;
+                top: ${startY}%;
+                pointer-events: none;
+                animation: floatParticle${animationType} ${duration}s ease-in-out infinite;
+                animation-delay: -${delay}s;
+                box-shadow: 0 0 10px ${color}, 0 0 20px ${color};
+                filter: blur(0.5px);
+            `;
+            
+            particlesContainer.appendChild(particle);
+        }
+
+        // Добавляем периодическое создание новых партиклов
+        setInterval(() => {
+            this.addRandomParticle();
+        }, 5000); // Каждые 5 секунд
+    }
+
+    addRandomParticle() {
+        const particlesContainer = document.querySelector('.floating-particles');
+        if (!particlesContainer) return;
+
+        // Удаляем старые партиклы, если их слишком много
+        const existingParticles = particlesContainer.querySelectorAll('.dynamic-particle');
+        if (existingParticles.length > 15) {
+            existingParticles[0].remove();
+        }
+
+        const particle = document.createElement('div');
+        particle.className = 'dynamic-particle';
+        
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const size = Math.random() * 3 + 2;
+        
+        const colors = [
+            'rgba(0, 229, 161, 0.4)',
+            'rgba(138, 43, 226, 0.4)',
+            'rgba(255, 99, 71, 0.3)',
+            'rgba(0, 191, 255, 0.35)',
+            'rgba(255, 215, 0, 0.3)'
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const duration = Math.random() * 8 + 12;
+        const animationType = Math.floor(Math.random() * 3) + 1;
+        
+        particle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            left: ${startX}%;
+            top: ${startY}%;
+            pointer-events: none;
+            animation: floatParticle${animationType} ${duration}s ease-in-out infinite;
+            box-shadow: 0 0 10px ${color}, 0 0 20px ${color};
+            filter: blur(0.5px);
+        `;
+        
+        particlesContainer.appendChild(particle);
+
+        // Удаляем партикл через время анимации
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        }, duration * 1000);
     }
 }
 

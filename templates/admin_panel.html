@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - MineBuild{% endblock %}
+
+{% block body_class %}admin-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-panel">
+    <div class="container">
+        <h1>🛠️ Админ-панель</h1>
+        <p class="subtitle">Управление конфигурацией Discord-бота</p>
+        
+        <div class="admin-sections">
+            <!-- Секция Discord настроек -->
+            <div class="admin-section">
+                <h2>🎭 Discord настройки</h2>
+                <div class="config-group">
+                    <h3>Роли</h3>
+                    <div class="config-items" id="discord-roles">
+                        <p>Роли загружаются...</p>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <h3>Каналы</h3>
+                    <div class="config-items" id="discord-channels">
+                        <p>Каналы загружаются...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Секция настроек донатов -->
+            <div class="admin-section">
+                <h2>💰 Настройки донатов</h2>
+                <div class="config-group">
+                    <h3>Включение системы</h3>
+                    <div class="config-items" id="donations-enabled">
+                        <p>Настройки загружаются...</p>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <h3>Пороги</h3>
+                    <div class="config-items" id="donations-thresholds">
+                        <p>Пороги загружаются...</p>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <h3>Награды</h3>
+                    <div class="config-items" id="donations-rewards">
+                        <p>Награды загружаются...</p>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <h3>Команды Minecraft</h3>
+                    <div class="config-items" id="donations-commands">
+                        <p>Команды загружаются...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Секция системных настроек -->
+            <div class="admin-section">
+                <h2>⚙️ Системные настройки</h2>
+                <div class="config-group">
+                    <h3>Таймауты</h3>
+                    <div class="config-items" id="system-settings">
+                        <p>Системные настройки загружаются...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Секция валидации -->
+            <div class="admin-section">
+                <h2>✅ Валидация</h2>
+                <div class="config-group">
+                    <div class="config-items" id="validation-results">
+                        <p>Нажмите "Проверить конфигурацию" для валидации</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-actions">
+            <button class="btn btn-primary" id="save-config">💾 Сохранить изменения</button>
+            <button class="btn btn-secondary" id="reload-config">🔄 Перезагрузить конфигурацию</button>
+            <button class="btn btn-info" id="validate-config">🔍 Проверить конфигурацию</button>
+        </div>
+        
+        <div class="admin-status" id="admin-status">
+            <p>Готов к работе</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin_panel.js') }}"></script>
+{% endblock %}
