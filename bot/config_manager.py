@@ -70,7 +70,8 @@ class BotConfig:
                 "minecraft_commands": {
                     "suffix_command": "lp user {nickname} permission set title.u.donate",
                     "whitelist_add_command": "whitelist add {nickname}",
-                    "whitelist_remove_command": "whitelist remove {nickname}"
+                    "whitelist_remove_command": "whitelist remove {nickname}",
+                    "whitelist_list_command": "whitelist list"
                 }
             },
             
@@ -412,6 +413,11 @@ class BotConfig:
                         "value": self.get("donations.minecraft_commands.whitelist_remove_command"),
                         "name": "Команда удаления из whitelist",
                         "description": "Minecraft команда для удаления игрока из whitelist"
+                    },
+                    "whitelist_list": {
+                        "value": self.get("donations.minecraft_commands.whitelist_list_command"),
+                        "name": "Команда просмотра whitelist",
+                        "description": "Minecraft команда для просмотра списка whitelist"
                     }
                 }
             },
@@ -472,7 +478,8 @@ class BotConfig:
                 "minecraft_commands": {
                     "suffix_command": self.get("donations.minecraft_commands.suffix_command"),
                     "whitelist_add_command": self.get("donations.minecraft_commands.whitelist_add_command"),
-                    "whitelist_remove_command": self.get("donations.minecraft_commands.whitelist_remove_command")
+                    "whitelist_remove_command": self.get("donations.minecraft_commands.whitelist_remove_command"),
+                    "whitelist_list_command": self.get("donations.minecraft_commands.whitelist_list_command")
                 }
             },
             "system": {
@@ -510,42 +517,50 @@ def reload_config() -> BotConfig:
 # Функции-хелперы для обратной совместимости с существующим кодом
 def get_moderator_role_id() -> int:
     """Получает ID роли модератора."""
-    return get_config().get("discord.roles.moderator", 0)
+    value = get_config().get("discord.roles.moderator", 0)
+    return _safe_int_conversion(value, "ID роли модератора")
 
 
 def get_whitelist_role_id() -> int:
     """Получает ID роли whitelist."""
-    return get_config().get("discord.roles.whitelist", 0)
+    value = get_config().get("discord.roles.whitelist", 0)
+    return _safe_int_conversion(value, "ID роли whitelist")
 
 
 def get_candidate_role_id() -> int:
     """Получает ID роли кандидата."""
-    return get_config().get("discord.roles.candidate", 0)
+    value = get_config().get("discord.roles.candidate", 0)
+    return _safe_int_conversion(value, "ID роли кандидата")
 
 
 def get_donator_role_id() -> int:
     """Получает ID роли донатера."""
-    return get_config().get("discord.roles.donator", 0)
+    value = get_config().get("discord.roles.donator", 0)
+    return _safe_int_conversion(value, "ID роли донатера")
 
 
 def get_log_channel_id() -> int:
     """Получает ID канала логов."""
-    return get_config().get("discord.channels.log", 0)
+    value = get_config().get("discord.channels.log", 0)
+    return _safe_int_conversion(value, "ID канала логов")
 
 
 def get_donation_channel_id() -> int:
     """Получает ID канала донатов."""
-    return get_config().get("discord.channels.donation", 0)
+    value = get_config().get("discord.channels.donation", 0)
+    return _safe_int_conversion(value, "ID канала донатов")
 
 
 def get_application_channel_id() -> int:
     """Получает ID канала заявок."""
-    return get_config().get("discord.channels.application", 0)
+    value = get_config().get("discord.channels.application", 0)
+    return _safe_int_conversion(value, "ID канала заявок")
 
 
 def get_candidate_chat_id() -> int:
     """Получает ID чата кандидатов."""
-    return get_config().get("discord.channels.candidate_chat", 0)
+    value = get_config().get("discord.channels.candidate_chat", 0)
+    return _safe_int_conversion(value, "ID чата кандидатов")
 
 
 def get_donation_thresholds() -> Dict[str, int]:
@@ -580,7 +595,8 @@ def get_shutdown_timeouts() -> Dict[str, int]:
 
 def get_minebuild_member_role_id() -> int:
     """Получает ID роли майнбилдовца."""
-    return get_config().get("discord.roles.minebuild_member", 0)
+    value = get_config().get("discord.roles.minebuild_member", 0)
+    return _safe_int_conversion(value, "ID роли майнбилдовца")
 
 
 def get_minecraft_commands() -> Dict[str, str]:
@@ -589,7 +605,8 @@ def get_minecraft_commands() -> Dict[str, str]:
     return {
         "suffix": config.get("donations.minecraft_commands.suffix_command", "lp user {nickname} permission set title.u.donate"),
         "whitelist_add": config.get("donations.minecraft_commands.whitelist_add_command", "whitelist add {nickname}"),
-        "whitelist_remove": config.get("donations.minecraft_commands.whitelist_remove_command", "whitelist remove {nickname}")
+        "whitelist_remove": config.get("donations.minecraft_commands.whitelist_remove_command", "whitelist remove {nickname}"),
+        "whitelist_list": config.get("donations.minecraft_commands.whitelist_list_command", "whitelist list")
     }
 
 
@@ -607,3 +624,27 @@ def get_donation_rewards_config() -> Dict[str, bool]:
 def is_donations_enabled() -> bool:
     """Проверяет, включена ли система донатов."""
     return get_config().get("donations.enabled", True)
+
+
+def _safe_int_conversion(value: Any, field_name: str) -> int:
+    """
+    Безопасно преобразует значение в int.
+    
+    Args:
+        value: Значение для преобразования
+        field_name: Имя поля для логирования
+        
+    Returns:
+        int: Преобразованное значение или 0 в случае ошибки
+    """
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            logger.warning(f"Не удалось преобразовать {field_name} '{value}' в число")
+            return 0
+    elif isinstance(value, int):
+        return value
+    else:
+        logger.warning(f"Неожиданный тип для {field_name}: {type(value)}")
+        return 0

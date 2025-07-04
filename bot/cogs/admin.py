@@ -11,7 +11,8 @@ from ..config_manager import (
     get_moderator_role_id,
     get_whitelist_role_id,
     get_candidate_role_id,
-    get_log_channel_id
+    get_log_channel_id,
+    get_minecraft_commands
 )
 from ..utils.helpers import has_moderation_permissions, send_welcome_message
 from ..utils.minecraft import add_to_whitelist_wrapper, remove_from_whitelist, get_whitelist

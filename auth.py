@@ -321,13 +321,15 @@ class DiscordAuth:
                 user_roles = member_data.get('roles', [])
                 
                 # Получаем ID роли модератора из конфигурации
-                moderator_role_id = str(get_moderator_role_id())
+                moderator_role_id_raw = get_moderator_role_id()
+                moderator_role_id = str(moderator_role_id_raw)
+                
+                logger.info(f"[ADMIN_CHECK] Пользователь {user_id}: роли {user_roles}")
+                logger.info(f"[ADMIN_CHECK] Роль модератора (сырая): {moderator_role_id_raw} (тип: {type(moderator_role_id_raw)})")
+                logger.info(f"[ADMIN_CHECK] Роль модератора (строка): {moderator_role_id}")
                 
                 # Проверяем, есть ли у пользователя роль модератора
                 is_admin = moderator_role_id in user_roles
-                
-                logger.info(f"[ADMIN_CHECK] Пользователь {user_id}: роли {user_roles}")
-                logger.info(f"[ADMIN_CHECK] Роль модератора: {moderator_role_id}")
                 logger.info(f"[ADMIN_CHECK] Права администратора: {'ДА' if is_admin else 'НЕТ'}")
                 
                 return is_admin

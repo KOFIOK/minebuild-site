@@ -10,7 +10,7 @@ import re
 from mcrcon import MCRcon
 import discord
 
-from ..config_manager import get_rcon_timeout, get_rcon_general_timeout
+from ..config_manager import get_rcon_timeout, get_rcon_general_timeout, get_minecraft_commands
 
 logger = logging.getLogger("MineBuildBot.Minecraft")
 
@@ -137,7 +137,11 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
                     int(os.getenv('RCON_PORT')),
                     timeout=10  # 10 секунд таймаут для команды
                 ) as mcr:
-                    response = mcr.command(f"whitelist add {minecraft_nickname}")
+                    # Получаем команду из конфигурации
+                    commands = get_minecraft_commands()
+                    command = commands["whitelist_add"].format(nickname=minecraft_nickname)
+                    
+                    response = mcr.command(command)
                     
                     # Очищаем ответ от форматирования Minecraft
                     clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
@@ -165,7 +169,7 @@ async def add_to_whitelist(interaction: discord.Interaction, minecraft_nickname:
         elif any(phrase in clean_response.lower() for phrase in [
             "added to the whitelist",
             "добавлен в белый список",
-            f"added {minecraft_nickname} to the whitelist"
+            f"added {minecraft_nickname.lower()} to the whitelist"
         ]):
             logger.info(f"Игрок {minecraft_nickname} успешно добавлен в белый список")
         elif "player does not exist" in clean_response.lower() or "игрок не существует" in clean_response.lower():
@@ -218,7 +222,11 @@ async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) ->
                     int(os.getenv('RCON_PORT')),
                     timeout=10  # 10 секунд таймаут для команды
                 ) as mcr:
-                    response = mcr.command(f"whitelist add {minecraft_nickname}")
+                    # Получаем команду из конфигурации
+                    commands = get_minecraft_commands()
+                    command = commands["whitelist_add"].format(nickname=minecraft_nickname)
+                    
+                    response = mcr.command(command)
                     
                     # Очищаем ответ от форматирования Minecraft
                     clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
@@ -246,7 +254,7 @@ async def add_to_whitelist_wrapper(response_channel, minecraft_nickname: str) ->
         elif any(phrase in clean_response.lower() for phrase in [
             "added to the whitelist",
             "добавлен в белый список",
-            f"added {minecraft_nickname} to the whitelist"
+            f"added {minecraft_nickname.lower()} to the whitelist"
         ]):
             logger.info(f"Игрок {minecraft_nickname} успешно добавлен в белый список")
         elif "player does not exist" in clean_response.lower() or "игрок не существует" in clean_response.lower():
@@ -298,7 +306,11 @@ async def remove_from_whitelist(minecraft_nickname: str) -> bool:
                     int(os.getenv('RCON_PORT')),
                     timeout=10  # 10 секунд таймаут для команды
                 ) as mcr:
-                    response = mcr.command(f"whitelist remove {minecraft_nickname}")
+                    # Получаем команду из конфигурации
+                    commands = get_minecraft_commands()
+                    command = commands["whitelist_remove"].format(nickname=minecraft_nickname)
+                    
+                    response = mcr.command(command)
                     
                     # Очищаем ответ от форматирования Minecraft
                     clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
@@ -317,8 +329,8 @@ async def remove_from_whitelist(minecraft_nickname: str) -> bool:
         if any(phrase in clean_response.lower() for phrase in [
             "removed from the whitelist",
             "удален из белого списка",
-            f"removed {minecraft_nickname} from the whitelist",
-            f"{minecraft_nickname} removed from whitelist"
+            f"removed {minecraft_nickname.lower()} from the whitelist",
+            f"{minecraft_nickname.lower()} removed from whitelist"
         ]):
             logger.info(f"Игрок {minecraft_nickname} успешно удален из белого списка")
             return True
@@ -373,7 +385,11 @@ async def get_whitelist() -> list:
                     int(os.getenv('RCON_PORT')),
                     timeout=10  # 10 секунд таймаут для команды
                 ) as mcr:
-                    response = mcr.command("whitelist list")
+                    # Получаем команду из конфигурации
+                    commands = get_minecraft_commands()
+                    command = commands["whitelist_list"]
+                    
+                    response = mcr.command(command)
                     
                     # Очищаем ответ от форматирования Minecraft
                     clean_response = re.sub(r'§[0-9a-fk-or]', '', response).strip()
