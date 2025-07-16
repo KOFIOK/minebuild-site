@@ -41,17 +41,7 @@ def extract_minecraft_nickname(embeds: List[discord.Embed]) -> Optional[str]:
     # Возможные названия полей с никнеймом
     nickname_field_names = [
         'Игровой никнейм в Minecraft',      # Новое название с сайта
-        'Ваш никнейм в Minecraft',          # Старое название
-        'Ваш никнейм в Minecraft:',         # С двоеточием
-        'Никнейм в Minecraft',              # Сокращенный вариант
-        'Minecraft никнейм',                # Альтернативный вариант
-        'Ник в Minecraft',                  # Краткая форма
-        'Никнейм Minecraft',                # Без предлога
-        'Minecraft Nickname',               # Английский вариант
-        'MC никнейм',                       # Сокращение MC
-        'Игровой ник',                      # Без упоминания Minecraft
-        'В игре ник',                       # Разговорная форма
-        'Имя в игре'                        # Описательная форма
+        'Ваш никнейм в Minecraft'          # Старое название
     ]
     
     for embed in embeds:

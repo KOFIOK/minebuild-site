@@ -5,15 +5,14 @@
 
 import requests
 import secrets
-import json
 import logging
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
-from flask import session, request, redirect, url_for, current_app
+from flask import session, redirect, url_for, current_app
 from functools import wraps
 
 # Импорты для работы с Discord API
-# from bot.config_manager import get_moderator_role_id  # Больше не нужен
+from bot.config_manager import get_whitelist_role_id
 
 # Настройка логгера
 logger = logging.getLogger(__name__)
@@ -49,6 +48,10 @@ class DiscordAuth:
         self.CLIENT_SECRET = app.config.get('DISCORD_CLIENT_SECRET') 
         self.REDIRECT_URI = app.config.get('DISCORD_REDIRECT_URI')
         self.GUILD_ID = app.config.get('DISCORD_GUILD_ID')
+        
+        # Токен бота для API запросов (для проверки ролей)
+        import os
+        self.BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
         
         # Настройки сессий (НЕ переопределяем, если уже установлены в app.py)
         if not app.config.get('PERMANENT_SESSION_LIFETIME'):
@@ -224,6 +227,7 @@ class DiscordAuth:
             'avatar_url': avatar_url,
             'guild_member': guild_member,
             'is_admin': self.check_admin_permissions(access_token, user_data['id']) if guild_member else False,
+            'is_minebuild_member': self.check_minebuild_member(user_data['id'], access_token) if guild_member else False,
             'admin_check_time': datetime.now().isoformat(),  # Время последней проверки прав
             'last_check': datetime.now().isoformat(),
             'login_time': datetime.now().isoformat(),
@@ -357,9 +361,68 @@ class DiscordAuth:
             logger.exception(e)
             return False
     
+    def check_minebuild_member(self, user_id, access_token):
+        """
+        Проверяет, является ли пользователь участником MineBuild (имеет роль whitelist)
+        
+        Args:
+            user_id: ID пользователя Discord
+            access_token: OAuth токен доступа
+            
+        Returns:
+            bool: True если пользователь имеет роль whitelist, False - если нет
+        """
+        try:
+            logger.info(f"[MEMBER_CHECK] Проверка роли майнбилдовца для пользователя {user_id}")
+            
+            # Получаем ID роли whitelist из конфигурации бота
+            whitelist_role_id = get_whitelist_role_id()
+            logger.info(f"[MEMBER_CHECK] ID роли whitelist: {whitelist_role_id}")
+            
+            # Проверяем, что у нас есть токен бота
+            if not self.BOT_TOKEN:
+                logger.error(f"[MEMBER_CHECK] Токен бота не настроен!")
+                return False
+            
+            # Получаем информацию о пользователе на сервере
+            url = f"https://discord.com/api/v10/guilds/{self.GUILD_ID}/members/{user_id}"
+            headers = {'Authorization': f'Bot {self.BOT_TOKEN}'}
+            
+            logger.debug(f"[MEMBER_CHECK] Запрос к: {url}")
+            logger.debug(f"[MEMBER_CHECK] Headers: Bot {self.BOT_TOKEN[:10]}...")
+            
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 200:
+                member_data = response.json()
+                user_roles = member_data.get('roles', [])
+                
+                # Проверяем, есть ли у пользователя роль whitelist
+                has_whitelist_role = str(whitelist_role_id) in user_roles
+                
+                logger.info(f"[MEMBER_CHECK] Роли пользователя: {user_roles}")
+                logger.info(f"[MEMBER_CHECK] Ищем роль: {whitelist_role_id}")
+                logger.info(f"[MEMBER_CHECK] Роль майнбилдовца: {'ДА' if has_whitelist_role else 'НЕТ'}")
+                
+                return has_whitelist_role
+            else:
+                logger.warning(f"[MEMBER_CHECK] Не удалось получить информацию о пользователе: {response.status_code}")
+                if hasattr(response, 'text'):
+                    logger.warning(f"[MEMBER_CHECK] Ответ: {response.text}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[MEMBER_CHECK] Ошибка при проверке роли майнбилдовца: {e}")
+            logger.exception(e)
+            return False
+    
     def is_admin(self):
         """Проверяет, имеет ли текущий пользователь права администратора"""
         return session.get('is_admin', False)
+    
+    def is_minebuild_member(self):
+        """Проверяет, является ли текущий пользователь участником MineBuild (имеет роль whitelist)"""
+        return session.get('is_minebuild_member', False)
     
     def get_current_user(self):
         """Возвращает данные текущего пользователя"""
@@ -373,6 +436,7 @@ class DiscordAuth:
             'avatar_url': session.get('avatar_url'),
             'guild_member': session.get('guild_member', False),
             'is_admin': session.get('is_admin', False),
+            'is_minebuild_member': session.get('is_minebuild_member', False),
             'application_status': session.get('application_status'),
             'login_time': session.get('login_time')
         }

@@ -19,6 +19,8 @@ from auth import DiscordAuth, require_auth, require_guild_member, can_submit_app
 
 app = Flask(__name__)
 
+logging.getLogger("asyncio").setLevel(logging.ERROR)
+
 # Генерируем надежный SECRET_KEY
 # Используем из переменной окружения или генерируем только один раз
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -915,6 +917,31 @@ def admin_panel():
     
     return render_template('admin_panel.html')
 
+@app.route('/download')
+@require_auth
+def download():
+    """Скачивание модпака для участников MineBuild"""
+    current_user = discord_auth.get_current_user()
+    
+    # Проверяем, что пользователь является участником MineBuild
+    if not current_user.get('is_minebuild_member', False):
+        logger.warning(f"[DOWNLOAD] Пользователь {current_user.get('user_id')} пытался скачать без роли майнбилдовца")
+        return redirect(url_for('index'))
+
+    # Отдаём архив как attachment
+    from flask import send_file
+    import os
+    
+    try:
+        zip_path = os.path.join(os.path.dirname(__file__), 'data', 'client-1.5.1.zip')
+        if not os.path.exists(zip_path):
+            logger.error(f"[DOWNLOAD] Файл не найден: {zip_path}")
+            return "Файл не найден", 404
+        return send_file(zip_path, as_attachment=True)
+    except Exception as e:
+        logger.error(f"[DOWNLOAD] Ошибка при отправке файла: {e}")
+        return "Ошибка при отправке файла", 500
+
 # Тестовый маршрут для админ-панели (без авторизации)
 @app.route('/admin-test')
 def admin_panel_test():
@@ -938,14 +965,25 @@ def get_bot_config_test():
 # Context processor для передачи информации о пользователе во все шаблоны
 @app.context_processor
 def inject_user():
-    """Добавляет информацию о текущем пользователе во все шаблоны"""
+    """Добавляет информацию о текущем пользователе во все шаблоны с автообновлением ролей"""
     logger.debug(f"[CONTEXT] Context processor: session = {dict(session)}")
     logger.debug(f"[CONTEXT] Context processor: is_authenticated = {discord_auth.is_authenticated()}")
     
     current_user = None
     if discord_auth.is_authenticated():
+        # Обновляем права пользователя при каждом запросе (с кэшированием)
+        updated_permissions = check_and_update_user_permissions()
+        
+        # Получаем информацию о пользователе
         current_user = discord_auth.get_current_user()
+        
+        # Обновляем права в объекте пользователя
+        if current_user:
+            current_user['is_admin'] = updated_permissions['is_admin']
+            current_user['is_minebuild_member'] = updated_permissions['is_minebuild_member']
+        
         logger.debug(f"[CONTEXT] Context processor: current_user = {current_user}")
+        logger.debug(f"[CONTEXT] Updated permissions: admin={updated_permissions['is_admin']}, member={updated_permissions['is_minebuild_member']}")
     
     return {'current_user': current_user}
 
@@ -1059,46 +1097,77 @@ from bot.config_manager import get_config, reload_config
 
 def check_and_update_admin_permissions():
     """Проверяет и обновляет права администратора текущего пользователя"""
+    return check_and_update_user_permissions().get('is_admin', False)
+
+def check_and_update_user_permissions():
+    """Проверяет и обновляет все права пользователя (админ и майнбилдовец)"""
     if 'access_token' not in session or 'user_id' not in session:
-        return False
+        return {'is_admin': False, 'is_minebuild_member': False}
     
-    # Используем кэшированное значение, если оно есть и не устарело
+    # Используем кэшированные значения, если они есть и не устарели
     is_admin_cached = session.get('is_admin', False)
-    last_check = session.get('admin_check_time')
+    is_member_cached = session.get('is_minebuild_member', False)
+    last_check = session.get('permissions_check_time')
     
-    if is_admin_cached and last_check:
+    if last_check:
         try:
             last_check_time = datetime.fromisoformat(last_check)
-            # Если последняя проверка была менее 10 минут назад, используем кэшированное значение
-            if datetime.now() - last_check_time < timedelta(minutes=10):
-                app.logger.debug("Используем кэшированное значение прав администратора")
-                return is_admin_cached
+            # Если последняя проверка была менее 1 минуты назад, используем кэшированные значения
+            if datetime.now() - last_check_time < timedelta(minutes=1):
+                app.logger.debug("Используем кэшированные значения прав пользователя")
+                return {
+                    'is_admin': is_admin_cached,
+                    'is_minebuild_member': is_member_cached
+                }
         except (ValueError, TypeError):
             pass  # Если время некорректное, делаем новую проверку
     
     # Только если кэш устарел, делаем новую проверку
     try:
         discord_auth = current_app.discord_auth
-        is_admin = discord_auth.check_admin_permissions(session['access_token'], session['user_id'])
+        user_id = session['user_id']
+        access_token = session['access_token']
+        
+        # Проверяем админские права
+        is_admin = discord_auth.check_admin_permissions(access_token, user_id)
+        
+        # Проверяем роль майнбилдовца
+        is_member = discord_auth.check_minebuild_member(user_id, access_token)
         
         # Сохраняем в сессии с временной меткой
         session['is_admin'] = is_admin
-        session['admin_check_time'] = datetime.now().isoformat()
+        session['is_minebuild_member'] = is_member
+        session['permissions_check_time'] = datetime.now().isoformat()
+        # Удаляем старую временную метку для совместимости
+        if 'admin_check_time' in session:
+            session.pop('admin_check_time', None)
         session.modified = True
         
-        return is_admin
+        app.logger.info(f"[PERMISSIONS] Обновлены права пользователя {user_id}: admin={is_admin}, member={is_member}")
+        
+        return {
+            'is_admin': is_admin,
+            'is_minebuild_member': is_member
+        }
     except Exception as e:
-        app.logger.error(f"Ошибка при проверке прав администратора: {e}")
-        # Если произошла ошибка, используем кэшированное значение
-        return is_admin_cached
+        app.logger.error(f"Ошибка при проверке прав пользователя: {e}")
+        # Если произошла ошибка, используем кэшированные значения
+        return {
+            'is_admin': is_admin_cached,
+            'is_minebuild_member': is_member_cached
+        }
 
 def is_admin_cached():
     """Проверяет права администратора только из кэша сессии, без обращения к Discord API"""
     return session.get('is_admin', False)
 
+def is_minebuild_member_cached():
+    """Проверяет роль майнбилдовца только из кэша сессии, без обращения к Discord API"""
+    return session.get('is_minebuild_member', False)
+
 @app.route('/api/user', methods=['GET'])
-def get_current_user():
-    """Получение информации о текущем пользователе"""
+def get_current_user_api():
+    """Получение информации о текущем пользователе с обновлением ролей"""
     try:
         # Проверяем, есть ли авторизованный пользователь
         if not discord_auth.is_authenticated():
@@ -1108,19 +1177,47 @@ def get_current_user():
         if not user_id:
             return jsonify({'error': 'No user ID in session'}), 401
         
-        # Возвращаем информацию о пользователе из сессии
+        # Обновляем права пользователя
+        updated_permissions = check_and_update_user_permissions()
+        
+        # Возвращаем информацию о пользователе из сессии с обновленными правами
         return jsonify({
             'id': user_id,
             'username': session.get('username', 'Unknown'),
             'display_name': session.get('display_name', 'Unknown'),
             'avatar_url': session.get('avatar_url', ''),
-            'is_admin': is_admin_cached(),
-            'authenticated': True
+            'is_admin': updated_permissions['is_admin'],
+            'is_minebuild_member': updated_permissions['is_minebuild_member'],
+            'authenticated': True,
+            'permissions_updated': session.get('permissions_check_time')
         })
     
     except Exception as e:
         app.logger.error(f"Ошибка при получении информации о пользователе: {e}")
         return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/user/refresh-permissions', methods=['POST'])
+@require_auth
+def refresh_user_permissions():
+    """Принудительное обновление прав пользователя"""
+    try:
+        # Сбрасываем кэш времени, чтобы форсировать обновление
+        if 'permissions_check_time' in session:
+            session.pop('permissions_check_time', None)
+        
+        # Обновляем права пользователя
+        updated_permissions = check_and_update_user_permissions()
+        
+        return jsonify({
+            'success': True,
+            'permissions': updated_permissions,
+            'message': 'Permissions refreshed successfully',
+            'updated_at': session.get('permissions_check_time')
+        })
+    
+    except Exception as e:
+        app.logger.error(f"Ошибка при принудительном обновлении прав: {e}")
+        return jsonify({'error': 'Failed to refresh permissions'}), 500
 
 @app.route('/api/config', methods=['GET'])
 @require_auth
