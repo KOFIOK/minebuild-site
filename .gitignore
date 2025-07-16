@@ -26,3 +26,4 @@ main.log
 # Другое
 .coverage
 secret-key
+data/client-1.5.1.zip

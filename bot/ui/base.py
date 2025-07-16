@@ -57,6 +57,16 @@ class BaseActionButton(discord.ui.Button):
                 
         except Exception as e:
             logger.error(f"Ошибка при обработке нажатия кнопки: {e}", exc_info=True)
+            
+            # Восстанавливаем оригинальные кнопки при ошибке
+            try:
+                # Нужно определить тип кнопки и восстановить соответствующую view
+                await self.restore_original_view(interaction)
+                logger.info("Кнопки успешно восстановлены после ошибки")
+            except Exception as restore_error:
+                logger.error(f"Не удалось восстановить кнопки после ошибки: {restore_error}")
+            
+            # Отправляем сообщение об ошибке пользователю
             if not interaction.response.is_done():
                 await interaction.response.send_message(
                     "Произошла ошибка при обработке запроса. Попробуйте снова.", 
@@ -68,6 +78,26 @@ class BaseActionButton(discord.ui.Button):
                     ephemeral=True
                 )
     
+    async def restore_original_view(self, interaction: discord.Interaction) -> None:
+        """
+        Восстанавливает оригинальную view с кнопками после ошибки.
+        Переопределяется в дочерних классах для специфичного восстановления.
+        
+        Args:
+            interaction: Взаимодействие Discord
+        """
+        # Базовая реализация - создаем простую view с текстом ошибки
+        view = discord.ui.View(timeout=None)
+        error_button = discord.ui.Button(
+            style=discord.ButtonStyle.secondary,
+            label="Ошибка - перезагрузите страницу",
+            emoji="⚠️",
+            disabled=True,
+            custom_id="error_recovery"
+        )
+        view.add_item(error_button)
+        await interaction.message.edit(view=view)
+
     async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """
         Основная логика обработки действия кнопки.

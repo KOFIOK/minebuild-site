@@ -51,6 +51,17 @@ class ApproveButton(BaseActionButton):
             return cls(discord_id, is_candidate)
         return None
         
+    async def restore_original_view(self, interaction: discord.Interaction) -> None:
+        """Восстанавливает оригинальную view с кнопками заявки."""
+        try:
+            from .views import PersistentApplicationView
+            restored_view = PersistentApplicationView.create_for_application(self.discord_id, self.is_candidate)
+            await interaction.message.edit(view=restored_view)
+        except Exception as e:
+            logger.error(f"Ошибка при восстановлении view в ApproveButton: {e}")
+            # Fallback к базовой реализации
+            await super().restore_original_view(interaction)
+        
     async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки одобрения."""
         # Проверяем права пользователя
@@ -79,13 +90,6 @@ class ApproveButton(BaseActionButton):
             # Отвечаем на взаимодействие сразу, чтобы не было таймаута
             await interaction.response.defer(ephemeral=True)
 
-            # Отправляем сообщение в лог-канал
-            log_channel = interaction.guild.get_channel(get_log_channel_id())
-            if log_channel:
-                await log_channel.send(
-                    f"## Куратор <@{interaction.user.id}> одобрил [заявку]({original_message.jump_url})."
-                )
-
             # Получаем никнейм из заявки
             logger.info(f"Попытка извлечь никнейм из заявки пользователя {self.discord_id}")
             minecraft_nickname = extract_minecraft_nickname(original_message.embeds)
@@ -99,6 +103,13 @@ class ApproveButton(BaseActionButton):
                 return
             
             logger.info(f"✅ Никнейм найден: '{minecraft_nickname}' для пользователя {self.discord_id}")
+
+            # Отправляем улучшенное сообщение в лог-канал
+            log_channel = interaction.guild.get_channel(get_log_channel_id())
+            if log_channel:
+                await log_channel.send(
+                    f"## <@{interaction.user.id}> добавил <@{self.discord_id}> (`{minecraft_nickname}`) в whitelist, одобрив [заявку]({original_message.jump_url})"
+                )
                 
             # Если это кандидат, снимаем с него роль кандидата
             if self.is_candidate and candidate_role and candidate_role in member.roles:
@@ -119,12 +130,6 @@ class ApproveButton(BaseActionButton):
             
             # Отправляем личное сообщение пользователю
             await send_welcome_message(member)
-            
-            # Сообщаем модератору об успешной обработке
-            await interaction.followup.send(
-                f"✅ Заявка игрока <@{self.discord_id}> успешно одобрена!",
-                ephemeral=True
-            )
             
         except discord.NotFound:
             logger.error(f"Пользователь {self.discord_id} не найден на сервере")
@@ -178,6 +183,18 @@ class RejectButton(BaseActionButton):
                 
         except Exception as e:
             logger.error(f"Ошибка при обработке нажатия кнопки отказа: {e}", exc_info=True)
+            
+            # Восстанавливаем оригинальные кнопки при ошибке
+            try:
+                # Пересоздаем view для заявки
+                from .views import PersistentApplicationView
+                restored_view = PersistentApplicationView.create_for_application(self.discord_id, self.is_candidate)
+                await interaction.message.edit(view=restored_view)
+                logger.info("Кнопки успешно восстановлены после ошибки в RejectButton")
+            except Exception as restore_error:
+                logger.error(f"Не удалось восстановить кнопки после ошибки в RejectButton: {restore_error}")
+            
+            # Отправляем сообщение об ошибке пользователю
             if not interaction.response.is_done():
                 await interaction.response.send_message(
                     "Произошла ошибка при обработке запроса. Попробуйте снова.", 
@@ -234,6 +251,18 @@ class CandidateButton(BaseActionButton):
             discord_id = parts[1]
             return cls(discord_id)
         return None
+        
+    async def restore_original_view(self, interaction: discord.Interaction) -> None:
+        """Восстанавливает оригинальную view с кнопками заявки (включая кнопку кандидата)."""
+        try:
+            from .views import PersistentApplicationView
+            # Для CandidateButton создаем обычную заявку (is_candidate=False)
+            restored_view = PersistentApplicationView.create_for_application(self.discord_id, is_candidate=False)
+            await interaction.message.edit(view=restored_view)
+        except Exception as e:
+            logger.error(f"Ошибка при восстановлении view в CandidateButton: {e}")
+            # Fallback к базовой реализации
+            await super().restore_original_view(interaction)
         
     async def process_action(self, interaction: discord.Interaction, original_message: discord.Message) -> None:
         """Обработчик нажатия кнопки перевода в кандидаты."""
