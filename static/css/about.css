@@ -552,6 +552,57 @@
     position: relative;
 }
 
+/* Стиль для подзаголовка сезона */
+.season-subtitle {
+    text-align: center;
+    font-style: italic;
+    font-family: 'Evolventa', sans-serif;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    opacity: 0.85;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    background: linear-gradient(135deg, 
+        rgba(0, 229, 161, 0.1) 0%,
+        rgba(147, 112, 219, 0.1) 100%);
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    border: 1px solid rgba(0, 229, 161, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(0, 229, 161, 0.05) inset;
+    transition: all 0.3s ease;
+}
+
+.season-subtitle:hover {
+    transform: translateY(-2px);
+    opacity: 1;
+    border-color: rgba(0, 229, 161, 0.3);
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.3),
+        0 0 25px rgba(0, 229, 161, 0.1) inset;
+}
+
+.season-subtitle::before {
+    content: '✦';
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+    opacity: 0.7;
+    text-shadow: 0 0 10px rgba(0, 229, 161, 0.5);
+}
+
+.season-subtitle::after {
+    content: '✦';
+    color: var(--accent-green);
+    margin-left: 0.5rem;
+    opacity: 0.7;
+    text-shadow: 0 0 10px rgba(0, 229, 161, 0.5);
+}
+
 /* Дополнительные эффекты для заголовка */
 .lore-section .section-title::after {
     content: '';
